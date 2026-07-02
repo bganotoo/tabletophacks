@@ -181,9 +181,9 @@ function joinParts(parts) {
   return parts.map((p) => p.text).join('');
 }
 
-/** Evaluate a node list to parts. (Article resolution is added in Task 8.) */
+/** Evaluate a node list to parts, then resolve smart articles. */
 function evalNodes(nodes, ctx) {
-  return nodes.map((node) => evalNode(node, ctx));
+  return resolveArticles(nodes.map((node) => evalNode(node, ctx)));
 }
 
 /** @returns {{ text: string, value?: number, article?: true }} */
@@ -193,6 +193,21 @@ function evalNode(node, ctx) {
       return { text: node.value };
     case 'lookup':
       return evalLookup(node, ctx);
+    case 'ref':
+      return evalRef(node, ctx);
+    case 'alt':
+      return { text: ctx.rng.weighted(node.options, (o) => o.weight).text };
+    case 'range':
+      return finishNumber(node, ctx.rng.int(node.min, node.max), ctx);
+    case 'dice': {
+      let total = node.plus;
+      for (let k = 0; k < node.count; k++) total += ctx.rng.int(1, node.sides);
+      return finishNumber(node, total, ctx);
+    }
+    case 'article':
+      return { text: '', article: true };
+    case 'repeat':
+      return evalRepeat(node, ctx);
     default:
       throw new GenError(`unsupported node type \`${node.type}\``);
   }
@@ -249,6 +264,81 @@ function expandString(str, label, ctx) {
   } finally {
     ctx.stack.pop();
   }
+}
+
+/** Wrap a rolled number as a part; store a numeric capture if requested. */
+function finishNumber(node, value, ctx) {
+  const part = { text: String(value), value };
+  if (node.capture) ctx.captures.set(node.capture, { entry: null, text: part.text, value });
+  return part;
+}
+
+/** Resolve a repeat/`$repeat` count node to an integer. */
+export function evalCount(countNode, ctx) {
+  if (countNode.type === 'int') return countNode.value;
+  return evalNode(countNode, ctx).value;
+}
+
+function evalRef(node, ctx) {
+  const captured = ctx.captures.get(node.name);
+  if (!captured) return problem(ctx, `unknown capture \`@${node.name}\``, `⟦@${node.name}?⟧`);
+  if (node.mods.length === 0) {
+    return captured.value === undefined
+      ? { text: captured.text }
+      : { text: captured.text, value: captured.value };
+  }
+  // Re-apply modifiers against the captured entry: variants first, then transforms.
+  let raw = null;
+  let m = 0;
+  if (captured.entry) {
+    for (; m < node.mods.length; m++) {
+      const variant = captured.entry.variants[node.mods[m].name];
+      if (variant === undefined) break;
+      raw = variant;
+    }
+  }
+  const text = raw === null ? captured.text : expandString(raw, `@${node.name}`, ctx);
+  return { text: applyTransforms(text, node.mods.slice(m), ctx) };
+}
+
+function evalRepeat(node, ctx) {
+  const wanted = evalCount(node.count, ctx);
+  const inner = node.inner;
+  const texts = [];
+  if (node.unique) {
+    const all = ctx.registry.entriesFor(inner.table, inner.tags, inner.notTags);
+    if (all === null) {
+      return problem(ctx, `unknown table \`${inner.table}\``, `⟦${inner.table}?⟧`);
+    }
+    let count = wanted;
+    if (all.length < wanted) {
+      fail(ctx, `cannot pick ${wanted} unique entries from \`${inner.table}\` (only ${all.length} match)`);
+      count = all.length;
+    }
+    const pool = [...all];
+    for (let k = 0; k < count; k++) {
+      const entry = ctx.rng.weighted(pool, (e) => e.weight);
+      pool.splice(pool.indexOf(entry), 1);
+      texts.push(expandEntry(entry, inner, ctx).text);
+    }
+  } else {
+    for (let k = 0; k < wanted; k++) texts.push(evalNode(inner, ctx).text);
+  }
+  return { text: texts.join(node.join) };
+}
+
+/**
+ * Replace article markers with "a"/"an" based on the first letter of the
+ * next non-empty part.
+ */
+function resolveArticles(parts) {
+  for (let i = 0; i < parts.length; i++) {
+    if (!parts[i].article) continue;
+    let word = '';
+    for (let j = i + 1; j < parts.length && !word; j++) word = parts[j].text.trimStart();
+    parts[i] = { text: /^[aeiou]/i.test(word) ? 'an' : 'a' };
+  }
+  return parts;
 }
 
 /** Apply transform mods to an expanded string. */
