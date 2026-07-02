@@ -1,6 +1,6 @@
 /** Registry of loaded tables + AST evaluator (evaluator added in Tasks 7-9). */
 
-import { parseTemplate } from './parser.js';
+import { parseTemplate, parseCount } from './parser.js';
 import { getTransform, transformNames, suggest } from './transforms.js';
 
 /** Runtime/validation error from the generation engine. */
@@ -357,4 +357,109 @@ function applyTransforms(text, mods, ctx) {
     text = mod.arg === undefined ? fn(text) : fn(text, mod.arg);
   }
   return text;
+}
+
+// ---------------------------------------------------------------------------
+// JSON templates
+// ---------------------------------------------------------------------------
+
+/** Sentinel: a $maybe declined — drop the property/element entirely. */
+const OMIT = Symbol('omit');
+
+/**
+ * Evaluate a JSON template: strings expand, arrays/objects are walked,
+ * `$repeat`/`$maybe`/`$or` objects are directives.
+ * @param {unknown} value @param {object} ctx from createContext()
+ * @returns {unknown}
+ */
+export function evaluateJson(value, ctx) {
+  const out = evalJsonValue(value, ctx);
+  return out === OMIT ? null : out;
+}
+
+function evalJsonValue(value, ctx) {
+  if (typeof value === 'string') return evalJsonString(value, ctx);
+  if (Array.isArray(value)) {
+    return value.map((v) => evalJsonValue(v, ctx)).filter((v) => v !== OMIT);
+  }
+  if (value && typeof value === 'object') return evalJsonObject(value, ctx);
+  return value; // number, boolean, null
+}
+
+/** Type passthrough: exactly one expansion yielding a number stays a number. */
+function evalJsonString(str, ctx) {
+  const nodes = parse(str);
+  const parts = evalNodes(nodes, ctx);
+  if (nodes.length === 1 && parts.length === 1 && typeof parts[0].value === 'number') {
+    return parts[0].value;
+  }
+  return joinParts(parts);
+}
+
+function evalJsonObject(obj, ctx) {
+  if ('$repeat' in obj) return evalRepeatDirective(obj, ctx);
+  if ('$maybe' in obj) {
+    const p = obj.$maybe;
+    if (typeof p !== 'number' || p < 0 || p > 1) {
+      throw new GenError(`$maybe probability must be a number in [0, 1], got ${JSON.stringify(p)}`);
+    }
+    return ctx.rng.next() < p ? evalJsonValue(obj.value, ctx) : OMIT;
+  }
+  if ('$or' in obj) {
+    const branches = obj.$or;
+    if (!Array.isArray(branches) || branches.length === 0) {
+      throw new GenError('$or requires a non-empty array of branches');
+    }
+    const weightOf = (b) =>
+      (b && typeof b === 'object' && !Array.isArray(b) && typeof b.$weight === 'number')
+        ? b.$weight
+        : 1;
+    const branch = ctx.rng.weighted(branches, weightOf);
+    if (branch && typeof branch === 'object' && !Array.isArray(branch)) {
+      const { $weight, ...rest } = branch;
+      return evalJsonValue(rest, ctx);
+    }
+    return evalJsonValue(branch, ctx);
+  }
+  const out = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const result = evalJsonValue(value, ctx);
+    if (result !== OMIT) out[key] = result;
+  }
+  return out;
+}
+
+function evalRepeatDirective(obj, ctx) {
+  const spec = obj.$repeat;
+  let count;
+  if (typeof spec === 'number') {
+    if (!Number.isInteger(spec) || spec < 0) throw new GenError(`invalid $repeat count ${spec}`);
+    count = spec;
+  } else if (typeof spec === 'string') {
+    count = evalCount(parseCount(spec), ctx);
+  } else {
+    throw new GenError('$repeat count must be an integer or a count string like "1d4"');
+  }
+  if (!('of' in obj)) throw new GenError('$repeat requires an "of" value');
+
+  const results = [];
+  const seen = new Set();
+  let extraDraws = 0;
+  while (results.length < count) {
+    const value = evalJsonValue(obj.of, ctx);
+    if (obj.unique) {
+      const key = JSON.stringify(value);
+      if (seen.has(key)) {
+        extraDraws += 1;
+        if (extraDraws > count * 20) {
+          fail(ctx, `$repeat: could not produce ${count} unique values`);
+          break;
+        }
+        continue;
+      }
+      seen.add(key);
+    }
+    results.push(value === OMIT ? null : value);
+  }
+  return results;
 }
