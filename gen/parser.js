@@ -60,7 +60,7 @@ function parseExpansion(src, base) {
   const rep = /^(\d+\s*d\s*\d+(?:\s*[+-]\s*\d+)?|\d+\s*-\s*\d+|\d+)\s*x\s+(.+)$/s.exec(t);
   if (rep) {
     const count = parseCount(rep[1], offset);
-    const inner = parseExpansion(rep[2], offset + rep[1].length);
+    const inner = parseExpansion(rep[2], offset + (rep[0].length - rep[2].length));
     if (inner.type !== 'lookup') {
       throw new ParseError('repetition target must be a table lookup', offset);
     }

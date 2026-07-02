@@ -101,3 +101,12 @@ test('parseCount handles all three count forms', () => {
   assert.deepEqual(parseCount('1d4'), { type: 'dice', count: 1, sides: 4, plus: 0, capture: null });
   assert.throws(() => parseCount('banana'), /invalid count/);
 });
+
+test('parse errors inside a repetition target report absolute positions', () => {
+  assert.throws(() => parseTemplate('{3x 5bad}'), (err) => {
+    assert.ok(err instanceof ParseError);
+    assert.match(err.message, /expected table name/);
+    assert.equal(err.position, 4);
+    return true;
+  });
+});
