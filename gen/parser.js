@@ -54,11 +54,66 @@ export function parseTemplate(str) {
  */
 function parseExpansion(src, base) {
   const cur = new Cursor(src, base);
+  cur.skipWs();
+  if (cur.peek() === '@') {
+    cur.i += 1;
+    const name = cur.readName('capture');
+    const node = { type: 'ref', name, mods: [] };
+    readSigils(cur, node, { allowTags: false, allowCapture: false });
+    return node;
+  }
   const table = cur.readName('table');
   const node = { type: 'lookup', table, tags: [], notTags: [], capture: null, mods: [] };
-  cur.skipWs();
-  if (!cur.done()) throw new ParseError(`unexpected '${cur.peek()}'`, cur.pos());
+  readSigils(cur, node, { allowTags: true, allowCapture: true });
   return node;
+}
+
+/**
+ * Read trailing sigils onto `node`: `.mod`, `.mod("arg")`, `#tag`, `#!tag`,
+ * `@capture` — any order, whitespace anywhere.
+ */
+function readSigils(cur, node, { allowTags, allowCapture }) {
+  cur.skipWs();
+  while (!cur.done()) {
+    const ch = cur.peek();
+    if (ch === '.') {
+      cur.i += 1;
+      const name = cur.readName('modifier');
+      const mod = { name };
+      cur.skipWs();
+      if (cur.peek() === '(') mod.arg = readArg(cur);
+      node.mods.push(mod);
+    } else if (ch === '#' && allowTags) {
+      cur.i += 1;
+      cur.skipWs();
+      let negated = false;
+      if (cur.peek() === '!') { negated = true; cur.i += 1; }
+      const tag = cur.readName('tag');
+      (negated ? node.notTags : node.tags).push(tag);
+    } else if (ch === '@' && allowCapture) {
+      cur.i += 1;
+      node.capture = cur.readName('capture');
+    } else {
+      throw new ParseError(`unexpected '${ch}'`, cur.pos());
+    }
+    cur.skipWs();
+  }
+}
+
+/** Read a parenthesized, double-quoted argument: ("...") */
+function readArg(cur) {
+  cur.i += 1; // consume '('
+  cur.skipWs();
+  if (cur.peek() !== '"') throw new ParseError('expected quoted string argument', cur.pos());
+  cur.i += 1;
+  let arg = '';
+  while (!cur.done() && cur.peek() !== '"') { arg += cur.peek(); cur.i += 1; }
+  if (cur.done()) throw new ParseError('unterminated string argument', cur.pos());
+  cur.i += 1; // consume closing '"'
+  cur.skipWs();
+  if (cur.peek() !== ')') throw new ParseError(`expected ')'`, cur.pos());
+  cur.i += 1;
+  return arg;
 }
 
 /** Shared scanning helper over the inside of a `{...}` expansion. */
