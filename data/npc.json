@@ -1,0 +1,30 @@
+{
+  "tavern-name": [
+    "The {adjective.capitalize} {noun#concrete.capitalize}",
+    "The {noun#animal.capitalize} & {noun#concrete.capitalize}"
+  ],
+  "npc-quirk": [
+    "hums sea shanties constantly",
+    "collects teeth",
+    "never says a person's name",
+    "is afraid of {noun#animal.plural}"
+  ],
+  "loot": [
+    { "text": "{2-20} gold pieces", "tags": ["treasure"] },
+    { "text": "a {metal} ring", "tags": ["treasure"] },
+    { "text": "{a} {adjective} {noun#concrete}", "tags": ["treasure"] },
+    { "text": "a map to {a} {noun#treasure}", "tags": ["treasure"] }
+  ],
+  "npc": {
+    "name": "{adjective.capitalize} {noun#animal.capitalize}",
+    "hp": "{3d6}",
+    "inventory": { "$repeat": "1d4", "of": "{loot}", "unique": true },
+    "quirk": { "$maybe": 0.3, "value": "{npc-quirk}" },
+    "home": {
+      "$or": [
+        { "type": "tavern", "name": "{tavern-name}" },
+        { "type": "hovel", "$weight": 3 }
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "adjective": [
+    "rusty",
+    "gleaming",
+    "ancient",
+    "crooked",
+    { "text": "cursed", "tags": ["magic"] },
+    { "text": "enchanted", "tags": ["magic"], "weight": 0.5 }
+  ],
+  "noun": [
+    { "text": "sword", "plural": "swords", "tags": ["concrete"] },
+    { "text": "wolf", "plural": "wolves", "tags": ["animal", "concrete"], "weight": 2 },
+    { "text": "owlbear", "plural": "owlbears", "tags": ["animal", "concrete"] },
+    { "text": "raven", "plural": "ravens", "tags": ["animal", "concrete"] },
+    { "text": "{metal} idol", "tags": ["concrete", "treasure"] },
+    { "text": "whisper", "plural": "whispers", "tags": ["abstract"] }
+  ],
+  "metal": ["iron", "silver", "gold", "copper"]
+}
