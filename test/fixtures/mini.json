@@ -1,0 +1,4 @@
+{
+  "metal": ["iron"],
+  "greeting": ["hello {metal}"]
+}
