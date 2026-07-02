@@ -53,6 +53,69 @@ export function parseTemplate(str) {
  * @param {string} src @param {number} base @returns {object}
  */
 function parseExpansion(src, base) {
+  const t = src.trim();
+  const offset = base + src.indexOf(t.charAt(0) || '');
+
+  // Repetition: "<count>x <target>" — count is an int, range, or dice.
+  const rep = /^(\d+\s*d\s*\d+(?:\s*[+-]\s*\d+)?|\d+\s*-\s*\d+|\d+)\s*x\s+(.+)$/s.exec(t);
+  if (rep) {
+    const count = parseCount(rep[1], offset);
+    const inner = parseExpansion(rep[2], offset + rep[1].length);
+    if (inner.type !== 'lookup') {
+      throw new ParseError('repetition target must be a table lookup', offset);
+    }
+    let unique = false;
+    let join = ', ';
+    inner.mods = inner.mods.filter((mod) => {
+      if (mod.name === 'unique') { unique = true; return false; }
+      if (mod.name === 'join') { join = mod.arg ?? join; return false; }
+      return true;
+    });
+    return { type: 'repeat', count, inner, unique, join };
+  }
+
+  // Inline alternatives: {red|blue|azure*3} — '|' outside quotes splits.
+  const alts = splitAlternatives(t);
+  if (alts.length > 1) {
+    const options = alts.map((raw) => {
+      let text = raw.trim();
+      let weight = 1;
+      const w = /^(.*?)\s*\*\s*(\d+(?:\.\d+)?)$/.exec(text);
+      if (w) { text = w[1].trim(); weight = parseFloat(w[2]); }
+      if (!text) throw new ParseError('empty alternative', offset);
+      if (!(weight > 0)) throw new ParseError('alternative weight must be > 0', offset);
+      return { text, weight };
+    });
+    return { type: 'alt', options };
+  }
+
+  // Dice: {3d6}, {2d4+1}, optional capture {3d6@hp}.
+  let m = /^(\d+)\s*d\s*(\d+)\s*(?:([+-])\s*(\d+))?\s*(?:@\s*([A-Za-z_][A-Za-z0-9_-]*))?$/.exec(t);
+  if (m) {
+    const count = Number(m[1]);
+    const sides = Number(m[2]);
+    if (count < 1 || sides < 1) throw new ParseError(`invalid dice \`${t}\``, offset);
+    const plus = m[4] ? (m[3] === '-' ? -Number(m[4]) : Number(m[4])) : 0;
+    return { type: 'dice', count, sides, plus, capture: m[5] ?? null };
+  }
+
+  // Range: {2-12}, optional capture {2-12@level}.
+  m = /^(\d+)\s*-\s*(\d+)\s*(?:@\s*([A-Za-z_][A-Za-z0-9_-]*))?$/.exec(t);
+  if (m) {
+    const min = Number(m[1]);
+    const max = Number(m[2]);
+    if (min > max) throw new ParseError(`range ${min}-${max} has min > max`, offset);
+    return { type: 'range', min, max, capture: m[3] ?? null };
+  }
+
+  // Smart article. 'a'/'an' are reserved words, not table names.
+  if (t === 'a' || t === 'an') return { type: 'article' };
+
+  return parseNameExpansion(src, base);
+}
+
+/** Task 4's parseExpansion body: `@ref` or `table` plus trailing sigils. */
+function parseNameExpansion(src, base) {
   const cur = new Cursor(src, base);
   cur.skipWs();
   if (cur.peek() === '@') {
@@ -66,6 +129,46 @@ function parseExpansion(src, base) {
   const node = { type: 'lookup', table, tags: [], notTags: [], capture: null, mods: [] };
   readSigils(cur, node, { allowTags: true, allowCapture: true });
   return node;
+}
+
+/** Split on '|' outside double quotes; returns [src] when there is none. */
+function splitAlternatives(src) {
+  const parts = [];
+  let current = '';
+  let inString = false;
+  for (const ch of src) {
+    if (ch === '"') { inString = !inString; current += ch; }
+    else if (ch === '|' && !inString) { parts.push(current); current = ''; }
+    else current += ch;
+  }
+  parts.push(current);
+  return parts;
+}
+
+/**
+ * Parse a count expression: "3", "2-4", or "1d4". Used for repetition and
+ * by the engine for `$repeat` counts.
+ * @param {string|number} str @param {number} [pos] @returns {object}
+ */
+export function parseCount(str, pos = 0) {
+  const t = String(str).trim();
+  let m = /^(\d+)\s*d\s*(\d+)\s*(?:([+-])\s*(\d+))?$/.exec(t);
+  if (m) {
+    const count = Number(m[1]);
+    const sides = Number(m[2]);
+    if (count < 1 || sides < 1) throw new ParseError(`invalid dice \`${t}\``, pos);
+    const plus = m[4] ? (m[3] === '-' ? -Number(m[4]) : Number(m[4])) : 0;
+    return { type: 'dice', count, sides, plus, capture: null };
+  }
+  m = /^(\d+)\s*-\s*(\d+)$/.exec(t);
+  if (m) {
+    const min = Number(m[1]);
+    const max = Number(m[2]);
+    if (min > max) throw new ParseError(`range ${min}-${max} has min > max`, pos);
+    return { type: 'range', min, max, capture: null };
+  }
+  if (/^\d+$/.test(t)) return { type: 'int', value: Number(t) };
+  throw new ParseError(`invalid count \`${t}\``, pos);
 }
 
 /**
