@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Tabletop Hacks</title>
+    <link href="style.css" rel="stylesheet" />
+    <script defer src="script.js" type="module"></script>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <svg id="d20-icon" width="64" height="64" viewBox="0 0 64 64" fill="none"
+              xmlns="http://www.w3.org/2000/svg" aria-label="d20 die icon">
+            <!-- Outer pentagonal silhouette -->
+            <path d="M32 4 L58 20 L50 56 L14 56 L6 20 Z"
+                  stroke="#f59e0b" stroke-width="2" stroke-linejoin="round"/>
+            <!-- Horizontal divider across the two middle vertices -->
+            <line x1="6"  y1="20" x2="58" y2="20" stroke="#f59e0b" stroke-width="1.5" opacity="0.6"/>
+            <!-- Internal lines radiating from center point (32,40) — creates 5-triangle face pattern -->
+            <line x1="6"  y1="20" x2="32" y2="40" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+            <line x1="58" y1="20" x2="32" y2="40" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+            <line x1="32" y1="4"  x2="32" y2="40" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+            <line x1="32" y1="40" x2="14" y2="56" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+            <line x1="32" y1="40" x2="50" y2="56" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+          </svg>
+          <h1 class="wordmark">Tabletop <span class="accent">Hacks</span></h1>
+          <p class="tagline">Tools for the table. No app required.</p>
+        </div>
+        <div class="scroll-chevron-wrapper">
+          <svg class="scroll-chevron" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" aria-hidden="true">
+            <path d="M6 9 L12 15 L18 9"
+                  stroke="#8888aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+      <section class="tools-section">
+        <h2 class="tools-heading">What's Coming</h2>
+        <div class="tools-grid">
+          <div class="card">
+            <span class="badge">Coming Soon</span>
+            <h3 class="card-title">Dice Roller</h3>
+            <p class="card-desc">Roll any combination of polyhedral dice with modifiers.</p>
+          </div>
+          <div class="card">
+            <span class="badge">Coming Soon</span>
+            <h3 class="card-title">Initiative Tracker</h3>
+            <p class="card-desc">Manage turn order and conditions in combat.</p>
+          </div>
+          <div class="card">
+            <span class="badge">Coming Soon</span>
+            <h3 class="card-title">Game Timer</h3>
+            <p class="card-desc">Chess-clock style countdown for turns and rounds.</p>
+          </div>
+          <div class="card">
+            <span class="badge">Coming Soon</span>
+            <h3 class="card-title">Score Tracker</h3>
+            <p class="card-desc">Multi-player score sheet for board games.</p>
+          </div>
+          <div class="card">
+            <span class="badge">Coming Soon</span>
+            <h3 class="card-title">Random Generators</h3>
+            <p class="card-desc">NPC names, loot tables, and encounter ideas for GMs.</p>
+          </div>
+          <div class="card">
+            <span class="badge">Coming Soon</span>
+            <h3 class="card-title">Rules Reference</h3>
+            <p class="card-desc">Quick-lookup cards for common conditions and actions.</p>
+          </div>
+        </div>
+      </section>
+      <footer class="footer">
+        <p>tabletophacks.com</p>
+      </footer>
+    </main>
+  </body>
+</html>
