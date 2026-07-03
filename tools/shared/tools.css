@@ -303,19 +303,12 @@ select { background: var(--card); }
   padding: 0.05rem 0.35rem;
 }
 
-/* ── Quick text ─────────────────────────────── */
-.quick-row { display: flex; gap: 0.6rem; }
+/* ── View template ──────────────────────────── */
+.vt-def { min-height: 12rem; }
 
-.quick-input { flex: 1; min-width: 0; }
+.vt-def[readonly] { opacity: 0.85; }
 
-.quick-output {
-  margin-top: 0.75rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.6rem 0.9rem;
-  min-height: 2.5rem;
-}
+.side-item .item-flag.modified { color: var(--accent); }
 
 /* ── Create template view ───────────────────── */
 .tpl-input {

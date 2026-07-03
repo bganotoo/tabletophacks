@@ -36,18 +36,27 @@
             <button class="btn" id="save-btn" disabled>Save to library</button>
           </div>
 
-          <section class="tool-section">
-            <h2>Quick template</h2>
-            <div class="quick-row">
-              <input class="quick-input" id="quick-input" type="text"
-                     placeholder='Try: {3x npc-quirk.join(" / ")} or {a} {adjective} {noun}'
-                     aria-label="Quick template" />
-              <button class="btn" id="quick-btn">Run</button>
+          <section class="tool-section" id="vt-section">
+            <h2>Template</h2>
+            <p class="gen-subtitle" id="vt-subtitle"></p>
+            <textarea class="editor-textarea vt-def" id="vt-def" rows="10"
+                      spellcheck="false" readonly aria-label="Generator definition"></textarea>
+            <div class="editor-status" id="vt-status"></div>
+            <div class="result-actions">
+              <button class="btn" id="vt-edit-btn">Edit</button>
+              <button class="btn btn-primary" id="vt-save-btn" hidden>Save changes</button>
+              <button class="btn" id="vt-cancel-btn" hidden>Cancel</button>
+              <button class="btn btn-danger" id="vt-reset-btn" hidden>Reset to default</button>
             </div>
-            <div class="quick-output" id="quick-output"></div>
-            <p class="hint">One-off template expansion — any table works:
-              <code>{tavern-name}</code>, <code>{2d6+3}</code>,
-              <code>{adjective#magic} {noun#treasure}</code>.</p>
+            <div class="save-row">
+              <input class="tpl-name" id="vt-saveas-name" type="text"
+                     placeholder="new name" aria-label="Save as name" />
+              <button class="btn" id="vt-saveas-btn">Save as…</button>
+            </div>
+            <p class="hint">Reveals the JSON definition behind this generator.
+              Editing a built-in saves a personal copy that overrides it for you;
+              <strong>Save as…</strong> copies it under a new name into
+              <strong>Custom</strong>.</p>
           </section>
 
           <section class="tool-section">
