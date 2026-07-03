@@ -100,6 +100,24 @@ export function saveTemplate(packs, name, template) {
 }
 
 /**
+ * Save (or overwrite) a raw definition value (table array or JSON-template
+ * object) under `name`, creating the reserved pack if needed. Backs "Save
+ * as…" for definitions that are not simple one-line templates. Such entries
+ * run and list in the sidebar but are not reported by `myTemplates`, which
+ * stays limited to simple one-string templates.
+ * @param {object[]} packs
+ * @param {string} name
+ * @param {unknown} value
+ * @returns {{ ok: true, packs: object[] } | { ok: false, error: string }}
+ */
+export function saveDefinition(packs, name, value) {
+  const valid = validateTemplateName(name);
+  if (!valid.ok) return { ok: false, error: valid.error };
+  const data = packData(reservedPack(packs));
+  return { ok: true, packs: withPackData(packs, { ...data, [name.trim()]: value }) };
+}
+
+/**
  * Delete one template; drops the reserved pack entirely once empty.
  * @param {object[]} packs
  * @param {string} name

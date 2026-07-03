@@ -7,6 +7,7 @@ import {
   validateTemplateName,
   saveTemplate,
   deleteTemplate,
+  saveDefinition,
 } from './templates.js';
 import { parsePack } from './packs.js';
 
@@ -186,4 +187,40 @@ test('deleteTemplate does not mutate its input', () => {
   const snapshot = JSON.stringify(packs);
   deleteTemplate(packs, 'omen');
   assert.equal(JSON.stringify(packs), snapshot);
+});
+
+// ── saveDefinition ──────────────────────────────────────────────────────────
+
+test('saveDefinition stores a raw array (table) definition', () => {
+  const result = saveDefinition([], 'quirk', ['hums', 'fidgets']);
+  assert.equal(result.ok, true);
+  const saved = JSON.parse(result.packs.find((p) => p.id === MY_TEMPLATES_ID).source);
+  assert.deepEqual(saved.quirk, ['hums', 'fidgets']);
+});
+
+test('saveDefinition stores a JSON-template object definition', () => {
+  const value = { name: '{noun}', value: '{2d6}' };
+  const result = saveDefinition([], 'gem', value);
+  assert.equal(result.ok, true);
+  const saved = JSON.parse(result.packs.find((p) => p.id === MY_TEMPLATES_ID).source);
+  assert.deepEqual(saved.gem, value);
+});
+
+test('saveDefinition overwrites an existing entry in place', () => {
+  const first = saveDefinition([], 'quirk', ['hums']);
+  const second = saveDefinition(first.packs, 'quirk', ['fidgets']);
+  const saved = JSON.parse(second.packs.find((p) => p.id === MY_TEMPLATES_ID).source);
+  assert.deepEqual(saved.quirk, ['fidgets']);
+});
+
+test('saveDefinition rejects invalid names', () => {
+  for (const name of ['', 'a', '2fast']) {
+    assert.equal(saveDefinition([], name, ['x']).ok, false);
+  }
+});
+
+test('saveDefinition does not mutate its input', () => {
+  const packs = [];
+  saveDefinition(packs, 'quirk', ['hums']);
+  assert.deepEqual(packs, []);
 });
