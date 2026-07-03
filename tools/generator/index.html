@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Generator — Tabletop Hacks</title>
+    <link href="../shared/tools.css" rel="stylesheet" />
+    <script defer src="app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="tool-header">
+      <a class="home-link" href="../../">Tabletop <span class="accent">Hacks</span></a>
+      <h1>Generator</h1>
+      <nav class="tool-nav"><a href="../workshop/">Workshop →</a></nav>
+    </header>
+    <div class="tool-layout">
+      <nav class="sidebar" id="sidebar" aria-label="Generators"></nav>
+      <main class="main-panel">
+        <div id="gen-head">
+          <h2 class="gen-title" id="gen-title">Loading…</h2>
+          <p class="gen-subtitle" id="gen-subtitle"></p>
+        </div>
+        <div class="run-bar">
+          <button class="btn btn-primary" id="generate-btn">Generate</button>
+          <button class="btn" id="reroll-btn" title="Generate again with a fresh random seed">Reroll</button>
+          <input class="seed-input" id="seed-input" type="text"
+                 placeholder="seed (optional)" aria-label="Seed" />
+          <span class="gen-seed" id="seed-used"></span>
+        </div>
+        <div class="result-panel" id="result-panel">
+          <p class="placeholder">Pick a generator and hit Generate.</p>
+        </div>
+        <div class="result-actions">
+          <button class="btn" id="copy-btn" disabled>Copy</button>
+          <button class="btn" id="save-btn" disabled>Save to library</button>
+        </div>
+
+        <section class="tool-section">
+          <h2>Quick template</h2>
+          <div class="quick-row">
+            <input class="quick-input" id="quick-input" type="text"
+                   placeholder='Try: {3x npc-quirk.join(" / ")} or {a} {adjective} {noun}'
+                   aria-label="Quick template" />
+            <button class="btn" id="quick-btn">Run</button>
+          </div>
+          <div class="quick-output" id="quick-output"></div>
+          <p class="hint">One-off template expansion — any table works:
+            <code>{tavern-name}</code>, <code>{2d6+3}</code>,
+            <code>{adjective#magic} {noun#treasure}</code>.</p>
+        </section>
+
+        <section class="tool-section">
+          <h2>Library</h2>
+          <div class="result-actions">
+            <button class="btn btn-small" id="export-lib-btn">Export all</button>
+          </div>
+          <ul class="library-list" id="library-list"></ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
