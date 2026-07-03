@@ -30,7 +30,7 @@ body {
   min-height: 100vh;
 }
 
-code, textarea, .gen-seed, .seed-input, .quick-input {
+code, textarea, .gen-seed, .seed-input {
   font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
 }
 

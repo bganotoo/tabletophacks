@@ -1,14 +1,20 @@
 /** Generator tool: pick a generator, run it, save results to the library. */
 
 import { createStore } from '../shared/store.js';
-import { BUILTIN_PACKS, buildGenerator, listGenerators } from '../shared/packs.js';
+import { BUILTIN_PACKS, buildGenerator, listGenerators, effectiveDefinition } from '../shared/packs.js';
 import {
   MY_TEMPLATES_ID,
   myTemplates,
   validateTemplateName,
   saveTemplate,
   deleteTemplate,
+  saveDefinition,
 } from '../shared/templates.js';
+import {
+  overriddenNames,
+  saveOverride,
+  removeOverride,
+} from '../shared/overrides.js';
 import { renderResult, resultToText } from '../shared/render.js';
 import { el, clearNode, toast, download, uid } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
@@ -23,6 +29,8 @@ const state = {
   /** name of the selected generator */ selected: null,
   /** which main-panel view is showing */ view: 'generate',
   /** names defined by built-in packs only, for shadow warnings */ builtinNames: [],
+  /** names the user has overridden */ overridden: [],
+  /** raw builtin data objects, kept for effectiveDefinition */ builtinData: [],
   lastResult: null,
   lastSeed: null,
 };
@@ -48,7 +56,9 @@ async function rebuild() {
   const builtinData = await fetchBuiltinData();
   const { generator, invalid } = buildGenerator(builtinData, customPacks());
   state.generator = generator;
+  state.builtinData = builtinData;
   state.builtinNames = Generator.fromData(...builtinData).names();
+  state.overridden = overriddenNames(customPacks());
   state.list = listGenerators(BUILTIN_PACKS, customPacks());
   if (invalid.length > 0) {
     console.warn('skipped invalid custom packs:', invalid);
@@ -61,8 +71,12 @@ async function rebuild() {
 function renderSidebar() {
   const sidebar = $('sidebar');
   clearNode(sidebar);
-  const sideItem = (gen) =>
-    el(
+  const sideItem = (gen) => {
+    const flag =
+      !gen.custom && state.overridden.includes(gen.name)
+        ? el('span', { class: 'item-flag modified', title: "You've edited this generator" }, '●')
+        : null;
+    return el(
       'li',
       {},
       el(
@@ -72,8 +86,10 @@ function renderSidebar() {
           onclick: () => select(gen.name),
         },
         gen.title,
+        ...(flag ? [flag] : []),
       ),
     );
+  };
   const groups = new Map();
   const templates = [];
   for (const gen of state.list) {
@@ -133,6 +149,7 @@ function select(name, { updateHash = true } = {}) {
         : pack?.description ?? '';
   renderSidebar();
   generate();
+  renderViewTemplate();
 }
 
 function showCreate({ updateHash = true } = {}) {
@@ -198,6 +215,130 @@ function showSeed(seed, holderId = 'seed-used', inputId = 'seed-input') {
       seed,
     ),
   );
+}
+
+// ── View template ─────────────────────────────────────────────────────────
+
+function selectedGen() {
+  return state.list.find((g) => g.name === state.selected) ?? null;
+}
+
+function isBuiltinName(name) {
+  return state.builtinNames.includes(name);
+}
+
+function setVtStatus(kind, message) {
+  const status = $('vt-status');
+  status.className = `editor-status${kind ? ` ${kind}` : ''}`;
+  status.textContent = message;
+}
+
+/** Show the selected generator's effective definition, read-only. */
+function renderViewTemplate() {
+  const gen = selectedGen();
+  if (!gen) return;
+  const name = gen.name;
+  const def = effectiveDefinition(state.builtinData, customPacks(), name);
+  $('vt-def').value = def === null ? '' : JSON.stringify(def, null, 2);
+  $('vt-def').readOnly = true;
+  setVtStatus('', '');
+  $('vt-saveas-name').value = '';
+
+  const builtin = isBuiltinName(name);
+  const overridden = state.overridden.includes(name);
+  $('vt-subtitle').textContent = !builtin
+    ? gen.packId === MY_TEMPLATES_ID
+      ? 'One of your saved templates — edit it on the Create page.'
+      : `From your pack “${gen.packTitle}” — edit it in the Workshop.`
+    : overridden
+      ? 'Built-in generator — modified. You are running your edited copy.'
+      : 'Built-in generator.';
+
+  // Built-ins are editable via overrides; customs are read-only here.
+  $('vt-edit-btn').hidden = !builtin;
+  $('vt-save-btn').hidden = true;
+  $('vt-cancel-btn').hidden = true;
+  $('vt-reset-btn').hidden = !(builtin && overridden);
+}
+
+function vtBeginEdit() {
+  $('vt-def').readOnly = false;
+  $('vt-def').focus();
+  $('vt-edit-btn').hidden = true;
+  $('vt-save-btn').hidden = false;
+  $('vt-cancel-btn').hidden = false;
+  $('vt-reset-btn').hidden = true;
+}
+
+function vtParseDefinition() {
+  try {
+    return { ok: true, value: JSON.parse($('vt-def').value) };
+  } catch (err) {
+    return { ok: false, error: `invalid JSON: ${err.message}` };
+  }
+}
+
+async function vtSaveChanges() {
+  const gen = selectedGen();
+  if (!gen) return;
+  const parsed = vtParseDefinition();
+  if (!parsed.ok) {
+    setVtStatus('bad', `✗ ${parsed.error}`);
+    return;
+  }
+  const result = saveOverride(customPacks(), gen.name, parsed.value);
+  if (!result.ok) {
+    setVtStatus('bad', `✗ ${result.error}`);
+    return;
+  }
+  if (!store.set('packs', result.packs)) {
+    toast('Could not save — browser storage is full');
+    return;
+  }
+  await rebuild();
+  select(gen.name); // re-runs with the new definition and re-renders the panel
+  toast('Saved your version');
+}
+
+async function vtReset() {
+  const gen = selectedGen();
+  if (!gen) return;
+  if (!store.set('packs', removeOverride(customPacks(), gen.name))) {
+    toast('Could not save — browser storage is full');
+    return;
+  }
+  await rebuild();
+  select(gen.name);
+  toast('Reset to the built-in');
+}
+
+async function vtSaveAs() {
+  const name = $('vt-saveas-name').value.trim();
+  const parsed = vtParseDefinition();
+  if (!parsed.ok) {
+    setVtStatus('bad', `✗ ${parsed.error}`);
+    return;
+  }
+  const check = validateTemplateName(name, {
+    builtinNames: state.builtinNames,
+    templateNames: myTemplates(customPacks()).map((t) => t.name),
+  });
+  if (!check.ok) {
+    setVtStatus('bad', `✗ ${check.error || 'give the copy a name first'}`);
+    return;
+  }
+  const result = saveDefinition(customPacks(), name, parsed.value);
+  if (!result.ok) {
+    setVtStatus('bad', `✗ ${result.error}`);
+    return;
+  }
+  if (!store.set('packs', result.packs)) {
+    toast('Could not save — browser storage is full');
+    return;
+  }
+  await rebuild();
+  select(name); // jump to the new custom generator
+  toast(`Saved as “${name}” under Custom`);
 }
 
 // ── Library ─────────────────────────────────────────────────────────────────
@@ -273,20 +414,6 @@ function saveToLibrary() {
   }
   renderLibrary();
   toast('Saved to library');
-}
-
-// ── Quick template ──────────────────────────────────────────────────────────
-
-function runQuick() {
-  const template = $('quick-input').value;
-  const output = $('quick-output');
-  clearNode(output);
-  if (!template.trim()) return;
-  try {
-    output.textContent = state.generator.text(template, { seed: randomSeed(), mode: 'strict' });
-  } catch (err) {
-    output.append(el('span', { class: 'error-card' }, String(err.message ?? err)));
-  }
 }
 
 // ── Create page ─────────────────────────────────────────────────────────────
@@ -432,10 +559,11 @@ async function main() {
   $('export-lib-btn').addEventListener('click', () => {
     download('tabletophacks-library.json', JSON.stringify(library(), null, 2));
   });
-  $('quick-btn').addEventListener('click', runQuick);
-  $('quick-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') runQuick();
-  });
+  $('vt-edit-btn').addEventListener('click', vtBeginEdit);
+  $('vt-save-btn').addEventListener('click', vtSaveChanges);
+  $('vt-cancel-btn').addEventListener('click', renderViewTemplate);
+  $('vt-reset-btn').addEventListener('click', vtReset);
+  $('vt-saveas-btn').addEventListener('click', vtSaveAs);
   $('tpl-run-btn').addEventListener('click', () => runTemplate());
   $('tpl-reroll-btn').addEventListener('click', () => runTemplate(randomSeed()));
   $('tpl-seed').addEventListener('keydown', (e) => {
