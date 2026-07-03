@@ -1,0 +1,89 @@
+# TODO — roadmap for tools and features
+
+Working notes for what's next. Items reference the architecture in
+[CLAUDE.md](CLAUDE.md); design records for bigger efforts belong in
+`docs/superpowers/specs/` and `docs/superpowers/plans/`.
+
+## Custom templates (next up)
+
+- [ ] **"Custom" section in the Generator sidebar, starting with a "Create" page.**
+  A dedicated home for what the "Quick template" section does today. On the
+  Create page the user writes a template string, runs it to test (strict mode,
+  seedable, same error cards as everywhere else), and can save it under a
+  short name. Saved templates appear as items in the Custom group of the
+  sidebar and behave like any other generator (seed control, reroll, save to
+  library).
+  - Implementation note: back saved templates with the existing custom-pack
+    system rather than a new storage shape — a reserved user pack (e.g.
+    "My Templates") whose entries are the saved templates. `buildGenerator`,
+    `listGenerators`, the sidebar's custom grouping, and Workshop
+    import/export then all work without special cases. Names must pass the
+    existing Registry rules (`a`/`an` reserved, collision = override, so warn
+    when a chosen name shadows a built-in).
+
+- [ ] **Retire the "Quick template" section; add "View template" to every
+  generator page instead.** Each generator gets a way to reveal its
+  definition. From the view, the user can:
+  - **Edit and save** — persists a per-user override that shadows the
+    built-in for them only. This is exactly the pack load-order invariant
+    (later loads win), so store overrides as a hidden highest-priority user
+    pack. Needs a visible "modified" indicator on overridden generators and a
+    one-click "Reset to default", or users will forget they diverged and
+    blame the site.
+  - **Save as…** — copies the definition under a new name into the user's
+    custom templates, appearing under Custom.
+  - Design wrinkle to resolve first: not every generator is a single template
+    string. JSON generators (`npc`, `quest`, …) are objects, and text
+    generators like `npc-quirk` are whole tables of entries. "View template"
+    should show the underlying JSON definition for that name (the Workshop
+    editor already validates this shape via `parsePack`), not pretend
+    everything is a one-liner. Consider showing referenced private tables
+    read-only alongside, so the definition is comprehensible.
+
+## Template authoring support
+
+- [ ] **Template syntax reference page.** Once users write templates on the
+  Create page, they need the `{...}` syntax documented in-product: table
+  lookups, `#tag`/`#!tag` filters, `.transform` mods, `@capture`, dice,
+  ranges, alternatives with weights, `{2x ...}` repetition, smart article.
+  Link it from the Create page and the Workshop.
+- [ ] **Browsable table catalog.** A searchable list of every table name the
+  assembled generator knows (built-in + custom), with a sample value per
+  table — writing `{adjective#magic}` requires knowing `adjective` and
+  `magic` exist. The engine's did-you-mean suggestions help after a typo;
+  this helps before.
+- [ ] **Autocomplete for table names in template inputs** (Create page and
+  Workshop editor). Nice-to-have after the catalog exists, since it needs the
+  same name index.
+
+## Generator tool
+
+- [ ] **Shareable result links.** The generator name is already in the hash;
+  add the seed (e.g. `#npc:s=abc123`) so a link reproduces an exact result.
+  The seedable RNG guarantees this works.
+- [ ] **Library import.** Export exists (`export-lib-btn`); add the matching
+  import with merge-by-id, mirroring the Workshop's pack import.
+- [ ] **Copy as Markdown** alongside plain-text copy, for pasting into
+  Notion/Obsidian prep docs.
+- [ ] **Generate N at once** (e.g. roll 5 NPCs into a list) — cheap to do,
+  high prep value.
+
+## Workshop
+
+- [ ] **Replace `prompt()`/`confirm()` dialogs** (new/rename/delete pack)
+  with inline UI, consistent with the rest of the tool.
+- [ ] **Storage usage indicator** — localStorage is the only persistence and
+  it's small; show usage and warn before `store.set` starts failing.
+
+## Content packs
+
+- [ ] More built-in packs (each is JSON + one `BUILTIN_PACKS` entry, and
+  `data/data.test.js` covers it automatically): magic items / trinkets,
+  weather & travel events, traps & hazards, name tables by culture/ancestry.
+
+## Someday / maybe
+
+- [ ] Landing-page "Coming Soon" cards for whichever tools above get
+  committed to next, so the roadmap is visible on the site.
+- [ ] Offline support (service worker) — the site is fully static, so this
+  is mostly cache plumbing.
