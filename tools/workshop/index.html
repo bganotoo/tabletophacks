@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Workshop — Tabletop Hacks</title>
+    <link href="../shared/tools.css" rel="stylesheet" />
+    <script defer src="app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="tool-header">
+      <a class="home-link" href="../../">Tabletop <span class="accent">Hacks</span></a>
+      <h1>Workshop</h1>
+      <nav class="tool-nav"><a href="../generator/">← Generator</a></nav>
+    </header>
+    <div class="tool-layout">
+      <nav class="sidebar" aria-label="Your packs">
+        <div class="side-group">
+          <h2>Your packs</h2>
+          <ul id="pack-list"></ul>
+        </div>
+        <div class="side-group">
+          <button class="btn btn-small" id="new-btn">+ New pack</button>
+          <button class="btn btn-small" id="import-btn">Import…</button>
+          <input type="file" id="import-input" accept=".json,application/json" hidden />
+        </div>
+        <p class="hint">Packs are saved in this browser and show up in the
+          Generator automatically. A pack is a JSON object: arrays are text
+          tables, objects are JSON templates. Custom tables can reference any
+          built-in table — or override one by reusing its name.</p>
+      </nav>
+      <main class="main-panel">
+        <div id="empty-state">
+          <h2 class="gen-title">No pack selected</h2>
+          <p class="gen-subtitle">Create a new pack or import one to get started.</p>
+        </div>
+        <div id="editor-panel" hidden>
+          <div class="editor-head">
+            <span class="pack-name" id="pack-name"></span>
+            <button class="btn btn-primary" id="save-btn">Save</button>
+            <button class="btn" id="rename-btn">Rename</button>
+            <button class="btn" id="duplicate-btn">Duplicate</button>
+            <button class="btn" id="export-btn">Export</button>
+            <button class="btn btn-danger" id="delete-btn">Delete</button>
+          </div>
+          <textarea class="editor-textarea" id="editor" spellcheck="false"
+                    aria-label="Pack JSON source"></textarea>
+          <div class="editor-status" id="editor-status"></div>
+
+          <section class="tool-section">
+            <h2>Preview</h2>
+            <div class="preview-bar">
+              <select id="preview-select" aria-label="Generator to preview"></select>
+              <button class="btn btn-primary" id="preview-btn">Run preview</button>
+              <span class="hint">Previews run your unsaved editor contents on
+                top of the built-in packs.</span>
+            </div>
+            <div class="result-panel" id="preview-panel">
+              <p class="placeholder">Run a preview to see output here.</p>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
