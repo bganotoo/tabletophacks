@@ -1,0 +1,37 @@
+{
+  "quest-hook": [
+    "a notice nailed to the door of {tavern-name}",
+    "a dying stranger presses a letter into a party member's hand",
+    "{first-name} {epithet} buys the party a round and gets to the point",
+    "a child offers the party everything they own: {2-9} copper pieces",
+    "the party wakes to find the same symbol drawn on each of their doors",
+    "a caged messenger bird arrives, addressed to whoever will listen"
+  ],
+  "quest-goal": [
+    "recover {a} {adjective#magic} {noun#treasure} before it changes hands again",
+    "escort a witness safely to {place-name}",
+    "find out what is {encounter-activity} in the hills",
+    "break the curse on {tavern-name}",
+    "map the first level of a {dungeon-type} discovered under {place-name}",
+    "steal back what the {creature.plural} took",
+    "discover why the road to {place-name} has gone quiet"
+  ],
+  "quest-twist": [
+    "the patron is lying about why they want it",
+    "a rival party has a head start",
+    "the real danger is the thing guarding the way home",
+    "success will make a powerful enemy",
+    "the reward cannot be spent — but it can be traded",
+    "someone in {place-name} recognizes the party"
+  ],
+  "quest": {
+    "hook": "{quest-hook}",
+    "patron": {
+      "name": "{first-name} {epithet}",
+      "quirk": { "$maybe": 0.6, "value": "{npc-quirk}" }
+    },
+    "goal": "{quest-goal}",
+    "twist": { "$maybe": 0.6, "value": "{quest-twist}" },
+    "reward": "{loot}"
+  }
+}

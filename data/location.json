@@ -1,0 +1,64 @@
+{
+  "place-name": [
+    "{name-start}{name-end}",
+    "{name-start}{name-end}",
+    "{adjective.capitalize} {name-start}{name-end}",
+    "{name-start}{name-end}-upon-{name-start}{name-end}"
+  ],
+  "settlement-feature": [
+    "a market famous for {noun#concrete.plural}",
+    "a shrine tended by a single stubborn priest",
+    "a bridge that locals refuse to cross after dark",
+    "a guildhall with boarded-up windows",
+    "an ancient {noun#concrete} displayed in the square",
+    "a well that is said to grant wishes",
+    "a gallows nobody remembers building"
+  ],
+  "settlement-rumor": [
+    "the mayor has not been seen in weeks",
+    "livestock have been disappearing at the new moon",
+    "a stranger is paying good coin for old maps",
+    "{tavern-name} is hiring guards, no questions asked",
+    "something was dug up in the churchyard",
+    "the river ran red for an hour last Thursday"
+  ],
+  "settlement-size": [
+    { "text": "hamlet", "weight": 2 },
+    { "text": "village", "weight": 3 },
+    { "text": "town", "weight": 2 },
+    { "text": "city", "weight": 1 }
+  ],
+  "dungeon-type": [
+    "crypt", "mine", "temple", "fortress", "labyrinth", "vault", "warren"
+  ],
+  "dungeon-theme": [
+    "flooded and sinking",
+    "overrun by {creature.plural}",
+    "sealed for a reason",
+    "still under construction when it was abandoned",
+    "built atop something older",
+    "lit by cold, sourceless light"
+  ],
+  "dungeon-room": [
+    "a hall of toppled statues",
+    "a flooded chamber crossed by rotting planks",
+    "a shrine to a forgotten god",
+    "a barracks with signs of a hasty departure",
+    "a locked vault door with fresh scratch marks",
+    "a natural cavern glittering with {metal}",
+    "a pit trap already sprung on someone else",
+    "a chamber where {a} {creature} is {encounter-activity}"
+  ],
+  "settlement": {
+    "name": "{place-name}",
+    "size": "{settlement-size}",
+    "feature": "{settlement-feature}",
+    "rumor": "{settlement-rumor}",
+    "tavern": { "$maybe": 0.8, "value": "{tavern-name}" }
+  },
+  "dungeon": {
+    "name": "The {adjective.capitalize} {dungeon-type.capitalize} of the {noun.capitalize}",
+    "theme": "{dungeon-theme}",
+    "rooms": { "$repeat": "2d3", "of": "{dungeon-room}", "unique": true }
+  }
+}

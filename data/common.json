@@ -4,16 +4,53 @@
     "gleaming",
     "ancient",
     "crooked",
+    "silent",
+    "howling",
+    "sunken",
+    "gilded",
+    "broken",
+    "weeping",
+    "restless",
+    "forgotten",
     { "text": "cursed", "tags": ["magic"] },
-    { "text": "enchanted", "tags": ["magic"], "weight": 0.5 }
+    { "text": "enchanted", "tags": ["magic"], "weight": 0.5 },
+    { "text": "spectral", "tags": ["magic"] }
   ],
   "noun": [
     { "text": "sword", "plural": "swords", "tags": ["concrete"] },
     { "text": "wolf", "plural": "wolves", "tags": ["animal", "concrete"], "weight": 2 },
     { "text": "owlbear", "plural": "owlbears", "tags": ["animal", "concrete"] },
     { "text": "raven", "plural": "ravens", "tags": ["animal", "concrete"] },
-    { "text": "{metal} idol", "tags": ["concrete", "treasure"] },
-    { "text": "whisper", "plural": "whispers", "tags": ["abstract"] }
+    { "text": "stag", "plural": "stags", "tags": ["animal", "concrete"] },
+    { "text": "serpent", "plural": "serpents", "tags": ["animal", "concrete"] },
+    { "text": "lantern", "plural": "lanterns", "tags": ["concrete"] },
+    { "text": "crown", "plural": "crowns", "tags": ["concrete", "treasure"] },
+    { "text": "chalice", "plural": "chalices", "tags": ["concrete", "treasure"] },
+    { "text": "{metal} idol", "plural": "{metal} idols", "tags": ["concrete", "treasure"] },
+    { "text": "whisper", "plural": "whispers", "tags": ["abstract"] },
+    { "text": "oath", "plural": "oaths", "tags": ["abstract"] }
   ],
-  "metal": ["iron", "silver", "gold", "copper"]
+  "metal": ["iron", "silver", "gold", "copper", "bronze"],
+  "first-name": [
+    "Berrin", "Maeve", "Oswin", "Tilda", "Corvo", "Ysolde",
+    "Fenwick", "Adra", "Lorcan", "Petra", "Haldor", "Nyssa"
+  ],
+  "epithet": [
+    "the Bold", "the Grey", "the Unlucky", "of the Marsh",
+    "Threefingers", "the Quiet", "Ironjaw", "the Wanderer"
+  ],
+  "name-start": [
+    "Oak", "Stone", "Ash", "Raven", "Mill", "Salt", "Thorn", "Elder", "Fox", "Winter"
+  ],
+  "name-end": [
+    "bridge", "hollow", "ford", "haven", "moor", "stead", "cross", "fall", "gate", "brook"
+  ],
+  "weather": [
+    "a thin cold rain",
+    "low fog off the water",
+    "bright, hard sunlight",
+    "a wind that smells of smoke",
+    "gathering storm clouds",
+    "unseasonable heat"
+  ]
 }

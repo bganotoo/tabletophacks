@@ -31,3 +31,38 @@ test('the npc generator has the expected shape', async () => {
   assert.ok(['tavern', 'hovel'].includes(npc.home.type));
   assert.deepEqual(gen.run('npc', { seed: 'a7k2' }), npc); // reproducible
 });
+
+test('the encounter generator has the expected shape', async () => {
+  const gen = await Generator.load(files.map((f) => new URL(f, dataDir)));
+  const enc = gen.run('encounter', { seed: 'e1' });
+  assert.ok(enc.creatures.length > 0);
+  assert.equal(typeof enc.activity, 'string');
+  assert.equal(typeof enc.terrain, 'string');
+  assert.deepEqual(gen.run('encounter', { seed: 'e1' }), enc);
+});
+
+test('the settlement generator has the expected shape', async () => {
+  const gen = await Generator.load(files.map((f) => new URL(f, dataDir)));
+  const town = gen.run('settlement', { seed: 's1' });
+  assert.ok(town.name.length > 0);
+  assert.equal(typeof town.size, 'string');
+  assert.equal(typeof town.feature, 'string');
+  assert.equal(typeof town.rumor, 'string');
+});
+
+test('the dungeon generator has the expected shape', async () => {
+  const gen = await Generator.load(files.map((f) => new URL(f, dataDir)));
+  const dungeon = gen.run('dungeon', { seed: 'd1' });
+  assert.ok(dungeon.name.length > 0);
+  assert.equal(typeof dungeon.theme, 'string');
+  assert.ok(Array.isArray(dungeon.rooms) && dungeon.rooms.length >= 2);
+});
+
+test('the quest generator has the expected shape', async () => {
+  const gen = await Generator.load(files.map((f) => new URL(f, dataDir)));
+  const quest = gen.run('quest', { seed: 'q1' });
+  assert.equal(typeof quest.hook, 'string');
+  assert.ok(quest.patron.name.length > 0);
+  assert.equal(typeof quest.goal, 'string');
+  assert.equal(typeof quest.reward, 'string');
+});

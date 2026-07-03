@@ -1,0 +1,49 @@
+{
+  "creature": [
+    { "text": "bandit", "plural": "bandits", "tags": ["humanoid"], "weight": 2 },
+    { "text": "goblin scavenger", "plural": "goblin scavengers", "tags": ["humanoid"], "weight": 2 },
+    { "text": "cultist", "plural": "cultists", "tags": ["humanoid"] },
+    { "text": "dire wolf", "plural": "dire wolves", "tags": ["beast"], "weight": 2 },
+    { "text": "giant spider", "plural": "giant spiders", "tags": ["beast"] },
+    { "text": "owlbear", "plural": "owlbears", "tags": ["beast"], "weight": 0.5 },
+    { "text": "restless skeleton", "plural": "restless skeletons", "tags": ["undead"] },
+    { "text": "hungry ghoul", "plural": "hungry ghouls", "tags": ["undead"] },
+    { "text": "will-o'-wisp", "plural": "will-o'-wisps", "tags": ["undead", "magic"], "weight": 0.5 }
+  ],
+  "encounter-activity": [
+    "arguing over {a} {noun#treasure}",
+    "laying an ambush along the road",
+    "feeding on a fresh kill",
+    "searching for something in the mud",
+    "dragging a captive toward their camp",
+    "sleeping around a dying fire",
+    "performing a ritual by torchlight",
+    "fleeing from something worse"
+  ],
+  "terrain": [
+    "a narrow forest track",
+    "a ruined watchtower",
+    "a rocky ford across a stream",
+    "an overgrown graveyard",
+    "a collapsed roadside shrine",
+    "the mouth of a cave",
+    "a moonlit clearing",
+    "a rope bridge over a gorge"
+  ],
+  "complication": [
+    "the weather turns: {weather}",
+    "one of them carries {a} {adjective#magic} {noun#concrete}",
+    "a second group is watching from hiding",
+    "they want to parley, not fight",
+    "the ground here is treacherous",
+    "an innocent bystander is caught in the middle",
+    "they are more afraid of the party than they let on"
+  ],
+  "encounter": {
+    "creatures": "{2d4} {creature.plural}",
+    "activity": "{encounter-activity}",
+    "terrain": "{terrain}",
+    "complication": { "$maybe": 0.5, "value": "{complication}" },
+    "loot": { "$maybe": 0.4, "value": "{loot}" }
+  }
+}
