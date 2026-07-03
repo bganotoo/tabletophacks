@@ -11,7 +11,7 @@
   ],
   "loot": [
     { "text": "{2-20} gold pieces", "tags": ["treasure"] },
-    { "text": "a {metal} ring", "tags": ["treasure"] },
+    { "text": "{a} {metal} ring", "tags": ["treasure"] },
     { "text": "{a} {adjective} {noun#concrete}", "tags": ["treasure"] },
     { "text": "a map to {a} {noun#treasure}", "tags": ["treasure"] }
   ],

@@ -150,7 +150,7 @@ a.card {
   text-decoration: none;
 }
 
-.badge-live {
+.badge.badge-live {
   background: #4ade80;
 }
 
