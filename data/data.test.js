@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import { Generator } from '../gen/index.js';
 
-const dataDir = new URL('../data/', import.meta.url);
+const dataDir = new URL('./', import.meta.url);
 const files = (await readdir(dataDir)).filter((f) => f.endsWith('.json'));
 
 test('there is at least one data file', () => {

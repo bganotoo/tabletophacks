@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseTemplate, ParseError } from '../gen/parser.js';
+import { parseTemplate, ParseError } from './parser.js';
 
 const one = (tpl) => {
   const nodes = parseTemplate(tpl);

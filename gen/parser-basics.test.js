@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseTemplate, ParseError } from '../gen/parser.js';
+import { parseTemplate, ParseError } from './parser.js';
 
 const lookup = (table, extra = {}) => ({
   type: 'lookup', table, tags: [], notTags: [], capture: null, mods: [], ...extra,

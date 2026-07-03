@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Registry, createContext, evaluateJson } from '../gen/engine.js';
-import { RNG } from '../gen/rng.js';
+import { Registry, createContext, evaluateJson } from './engine.js';
+import { RNG } from './rng.js';
 
 const ctxFor = (data, opts = {}) => {
   const registry = new Registry();

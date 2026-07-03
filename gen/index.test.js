@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Generator, GenError, registerTransform } from '../gen/index.js';
+import { Generator, GenError, registerTransform } from './index.js';
 
 const data = {
   noun: [

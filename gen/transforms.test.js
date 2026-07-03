@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   getTransform, registerTransform, transformNames, levenshtein, suggest,
-} from '../gen/transforms.js';
+} from './transforms.js';
 
 test('built-in transforms work', () => {
   assert.equal(getTransform('capitalize')('owlbear'), 'Owlbear');
