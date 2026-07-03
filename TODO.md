@@ -4,7 +4,7 @@ Working notes for what's next. Items reference the architecture in
 [CLAUDE.md](CLAUDE.md); design records for bigger efforts belong in
 `docs/superpowers/specs/` and `docs/superpowers/plans/`.
 
-## Custom templates (next up)
+## Custom templates
 
 - [ ] **"Custom" section in the Generator sidebar, starting with a "Create" page.**
   A dedicated home for what the "Quick template" section does today. On the
@@ -75,15 +75,51 @@ Working notes for what's next. Items reference the architecture in
 - [ ] **Storage usage indicator** — localStorage is the only persistence and
   it's small; show usage and warn before `store.set` starts failing.
 
+## New tools ("Coming Soon" on the homepage)
+
+Each of these already has a card on the landing page; shipping one means
+building it under `tools/<name>/` (thin `app.js`, testable logic in
+`tools/shared/` or a tool-local module with tests) and flipping its card from
+`div` to anchor with the "Live" badge.
+
+- [ ] **Dice Roller** — roll any combination of polyhedral dice with
+  modifiers. The engine already parses and rolls dice expressions (`{3d6+2}`)
+  with a seedable RNG, so build on `gen/` rather than writing a second dice
+  parser. Worth adding: per-die breakdown (not just the total), roll history,
+  advantage/disadvantage, and keep/drop (`4d6kh3`) — the last may need small
+  engine or tool-side extensions.
+- [ ] **Initiative Tracker** — turn order and conditions in combat. Add,
+  reorder, and remove combatants; round counter; condition tags with optional
+  duration that tick down each round. Persist the active encounter in
+  `store.js` so a page reload mid-combat doesn't lose state.
+- [ ] **Game Timer** — chess-clock style countdown for turns and rounds.
+  Per-player clocks, tap-to-pass, configurable time per turn, audible/visual
+  alert at zero. Timers must survive tab-switching (compute from timestamps,
+  not `setInterval` ticks).
+- [ ] **Score Tracker** — multi-player score sheet for board games. Named
+  players, per-round score entry, running totals, optional score categories
+  (e.g. for games with multiple scoring tracks). Persist sheets in `store.js`
+  and allow multiple saved sheets, like the generator library.
+- [ ] **Rules Reference** — quick-lookup cards for common conditions and
+  actions. Content-driven like `data/`: rules live in JSON, the tool renders
+  searchable/filterable cards. Needs a licensing decision first (SRD/CC
+  content only) and should support multiple rule sets eventually.
+
 ## Content packs
 
+- [ ] **Grow the shared vocabulary in `data/common.json`.** The word tables
+  every pack builds on are small (~15 adjectives, ~12 nouns, a handful of
+  metals, names, and weather entries), which makes repeated output feel samey
+  fast. Expand each table several-fold, and grow the tag vocabulary along
+  with it (`#magic`, `#animal`, `#treasure`, …) so filtered lookups like
+  `{adjective#magic}` still have enough entries to vary. The pack validation
+  suite in `data/data.test.js` covers the changes automatically; watch
+  weights so new entries don't drown out the flavorful rare ones.
 - [ ] More built-in packs (each is JSON + one `BUILTIN_PACKS` entry, and
   `data/data.test.js` covers it automatically): magic items / trinkets,
   weather & travel events, traps & hazards, name tables by culture/ancestry.
 
 ## Someday / maybe
 
-- [ ] Landing-page "Coming Soon" cards for whichever tools above get
-  committed to next, so the roadmap is visible on the site.
 - [ ] Offline support (service worker) — the site is fully static, so this
   is mostly cache plumbing.
