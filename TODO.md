@@ -6,7 +6,9 @@ Working notes for what's next. Items reference the architecture in
 
 ## Custom templates
 
-- [ ] **"Custom" section in the Generator sidebar, starting with a "Create" page.**
+- [x] **"Custom" section in the Generator sidebar, starting with a "Create" page.**
+  Done 2026-07-03 — see
+  [docs/superpowers/specs/2026-07-03-custom-templates-design.md](docs/superpowers/specs/2026-07-03-custom-templates-design.md).
   A dedicated home for what the "Quick template" section does today. On the
   Create page the user writes a template string, runs it to test (strict mode,
   seedable, same error cards as everywhere else), and can save it under a

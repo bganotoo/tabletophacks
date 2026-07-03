@@ -98,7 +98,7 @@ export function buildGenerator(builtinData, customPacks = []) {
  * on name collisions (so customs shadow built-ins, mirroring buildGenerator).
  * @param {typeof BUILTIN_PACKS} builtinPacks
  * @param {{ id: string, name: string, source: string }[]} customPacks
- * @returns {{ name: string, title: string, packTitle: string, custom: boolean }[]}
+ * @returns {{ name: string, title: string, packTitle: string, packId: string, custom: boolean }[]}
  */
 export function listGenerators(builtinPacks, customPacks = []) {
   const byName = new Map();
@@ -108,6 +108,7 @@ export function listGenerators(builtinPacks, customPacks = []) {
         name: gen.name,
         title: gen.title,
         packTitle: pack.title,
+        packId: pack.id,
         custom: false,
       });
     }
@@ -116,7 +117,7 @@ export function listGenerators(builtinPacks, customPacks = []) {
     const parsed = parsePack(pack.source);
     if (!parsed.ok) continue;
     for (const name of Generator.fromData(parsed.data).names()) {
-      byName.set(name, { name, title: name, packTitle: pack.name, custom: true });
+      byName.set(name, { name, title: name, packTitle: pack.name, packId: pack.id, custom: true });
     }
   }
   return [...byName.values()];

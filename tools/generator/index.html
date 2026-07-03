@@ -16,46 +16,83 @@
     <div class="tool-layout">
       <nav class="sidebar" id="sidebar" aria-label="Generators"></nav>
       <main class="main-panel">
-        <div id="gen-head">
-          <h2 class="gen-title" id="gen-title">Loading…</h2>
-          <p class="gen-subtitle" id="gen-subtitle"></p>
-        </div>
-        <div class="run-bar">
-          <button class="btn btn-primary" id="generate-btn">Generate</button>
-          <button class="btn" id="reroll-btn" title="Generate again with a fresh random seed">Reroll</button>
-          <input class="seed-input" id="seed-input" type="text"
-                 placeholder="seed (optional)" aria-label="Seed" />
-          <span class="gen-seed" id="seed-used"></span>
-        </div>
-        <div class="result-panel" id="result-panel">
-          <p class="placeholder">Pick a generator and hit Generate.</p>
-        </div>
-        <div class="result-actions">
-          <button class="btn" id="copy-btn" disabled>Copy</button>
-          <button class="btn" id="save-btn" disabled>Save to library</button>
-        </div>
-
-        <section class="tool-section">
-          <h2>Quick template</h2>
-          <div class="quick-row">
-            <input class="quick-input" id="quick-input" type="text"
-                   placeholder='Try: {3x npc-quirk.join(" / ")} or {a} {adjective} {noun}'
-                   aria-label="Quick template" />
-            <button class="btn" id="quick-btn">Run</button>
+        <div id="gen-view">
+          <div id="gen-head">
+            <h2 class="gen-title" id="gen-title">Loading…</h2>
+            <p class="gen-subtitle" id="gen-subtitle"></p>
           </div>
-          <div class="quick-output" id="quick-output"></div>
-          <p class="hint">One-off template expansion — any table works:
-            <code>{tavern-name}</code>, <code>{2d6+3}</code>,
-            <code>{adjective#magic} {noun#treasure}</code>.</p>
-        </section>
-
-        <section class="tool-section">
-          <h2>Library</h2>
+          <div class="run-bar">
+            <button class="btn btn-primary" id="generate-btn">Generate</button>
+            <button class="btn" id="reroll-btn" title="Generate again with a fresh random seed">Reroll</button>
+            <input class="seed-input" id="seed-input" type="text"
+                   placeholder="seed (optional)" aria-label="Seed" />
+            <span class="gen-seed" id="seed-used"></span>
+          </div>
+          <div class="result-panel" id="result-panel">
+            <p class="placeholder">Pick a generator and hit Generate.</p>
+          </div>
           <div class="result-actions">
-            <button class="btn btn-small" id="export-lib-btn">Export all</button>
+            <button class="btn" id="copy-btn" disabled>Copy</button>
+            <button class="btn" id="save-btn" disabled>Save to library</button>
           </div>
-          <ul class="library-list" id="library-list"></ul>
-        </section>
+
+          <section class="tool-section">
+            <h2>Quick template</h2>
+            <div class="quick-row">
+              <input class="quick-input" id="quick-input" type="text"
+                     placeholder='Try: {3x npc-quirk.join(" / ")} or {a} {adjective} {noun}'
+                     aria-label="Quick template" />
+              <button class="btn" id="quick-btn">Run</button>
+            </div>
+            <div class="quick-output" id="quick-output"></div>
+            <p class="hint">One-off template expansion — any table works:
+              <code>{tavern-name}</code>, <code>{2d6+3}</code>,
+              <code>{adjective#magic} {noun#treasure}</code>.</p>
+          </section>
+
+          <section class="tool-section">
+            <h2>Library</h2>
+            <div class="result-actions">
+              <button class="btn btn-small" id="export-lib-btn">Export all</button>
+            </div>
+            <ul class="library-list" id="library-list"></ul>
+          </section>
+        </div>
+
+        <div id="create-view" hidden>
+          <div>
+            <h2 class="gen-title">New template</h2>
+            <p class="gen-subtitle">Write a template string, test it, and save it as a generator of your own.</p>
+          </div>
+          <textarea class="tpl-input" id="tpl-input" rows="3"
+                    placeholder='{a} {adjective#magic} {noun#treasure} worth {3d6} gold'
+                    aria-label="Template"></textarea>
+          <div class="run-bar">
+            <button class="btn btn-primary" id="tpl-run-btn">Run</button>
+            <button class="btn" id="tpl-reroll-btn" title="Run again with a fresh random seed">Reroll</button>
+            <input class="seed-input" id="tpl-seed" type="text"
+                   placeholder="seed (optional)" aria-label="Seed" />
+            <span class="gen-seed" id="tpl-seed-used"></span>
+          </div>
+          <div class="result-panel" id="tpl-output">
+            <p class="placeholder">Run the template to test it.</p>
+          </div>
+          <div class="save-row">
+            <input class="tpl-name" id="tpl-name" type="text"
+                   placeholder="name (e.g. treasure)" aria-label="Template name" />
+            <button class="btn" id="tpl-save-btn">Save template</button>
+          </div>
+          <div class="editor-status" id="tpl-status"></div>
+          <p class="hint">Anything the Quick template box accepts works here:
+            <code>{tavern-name}</code>, <code>{2d6+3}</code>,
+            <code>{2x npc-quirk.join(" / ")}</code>. Saved templates appear under
+            <strong>Custom</strong> in the sidebar and run like any other generator.</p>
+
+          <section class="tool-section">
+            <h2>Saved templates</h2>
+            <ul class="library-list" id="tpl-list"></ul>
+          </section>
+        </div>
       </main>
     </div>
   </body>

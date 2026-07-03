@@ -75,9 +75,9 @@ test('listGenerators labels built-in and custom generators', () => {
   const customs = [{ id: 'p1', name: 'My Pack', source: VALID_SOURCE }];
   const list = listGenerators(builtins, customs);
   const npc = list.find((g) => g.name === 'npc');
-  assert.deepEqual(npc, { name: 'npc', title: 'NPC', packTitle: 'Core', custom: false });
+  assert.deepEqual(npc, { name: 'npc', title: 'NPC', packTitle: 'Core', packId: 'core', custom: false });
   const gem = list.find((g) => g.name === 'gem');
-  assert.deepEqual(gem, { name: 'gem', title: 'gem', packTitle: 'My Pack', custom: true });
+  assert.deepEqual(gem, { name: 'gem', title: 'gem', packTitle: 'My Pack', packId: 'p1', custom: true });
   // tables in custom packs are runnable too
   assert.ok(list.some((g) => g.name === 'color'));
 });
@@ -97,6 +97,7 @@ test('listGenerators dedupes by name with custom winning', () => {
   const gems = list.filter((g) => g.name === 'gem');
   assert.equal(gems.length, 1);
   assert.equal(gems[0].custom, true);
+  assert.equal(gems[0].packId, 'p1');
 });
 
 test('listGenerators skips invalid custom packs', () => {
