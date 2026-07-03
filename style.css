@@ -144,6 +144,20 @@ body {
               border-color 0.2s ease, background 0.2s ease;
 }
 
+a.card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.badge-live {
+  background: #4ade80;
+}
+
+.card.card-live:hover .badge-live {
+  background: #86efac;
+}
+
 .card-title {
   font-size: 1rem;
   font-weight: 600;
