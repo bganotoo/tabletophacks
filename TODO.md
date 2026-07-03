@@ -23,8 +23,10 @@ Working notes for what's next. Items reference the architecture in
     existing Registry rules (`a`/`an` reserved, collision = override, so warn
     when a chosen name shadows a built-in).
 
-- [ ] **Retire the "Quick template" section; add "View template" to every
-  generator page instead.** Each generator gets a way to reveal its
+- [x] **Retire the "Quick template" section; add "View template" to every
+  generator page instead.** Done 2026-07-03 — see
+  [docs/superpowers/specs/2026-07-03-view-template-design.md](docs/superpowers/specs/2026-07-03-view-template-design.md).
+  Each generator gets a way to reveal its
   definition. From the view, the user can:
   - **Edit and save** — persists a per-user override that shadows the
     built-in for them only. This is exactly the pack load-order invariant
