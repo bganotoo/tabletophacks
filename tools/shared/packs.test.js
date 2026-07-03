@@ -1,6 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BUILTIN_PACKS, parsePack, buildGenerator, listGenerators } from './packs.js';
+import {
+  BUILTIN_PACKS,
+  parsePack,
+  buildGenerator,
+  listGenerators,
+  effectiveDefinition,
+} from './packs.js';
+import { MY_OVERRIDES_ID } from './overrides.js';
+
+const overridePack = (data) => ({
+  id: MY_OVERRIDES_ID,
+  name: 'My Overrides',
+  source: JSON.stringify(data),
+});
 
 const VALID_SOURCE = JSON.stringify({
   color: ['red', 'blue'],
@@ -103,6 +116,52 @@ test('listGenerators dedupes by name with custom winning', () => {
 test('listGenerators skips invalid custom packs', () => {
   const list = listGenerators([], [{ id: 'p1', name: 'Broken', source: '{' }]);
   assert.deepEqual(list, []);
+});
+
+test('buildGenerator loads the override pack last so it wins', () => {
+  const { generator } = buildGenerator(
+    [{ color: ['red'] }],
+    [
+      overridePack({ color: ['from-override'] }),
+      { id: 'p1', source: JSON.stringify({ color: ['from-custom'] }) },
+    ],
+  );
+  assert.equal(generator.text('{color}', { seed: 1 }), 'from-override');
+});
+
+test('listGenerators excludes the override pack', () => {
+  const builtins = [
+    {
+      id: 'core', title: 'Core', description: '', files: [],
+      generators: [{ name: 'loot', title: 'Loot', kind: 'text' }],
+    },
+  ];
+  const customs = [overridePack({ loot: ['{noun}'] })];
+  const list = listGenerators(builtins, customs);
+  assert.equal(list.filter((g) => g.packId === MY_OVERRIDES_ID).length, 0);
+  // the built-in entry still appears
+  assert.ok(list.some((g) => g.name === 'loot' && g.custom === false));
+});
+
+test('effectiveDefinition resolves built-in, custom, then override', () => {
+  const builtinData = [{ loot: ['built-in'] }];
+  assert.deepEqual(effectiveDefinition(builtinData, [], 'loot'), ['built-in']);
+  const withCustom = [{ id: 'p1', source: JSON.stringify({ loot: ['custom'] }) }];
+  assert.deepEqual(effectiveDefinition(builtinData, withCustom, 'loot'), ['custom']);
+  const withOverride = [...withCustom, overridePack({ loot: ['override'] })];
+  assert.deepEqual(effectiveDefinition(builtinData, withOverride, 'loot'), ['override']);
+});
+
+test('effectiveDefinition returns object definitions and null for unknown', () => {
+  const builtinData = [{ gem: { name: '{color}' } }];
+  assert.deepEqual(effectiveDefinition(builtinData, [], 'gem'), { name: '{color}' });
+  assert.equal(effectiveDefinition(builtinData, [], 'nope'), null);
+});
+
+test('effectiveDefinition ignores invalid custom packs', () => {
+  const builtinData = [{ loot: ['built-in'] }];
+  const customs = [{ id: 'broken', source: '{nope' }];
+  assert.deepEqual(effectiveDefinition(builtinData, customs, 'loot'), ['built-in']);
 });
 
 test('BUILTIN_PACKS manifest is well-formed', () => {

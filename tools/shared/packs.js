@@ -1,6 +1,14 @@
 /** Pack catalog: built-in manifest, custom-pack validation, Generator assembly. */
 
 import { Generator } from '../../gen/index.js';
+import { MY_OVERRIDES_ID } from './overrides.js';
+
+/** Custom packs in load order: overrides always last so they win. */
+function orderedCustomPacks(customPacks) {
+  const overrides = customPacks.filter((p) => p.id === MY_OVERRIDES_ID);
+  const rest = customPacks.filter((p) => p.id !== MY_OVERRIDES_ID);
+  return [...rest, ...overrides];
+}
 
 /**
  * Built-in packs shipped with the site. `files` are relative to the tool
@@ -84,7 +92,7 @@ export function parsePack(source) {
 export function buildGenerator(builtinData, customPacks = []) {
   const generator = Generator.fromData(...builtinData);
   const invalid = [];
-  for (const pack of customPacks) {
+  for (const pack of orderedCustomPacks(customPacks)) {
     const parsed = parsePack(pack.source);
     if (parsed.ok) generator.registry.load(parsed.data);
     else invalid.push({ id: pack.id, error: parsed.error });
@@ -114,6 +122,7 @@ export function listGenerators(builtinPacks, customPacks = []) {
     }
   }
   for (const pack of customPacks) {
+    if (pack.id === MY_OVERRIDES_ID) continue; // overrides reshape existing names only
     const parsed = parsePack(pack.source);
     if (!parsed.ok) continue;
     for (const name of Generator.fromData(parsed.data).names()) {
@@ -121,4 +130,27 @@ export function listGenerators(builtinPacks, customPacks = []) {
     }
   }
   return [...byName.values()];
+}
+
+/**
+ * The raw definition value the assembled generator resolves for `name`:
+ * a table array or a JSON-template object. Scans built-in data, then custom
+ * packs, then the override pack last — later wins. Invalid packs are skipped.
+ * @param {object[]} builtinData
+ * @param {{ id: string, source: string }[]} customPacks
+ * @param {string} name
+ * @returns {unknown | null}
+ */
+export function effectiveDefinition(builtinData, customPacks = [], name) {
+  let found = null;
+  for (const data of builtinData) {
+    if (data && Object.prototype.hasOwnProperty.call(data, name)) found = data[name];
+  }
+  for (const pack of orderedCustomPacks(customPacks)) {
+    const parsed = parsePack(pack.source);
+    if (parsed.ok && Object.prototype.hasOwnProperty.call(parsed.data, name)) {
+      found = parsed.data[name];
+    }
+  }
+  return found;
 }
