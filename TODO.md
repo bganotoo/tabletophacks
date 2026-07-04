@@ -111,7 +111,7 @@ building it under `tools/<name>/` (thin `app.js`, testable logic in
 
 ## Content packs
 
-- [ ] **Grow the shared vocabulary in `data/common.json`.** The word tables
+- [x] **Grow the shared vocabulary in `data/common.json`.** The word tables
   every pack builds on are small (~15 adjectives, ~12 nouns, a handful of
   metals, names, and weather entries), which makes repeated output feel samey
   fast. Expand each table several-fold, and grow the tag vocabulary along
