@@ -78,8 +78,14 @@ Working notes for what's next. Items reference the architecture in
   rerolling; a **Copy link** button copies a URL for the currently shown result
   (including one opened from the library). All hash parsing moved into the tested
   `tools/shared/genhash.js` (`parseHash`/`formatGeneratorHash`).
-- [ ] **Library import.** Export exists (`export-lib-btn`); add the matching
-  import with merge-by-id, mirroring the Workshop's pack import.
+- [x] **Library import.** Done 2026-07-04 — see
+  [docs/superpowers/specs/2026-07-04-library-import-design.md](docs/superpowers/specs/2026-07-04-library-import-design.md).
+  An **Import** button beside **Export all** reads a `tabletophacks-library.json`
+  and merges it into the saved library, de-duplicating by entry id (existing
+  snapshots kept, new ids appended, re-import idempotent). The validation and
+  merge logic lives in the tested `tools/shared/library.js`
+  (`parseLibrary`/`mergeLibrary`); `app.js` wiring mirrors the Workshop's pack
+  import.
 - [ ] **Copy as Markdown** alongside plain-text copy, for pasting into
   Notion/Obsidian prep docs.
 - [ ] **Generate N at once** (e.g. roll 5 NPCs into a list) — cheap to do,

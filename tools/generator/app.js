@@ -18,6 +18,7 @@ import {
 import { buildCatalog, filterCatalog, sampleTable } from '../shared/catalog.js';
 import { parseHash, formatGeneratorHash } from '../shared/genhash.js';
 import { renderResult, resultToText } from '../shared/render.js';
+import { parseLibrary, mergeLibrary } from '../shared/library.js';
 import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
 
@@ -510,6 +511,29 @@ function renderLibrary() {
   }
 }
 
+function importLibrary(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const parsed = parseLibrary(String(reader.result));
+    if (!parsed.ok) {
+      toast(`Import failed: ${parsed.error}`);
+      return;
+    }
+    const { merged, added } = mergeLibrary(library(), parsed.entries);
+    if (added === 0) {
+      toast('Library already up to date');
+      return;
+    }
+    if (!store.set('library', merged)) {
+      toast('Could not save — browser storage is full');
+      return;
+    }
+    renderLibrary();
+    toast(`Imported ${added} result${added === 1 ? '' : 's'}`);
+  };
+  reader.readAsText(file);
+}
+
 function saveToLibrary() {
   if (state.lastResult === null) return;
   const gen = state.list.find((g) => g.name === state.selected);
@@ -681,6 +705,12 @@ async function main() {
   $('save-btn').addEventListener('click', saveToLibrary);
   $('export-lib-btn').addEventListener('click', () => {
     download('tabletophacks-library.json', JSON.stringify(library(), null, 2));
+  });
+  $('import-lib-btn').addEventListener('click', () => $('import-lib-input').click());
+  $('import-lib-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) importLibrary(file);
+    e.target.value = '';
   });
   $('vt-edit-btn').addEventListener('click', vtBeginEdit);
   $('vt-save-btn').addEventListener('click', vtSaveChanges);
