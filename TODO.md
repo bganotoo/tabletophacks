@@ -46,11 +46,15 @@ Working notes for what's next. Items reference the architecture in
 
 ## Template authoring support
 
-- [ ] **Template syntax reference page.** Once users write templates on the
+- [x] **Template syntax reference page.** Done 2026-07-03 — see
+  [docs/superpowers/specs/2026-07-03-syntax-reference-design.md](docs/superpowers/specs/2026-07-03-syntax-reference-design.md).
+  Once users write templates on the
   Create page, they need the `{...}` syntax documented in-product: table
   lookups, `#tag`/`#!tag` filters, `.transform` mods, `@capture`, dice,
   ranges, alternatives with weights, `{2x ...}` repetition, smart article.
-  Link it from the Create page and the Workshop.
+  Link it from the Create page and the Workshop. Shipped as the standalone
+  `tools/reference/` page; every example is data (`tools/shared/syntax-reference.js`)
+  and strict-run by the test suite so the docs can't drift.
 - [ ] **Browsable table catalog.** A searchable list of every table name the
   assembled generator knows (built-in + custom), with a sample value per
   table — writing `{adjective#magic}` requires knowing `adjective` and
