@@ -93,12 +93,14 @@ building it under `tools/<name>/` (thin `app.js`, testable logic in
 `tools/shared/` or a tool-local module with tests) and flipping its card from
 `div` to anchor with the "Live" badge.
 
-- [ ] **Dice Roller** — roll any combination of polyhedral dice with
-  modifiers. The engine already parses and rolls dice expressions (`{3d6+2}`)
-  with a seedable RNG, so build on `gen/` rather than writing a second dice
-  parser. Worth adding: per-die breakdown (not just the total), roll history,
-  advantage/disadvantage, and keep/drop (`4d6kh3`) — the last may need small
-  engine or tool-side extensions.
+- [x] **Dice Roller** — roll any combination of polyhedral dice with
+  modifiers. Done 2026-07-03 — see
+  [docs/superpowers/specs/2026-07-03-dice-roller-design.md](docs/superpowers/specs/2026-07-03-dice-roller-design.md).
+  Shipped at `tools/dice/` with per-die breakdown, keep/drop
+  (`4d6kh3`/`kl`/`dh`/`dl`), advantage/disadvantage quick rolls, `d%`, and a
+  persisted roll history. Reuses `gen/rng.js` for randomness; the notation
+  parser/roller lives in the tested `tools/shared/dice.js` (the engine's dice
+  evaluator returns only a total, so a dedicated module gives the breakdown).
 - [ ] **Initiative Tracker** — turn order and conditions in combat. Add,
   reorder, and remove combatants; round counter; condition tags with optional
   duration that tick down each round. Persist the active encounter in

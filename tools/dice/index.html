@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dice Roller — Tabletop Hacks</title>
+    <link href="../shared/tools.css" rel="stylesheet" />
+    <script defer src="app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="tool-header">
+      <a class="home-link" href="../../">Tabletop <span class="accent">Hacks</span></a>
+      <h1>Dice Roller</h1>
+      <nav class="tool-nav">
+        <a href="../generator/">Generator →</a>
+        <a href="../workshop/">Workshop →</a>
+      </nav>
+    </header>
+    <main class="main-panel dice-panel">
+      <p class="gen-subtitle">
+        Roll any dice notation — <code>3d6</code>, <code>1d20+5</code>,
+        <code>4d6kh3</code> (keep highest 3), <code>2d20kl1</code>
+        (disadvantage), <code>d%</code>. See every die, not just the total.
+      </p>
+
+      <div class="run-bar">
+        <input class="dice-input" id="dice-input" type="text"
+               placeholder="e.g. 2d6+3" aria-label="Dice expression"
+               autocomplete="off" spellcheck="false" />
+        <button class="btn btn-primary" id="roll-btn">Roll</button>
+      </div>
+
+      <div class="dice-quick" id="dice-quick" aria-label="Quick rolls">
+        <button class="btn btn-small" data-die="4">d4</button>
+        <button class="btn btn-small" data-die="6">d6</button>
+        <button class="btn btn-small" data-die="8">d8</button>
+        <button class="btn btn-small" data-die="10">d10</button>
+        <button class="btn btn-small" data-die="12">d12</button>
+        <button class="btn btn-small" data-die="20">d20</button>
+        <button class="btn btn-small" data-die="%">d100</button>
+        <span class="dice-quick-sep"></span>
+        <button class="btn btn-small" data-expr="2d20kh1">Advantage</button>
+        <button class="btn btn-small" data-expr="2d20kl1">Disadvantage</button>
+      </div>
+
+      <div class="result-panel" id="result-panel">
+        <p class="placeholder">Type a roll and hit Roll, or tap a die above.</p>
+      </div>
+      <div class="result-actions">
+        <button class="btn" id="copy-btn" disabled>Copy</button>
+      </div>
+
+      <section class="tool-section">
+        <h2>History</h2>
+        <div class="result-actions dice-history-actions">
+          <button class="btn btn-small" id="clear-history-btn">Clear</button>
+        </div>
+        <ul class="library-list" id="history-list"></ul>
+      </section>
+    </main>
+  </body>
+</html>

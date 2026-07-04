@@ -423,6 +423,82 @@ select { background: var(--card); }
   color: var(--text-muted);
 }
 
+/* ── Dice roller ────────────────────────────── */
+.dice-panel { max-width: 720px; }
+
+.dice-input { flex: 1; min-width: 8rem; max-width: 20rem; }
+
+.dice-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.dice-quick-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 0.1rem 0.35rem;
+}
+
+.dice-total {
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--accent-light);
+}
+
+.dice-expr {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.15rem 0 0.9rem;
+}
+
+.dice-breakdown { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.dice-term {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dice-term-sign { color: var(--text-muted); width: 0.9rem; text-align: center; }
+
+.dice-term-label {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  min-width: 4.5rem;
+}
+
+.dice-dice { display: flex; flex-wrap: wrap; gap: 0.3rem; flex: 1; }
+
+.die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--background);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.die.kept { border-color: var(--accent); color: var(--text-primary); }
+
+.die.dropped { color: var(--text-muted); text-decoration: line-through; opacity: 0.6; }
+
+.dice-term-subtotal { color: var(--text-muted); font-size: 0.82rem; }
+
+.dice-history-actions { margin-bottom: 0.75rem; }
+
 /* ── Library ────────────────────────────────── */
 .library-list { list-style: none; }
 
