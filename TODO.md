@@ -69,9 +69,15 @@ Working notes for what's next. Items reference the architecture in
 
 ## Generator tool
 
-- [ ] **Shareable result links.** The generator name is already in the hash;
-  add the seed (e.g. `#npc:s=abc123`) so a link reproduces an exact result.
-  The seedable RNG guarantees this works.
+- [x] **Shareable result links.** Done 2026-07-04 — see
+  [docs/superpowers/specs/2026-07-04-shareable-result-links-design.md](docs/superpowers/specs/2026-07-04-shareable-result-links-design.md).
+  The generator name is already in the hash; the seed now rides along
+  (`#npc:s=abc123`) so a link reproduces an exact result — the seedable RNG
+  guarantees it. Every successful run upgrades the address bar to a seeded,
+  shareable link; opening one pins the seed and reproduces the result instead of
+  rerolling; a **Copy link** button copies a URL for the currently shown result
+  (including one opened from the library). All hash parsing moved into the tested
+  `tools/shared/genhash.js` (`parseHash`/`formatGeneratorHash`).
 - [ ] **Library import.** Export exists (`export-lib-btn`); add the matching
   import with merge-by-id, mirroring the Workshop's pack import.
 - [ ] **Copy as Markdown** alongside plain-text copy, for pasting into

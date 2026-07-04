@@ -16,6 +16,7 @@ import {
   removeOverride,
 } from '../shared/overrides.js';
 import { buildCatalog, filterCatalog, sampleTable } from '../shared/catalog.js';
+import { parseHash, formatGeneratorHash } from '../shared/genhash.js';
 import { renderResult, resultToText } from '../shared/render.js';
 import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
@@ -35,6 +36,8 @@ const state = {
   /** raw builtin data objects, kept for effectiveDefinition */ builtinData: [],
   lastResult: null,
   lastSeed: null,
+  /** generator that produced lastResult (may differ from `selected` for library opens) */
+  resultGenerator: null,
 };
 
 // ── Data loading ────────────────────────────────────────────────────────────
@@ -151,7 +154,7 @@ function renderSidebar() {
 
 // ── Selection ───────────────────────────────────────────────────────────────
 
-function select(name, { updateHash = true } = {}) {
+function select(name, { updateHash = true, seed = null } = {}) {
   const gen = state.list.find((g) => g.name === name) ?? state.list[0];
   if (!gen) return;
   state.view = 'generate';
@@ -160,6 +163,8 @@ function select(name, { updateHash = true } = {}) {
   $('tables-view').hidden = true;
   state.selected = gen.name;
   if (updateHash) history.replaceState(null, '', `#${gen.name}`);
+  // Arriving from a shared link: pin its seed so the run reproduces that result.
+  if (seed) $('seed-input').value = seed;
   const settings = store.get('settings', {});
   store.set('settings', { ...settings, lastGenerator: gen.name });
   $('gen-title').textContent = gen.title;
@@ -282,17 +287,30 @@ function generate(seedOverride) {
     const result = state.generator.run(state.selected, { seed, mode: 'strict' });
     state.lastResult = result;
     state.lastSeed = seed;
+    state.resultGenerator = state.selected;
     panel.innerHTML = renderResult(result);
     $('copy-btn').disabled = false;
+    $('copy-link-btn').disabled = false;
     $('save-btn').disabled = false;
     showSeed(seed);
+    // Keep the address bar a link that reproduces exactly what's shown.
+    history.replaceState(null, '', `#${formatGeneratorHash(state.selected, seed)}`);
   } catch (err) {
     state.lastResult = null;
     panel.append(el('div', { class: 'error-card' }, String(err.message ?? err)));
     $('copy-btn').disabled = true;
+    $('copy-link-btn').disabled = true;
     $('save-btn').disabled = true;
     $('seed-used').textContent = '';
   }
+}
+
+/** URL that reproduces the currently displayed result, or null if none. */
+function shareUrl() {
+  if (!state.resultGenerator || !state.lastSeed) return null;
+  const url = new URL(location.href);
+  url.hash = formatGeneratorHash(state.resultGenerator, state.lastSeed);
+  return url.toString();
 }
 
 function showSeed(seed, holderId = 'seed-used', inputId = 'seed-input') {
@@ -462,7 +480,9 @@ function renderLibrary() {
           $('result-panel').innerHTML = renderResult(entry.data);
           state.lastResult = entry.data;
           state.lastSeed = entry.seed;
+          state.resultGenerator = entry.generator;
           $('copy-btn').disabled = false;
+          $('copy-link-btn').disabled = !entry.seed; // shareable only if we know the seed
           $('save-btn').disabled = true; // already saved
           showSeed(entry.seed);
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -652,6 +672,12 @@ async function main() {
     await navigator.clipboard.writeText(resultToText(state.lastResult));
     toast('Copied');
   });
+  $('copy-link-btn').addEventListener('click', async () => {
+    const url = shareUrl();
+    if (!url) return;
+    await navigator.clipboard.writeText(url);
+    toast('Link copied — it reproduces this exact result');
+  });
   $('save-btn').addEventListener('click', saveToLibrary);
   $('export-lib-btn').addEventListener('click', () => {
     download('tabletophacks-library.json', JSON.stringify(library(), null, 2));
@@ -680,13 +706,19 @@ async function main() {
     if (e.key === 'Enter') saveNewTemplate();
   });
   window.addEventListener('hashchange', () => {
-    const name = location.hash.slice(1);
-    if (name === 'create') {
+    const parsed = parseHash(location.hash.slice(1));
+    if (parsed.route === 'create') {
       if (state.view !== 'create') showCreate({ updateHash: false });
-    } else if (name === 'tables') {
+    } else if (parsed.route === 'tables') {
       if (state.view !== 'tables') showTables({ updateHash: false });
-    } else if (name && name !== state.selected) {
-      select(name, { updateHash: false });
+    } else if (parsed.route === 'generate' && parsed.name) {
+      if (parsed.name !== state.selected) {
+        select(parsed.name, { updateHash: false, seed: parsed.seed });
+      } else if (parsed.seed && parsed.seed !== state.lastSeed) {
+        // Same generator, a freshly pasted seed: reproduce it.
+        $('seed-input').value = parsed.seed;
+        generate();
+      }
     }
   });
   // Another tab (e.g. the Workshop) edited packs: pick up the changes.
@@ -701,9 +733,11 @@ async function main() {
   });
 
   renderLibrary();
-  const initialHash = location.hash.slice(1);
-  if (initialHash === 'create') showCreate({ updateHash: false });
-  else if (initialHash === 'tables') showTables({ updateHash: false });
+  const parsed = parseHash(location.hash.slice(1));
+  if (parsed.route === 'create') showCreate({ updateHash: false });
+  else if (parsed.route === 'tables') showTables({ updateHash: false });
+  else if (parsed.route === 'generate' && state.list.some((g) => g.name === parsed.name))
+    select(parsed.name, { updateHash: false, seed: parsed.seed });
   else select(initialSelection());
 }
 
