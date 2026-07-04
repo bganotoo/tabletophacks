@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Score Tracker — Tabletop Hacks</title>
+    <link href="../shared/tools.css" rel="stylesheet" />
+    <script defer src="app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="tool-header">
+      <a class="home-link" href="../../">Tabletop <span class="accent">Hacks</span></a>
+      <h1>Score Tracker</h1>
+      <nav class="tool-nav">
+        <a href="../generator/">Generator →</a>
+        <a href="../dice/">Dice →</a>
+        <a href="../initiative/">Initiative →</a>
+        <a href="../timer/">Timer →</a>
+        <a href="../workshop/">Workshop →</a>
+      </nav>
+    </header>
+    <main class="main-panel score-panel">
+      <p class="gen-subtitle">
+        A multi-player score sheet. Add players and columns — one per
+        <strong>round</strong>, or rename them into scoring
+        <strong>categories</strong> — and the totals add themselves up. Keep as
+        many named sheets as you like; everything is saved in your browser.
+      </p>
+
+      <div class="score-bar run-bar">
+        <label class="score-field">
+          <span class="score-field-label">Sheet</span>
+          <select id="sheet-select" aria-label="Choose sheet"></select>
+        </label>
+        <input class="score-sheet-name" id="sheet-name" type="text"
+               placeholder="Sheet name" aria-label="Sheet name"
+               autocomplete="off" spellcheck="false" />
+        <button class="btn" id="new-sheet">New sheet</button>
+        <button class="btn btn-small btn-danger score-delete" id="delete-sheet">Delete sheet</button>
+      </div>
+
+      <div class="score-grid-wrap" id="grid-wrap"></div>
+
+      <div class="score-controls run-bar" id="controls">
+        <form class="score-add" id="add-form">
+          <input class="score-add-name" id="add-name" type="text" placeholder="Player name"
+                 aria-label="Player name" autocomplete="off" spellcheck="false" />
+          <button class="btn btn-primary" type="submit">Add player</button>
+        </form>
+        <button class="btn" id="add-round">Add round</button>
+      </div>
+    </main>
+  </body>
+</html>

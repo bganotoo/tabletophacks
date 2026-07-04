@@ -123,10 +123,19 @@ building it under `tools/<name>/` (thin `app.js`, testable logic in
   (pure/immutable, `now` injected); `app.js` is thin DOM wiring whose
   `setInterval` only repaints. Total-time-bank (tournament) mode is out of
   scope, noted as future.
-- [ ] **Score Tracker** — multi-player score sheet for board games. Named
-  players, per-round score entry, running totals, optional score categories
-  (e.g. for games with multiple scoring tracks). Persist sheets in `store.js`
-  and allow multiple saved sheets, like the generator library.
+- [x] **Score Tracker** — multi-player score sheet for board games. Done
+  2026-07-04 — see
+  [docs/superpowers/specs/2026-07-04-score-tracker-design.md](docs/superpowers/specs/2026-07-04-score-tracker-design.md).
+  Shipped at `tools/score/` with multiple saved, named sheets (switch/rename/
+  delete, like the library), named players, and a grid of renameable columns —
+  one per round (auto-named `Round N`) or renamed into scoring categories. Cells
+  take any number (negatives/fractions); per-player row totals add up live and
+  the current leader is highlighted. The whole book of sheets persists in
+  `store.js`, so a reload restores every sheet and score. The state machine
+  lives in the tested `tools/shared/scoresheet.js` (pure/immutable, book-level +
+  active-sheet layers); `app.js` is thin DOM wiring whose cell edits repaint
+  only totals so tabbing across the grid isn't interrupted. Target-score/win
+  banners, column totals, and sheet import/export are noted as future work.
 - [ ] **Rules Reference** — quick-lookup cards for common conditions and
   actions. Content-driven like `data/`: rules live in JSON, the tool renders
   searchable/filterable cards. Needs a licensing decision first (SRD/CC
