@@ -55,11 +55,14 @@ Working notes for what's next. Items reference the architecture in
   Link it from the Create page and the Workshop. Shipped as the standalone
   `tools/reference/` page; every example is data (`tools/shared/syntax-reference.js`)
   and strict-run by the test suite so the docs can't drift.
-- [ ] **Browsable table catalog.** A searchable list of every table name the
+- [x] **Browsable table catalog.** Done 2026-07-03 — see
+  [docs/superpowers/specs/2026-07-03-table-catalog-design.md](docs/superpowers/specs/2026-07-03-table-catalog-design.md).
+  A searchable list of every table name the
   assembled generator knows (built-in + custom), with a sample value per
   table — writing `{adjective#magic}` requires knowing `adjective` and
   `magic` exist. The engine's did-you-mean suggestions help after a typo;
-  this helps before.
+  this helps before. Shipped as a "Browse tables" view in the Generator tool,
+  with logic in the tested `tools/shared/catalog.js`.
 - [ ] **Autocomplete for table names in template inputs** (Create page and
   Workshop editor). Nice-to-have after the catalog exists, since it needs the
   same name index.

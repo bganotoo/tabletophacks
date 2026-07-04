@@ -15,8 +15,9 @@ import {
   saveOverride,
   removeOverride,
 } from '../shared/overrides.js';
+import { buildCatalog, filterCatalog, sampleTable } from '../shared/catalog.js';
 import { renderResult, resultToText } from '../shared/render.js';
-import { el, clearNode, toast, download, uid } from '../shared/ui.js';
+import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
 
 const store = createStore();
@@ -28,6 +29,7 @@ const state = {
   /** flat picker list from listGenerators() */ list: [],
   /** name of the selected generator */ selected: null,
   /** which main-panel view is showing */ view: 'generate',
+  /** cached table catalog for the Browse tables view */ catalog: [],
   /** names defined by built-in packs only, for shadow warnings */ builtinNames: [],
   /** names the user has overridden */ overridden: [],
   /** raw builtin data objects, kept for effectiveDefinition */ builtinData: [],
@@ -60,6 +62,7 @@ async function rebuild() {
   state.builtinNames = Generator.fromData(...builtinData).names();
   state.overridden = overriddenNames(customPacks());
   state.list = listGenerators(BUILTIN_PACKS, customPacks());
+  state.catalog = buildCatalog(generator, { builtinNames: state.builtinNames });
   if (invalid.length > 0) {
     console.warn('skipped invalid custom packs:', invalid);
   }
@@ -125,6 +128,25 @@ function renderSidebar() {
     ),
   );
   sidebar.append(el('div', { class: 'side-group' }, el('h2', {}, 'Custom'), customList));
+
+  const refList = el(
+    'ul',
+    {},
+    el(
+      'li',
+      {},
+      el(
+        'button',
+        {
+          class: `side-item${state.view === 'tables' ? ' selected' : ''}`,
+          onclick: () => showTables(),
+        },
+        'Browse tables',
+      ),
+    ),
+    el('li', {}, el('a', { class: 'side-item', href: '../reference/' }, 'Syntax reference')),
+  );
+  sidebar.append(el('div', { class: 'side-group' }, el('h2', {}, 'Reference'), refList));
 }
 
 // ── Selection ───────────────────────────────────────────────────────────────
@@ -135,6 +157,7 @@ function select(name, { updateHash = true } = {}) {
   state.view = 'generate';
   $('gen-view').hidden = false;
   $('create-view').hidden = true;
+  $('tables-view').hidden = true;
   state.selected = gen.name;
   if (updateHash) history.replaceState(null, '', `#${gen.name}`);
   const settings = store.get('settings', {});
@@ -158,8 +181,82 @@ function showCreate({ updateHash = true } = {}) {
   if (updateHash) history.replaceState(null, '', '#create');
   $('gen-view').hidden = true;
   $('create-view').hidden = false;
+  $('tables-view').hidden = true;
   renderSidebar();
   renderTemplateList();
+}
+
+function showTables({ updateHash = true } = {}) {
+  state.view = 'tables';
+  state.selected = null;
+  if (updateHash) history.replaceState(null, '', '#tables');
+  $('gen-view').hidden = true;
+  $('create-view').hidden = true;
+  $('tables-view').hidden = false;
+  $('catalog-search').value = '';
+  renderSidebar();
+  renderCatalog('');
+}
+
+// ── Browse tables ───────────────────────────────────────────────────────────
+
+/** Render the catalog, filtered by the current search query. */
+function renderCatalog(query) {
+  const list = $('catalog-list');
+  clearNode(list);
+  const rows = filterCatalog(state.catalog, query);
+  $('catalog-count').textContent =
+    rows.length === state.catalog.length
+      ? `${state.catalog.length} tables`
+      : `${rows.length} of ${state.catalog.length} tables`;
+  if (rows.length === 0) {
+    list.append(el('p', { class: 'placeholder' }, 'No table matches that filter.'));
+    return;
+  }
+  list.append(...rows.map(catalogCard));
+}
+
+function catalogCard(entry) {
+  const sample = el('span', { class: 'ref-sample' });
+  const paint = (seed) => {
+    clearNode(sample);
+    sample.append(el('span', { class: 'ref-sample-text' }, sampleTable(state.generator, entry.name, seed)));
+  };
+  paint(`cat:${entry.name}`); // deterministic first paint
+  const reroll = el(
+    'button',
+    {
+      class: 'btn btn-small ref-reroll',
+      title: 'Sample again with a fresh seed',
+      onclick: () => paint(randomSeed()),
+    },
+    '↻',
+  );
+  const name = el(
+    'button',
+    {
+      class: 'catalog-name',
+      title: 'Copy {' + entry.name + '} to the clipboard',
+      onclick: async () => {
+        await navigator.clipboard.writeText(`{${entry.name}}`);
+        toast(`Copied {${entry.name}}`);
+      },
+    },
+    `{${entry.name}}`,
+  );
+  const badge = entry.custom ? el('span', { class: 'pack-badge custom' }, 'custom') : null;
+  const meta = el('span', { class: 'catalog-meta' }, `${entry.count} ${entry.count === 1 ? 'entry' : 'entries'}`);
+  const tags =
+    entry.tags.length > 0
+      ? el('div', { class: 'catalog-tags' }, ...entry.tags.map((t) => el('code', { class: 'catalog-tag' }, `#${t}`)))
+      : el('span', { class: 'catalog-tags hint' }, 'no tags');
+  return el(
+    'div',
+    { class: 'catalog-card' },
+    el('div', { class: 'catalog-head' }, name, ...(badge ? [badge] : []), meta),
+    tags,
+    el('div', { class: 'ref-run' }, sample, reroll),
+  );
 }
 
 function initialSelection() {
@@ -572,6 +669,11 @@ async function main() {
   $('tpl-input').addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runTemplate();
   });
+  $('catalog-search').addEventListener('input', debounce((e) => renderCatalog(e.target.value), 120));
+  $('tpl-browse-tables').addEventListener('click', (e) => {
+    e.preventDefault();
+    showTables();
+  });
   $('tpl-save-btn').addEventListener('click', saveNewTemplate);
   $('tpl-name').addEventListener('input', checkTemplateName);
   $('tpl-name').addEventListener('keydown', (e) => {
@@ -581,6 +683,8 @@ async function main() {
     const name = location.hash.slice(1);
     if (name === 'create') {
       if (state.view !== 'create') showCreate({ updateHash: false });
+    } else if (name === 'tables') {
+      if (state.view !== 'tables') showTables({ updateHash: false });
     } else if (name && name !== state.selected) {
       select(name, { updateHash: false });
     }
@@ -590,13 +694,16 @@ async function main() {
     if (e.key === 'th:packs:v1') {
       rebuild().then(() => {
         if (state.view === 'create') renderTemplateList();
+        else if (state.view === 'tables') renderCatalog($('catalog-search').value);
         else select(state.selected);
       });
     }
   });
 
   renderLibrary();
-  if (location.hash.slice(1) === 'create') showCreate({ updateHash: false });
+  const initialHash = location.hash.slice(1);
+  if (initialHash === 'create') showCreate({ updateHash: false });
+  else if (initialHash === 'tables') showTables({ updateHash: false });
   else select(initialSelection());
 }
 

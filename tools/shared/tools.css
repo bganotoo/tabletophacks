@@ -374,6 +374,55 @@ select { background: var(--card); }
 
 .ref-note { color: var(--text-muted); font-size: 0.82rem; }
 
+/* ── Table catalog ──────────────────────────── */
+.catalog-search { max-width: 22rem; flex: 1; }
+
+.catalog-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.catalog-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.catalog-name {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.9rem;
+  color: var(--accent-light);
+  cursor: pointer;
+}
+
+.catalog-name:hover { border-color: var(--accent); }
+
+.catalog-meta { color: var(--text-muted); font-size: 0.78rem; margin-left: auto; }
+
+.catalog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0.1rem;
+}
+
+.catalog-tag {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 /* ── Library ────────────────────────────────── */
 .library-list { list-style: none; }
 

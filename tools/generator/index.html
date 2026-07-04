@@ -97,12 +97,28 @@
             <code>{2x npc-quirk.join(" / ")}</code>. Saved templates appear under
             <strong>Custom</strong> in the sidebar and run like any other generator.
             New to the syntax? See the
-            <a href="../reference/">full syntax reference</a>.</p>
+            <a href="../reference/">full syntax reference</a>, or
+            <a href="#tables" id="tpl-browse-tables">browse available tables</a>.</p>
 
           <section class="tool-section">
             <h2>Saved templates</h2>
             <ul class="library-list" id="tpl-list"></ul>
           </section>
+        </div>
+
+        <div id="tables-view" hidden>
+          <div>
+            <h2 class="gen-title">Browse tables</h2>
+            <p class="gen-subtitle">Every table you can reference from a
+              <code>{&hellip;}</code> lookup, with its tags and a live sample.
+              Click a name to copy its <code>{lookup}</code>.</p>
+          </div>
+          <div class="run-bar">
+            <input class="seed-input catalog-search" id="catalog-search" type="search"
+                   placeholder="filter by name or tag…" aria-label="Filter tables" />
+            <span class="gen-seed" id="catalog-count"></span>
+          </div>
+          <div id="catalog-list"></div>
         </div>
       </main>
     </div>
