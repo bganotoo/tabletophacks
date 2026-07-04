@@ -101,10 +101,16 @@ building it under `tools/<name>/` (thin `app.js`, testable logic in
   persisted roll history. Reuses `gen/rng.js` for randomness; the notation
   parser/roller lives in the tested `tools/shared/dice.js` (the engine's dice
   evaluator returns only a total, so a dedicated module gives the breakdown).
-- [ ] **Initiative Tracker** — turn order and conditions in combat. Add,
-  reorder, and remove combatants; round counter; condition tags with optional
-  duration that tick down each round. Persist the active encounter in
-  `store.js` so a page reload mid-combat doesn't lose state.
+- [x] **Initiative Tracker** — turn order and conditions in combat. Done
+  2026-07-04 — see
+  [docs/superpowers/specs/2026-07-04-initiative-tracker-design.md](docs/superpowers/specs/2026-07-04-initiative-tracker-design.md).
+  Shipped at `tools/initiative/` with add/remove/reorder, sort by initiative,
+  a Next/Prev turn pointer, a round counter, and per-combatant condition tags
+  whose optional durations tick down at each round boundary. The whole
+  encounter is persisted in `store.js`, so a mid-combat reload restores turn,
+  round, and conditions. The state machine lives in the tested
+  `tools/shared/encounter.js` (pure/immutable); `app.js` is thin DOM wiring.
+  HP/damage tracking is deliberately out of scope (a future extension).
 - [ ] **Game Timer** — chess-clock style countdown for turns and rounds.
   Per-player clocks, tap-to-pass, configurable time per turn, audible/visual
   alert at zero. Timers must survive tab-switching (compute from timestamps,

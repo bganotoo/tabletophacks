@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Initiative Tracker — Tabletop Hacks</title>
+    <link href="../shared/tools.css" rel="stylesheet" />
+    <script defer src="app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="tool-header">
+      <a class="home-link" href="../../">Tabletop <span class="accent">Hacks</span></a>
+      <h1>Initiative Tracker</h1>
+      <nav class="tool-nav">
+        <a href="../generator/">Generator →</a>
+        <a href="../dice/">Dice →</a>
+        <a href="../workshop/">Workshop →</a>
+      </nav>
+    </header>
+    <main class="main-panel init-panel">
+      <p class="gen-subtitle">
+        Track turn order, rounds, and conditions in combat. Add combatants, sort
+        by initiative, and step through turns — conditions with a duration count
+        down each round. Everything is saved, so a reload keeps the fight going.
+      </p>
+
+      <div class="init-roundbar">
+        <div class="init-round">
+          <span class="init-round-label">Round</span>
+          <span class="init-round-num" id="round-num">1</span>
+        </div>
+        <div class="init-turn-controls">
+          <button class="btn" id="prev-btn" title="Previous turn">‹ Prev</button>
+          <button class="btn btn-primary" id="next-btn">Next turn ›</button>
+        </div>
+        <button class="btn btn-small init-reset" id="reset-btn">New encounter</button>
+      </div>
+
+      <form class="init-add run-bar" id="add-form">
+        <input class="init-name" id="add-name" type="text" placeholder="Combatant name"
+               aria-label="Combatant name" autocomplete="off" spellcheck="false" />
+        <input class="init-init" id="add-init" type="number" placeholder="Init"
+               aria-label="Initiative" inputmode="numeric" />
+        <button class="btn btn-primary" type="submit">Add</button>
+        <button class="btn" type="button" id="sort-btn">Sort by initiative</button>
+      </form>
+
+      <ul class="init-list" id="init-list"></ul>
+    </main>
+  </body>
+</html>
