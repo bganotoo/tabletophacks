@@ -692,6 +692,107 @@ select { background: var(--card); }
 
 .init-empty { padding: 1rem 0.25rem; }
 
+/* ── Game Timer ─────────────────────────────── */
+.timer-panel { max-width: 620px; }
+
+.timer-clock {
+  position: relative;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 1.5rem 1rem 1.25rem;
+  margin: 1rem 0 1.25rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.timer-round {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.timer-round-label { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.timer-round-num { color: var(--accent); font-weight: 700; }
+
+.timer-active-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-height: 1.4rem;
+}
+
+.timer-readout {
+  font-size: 3.75rem;
+  font-weight: 700;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-light);
+}
+.timer-readout-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.timer-clock.over {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, var(--card));
+}
+.timer-clock.over .timer-readout { color: var(--danger); }
+
+.timer-transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.timer-pass { font-size: 1.05rem; padding: 0.6rem 1.4rem; }
+.timer-newgame { margin-left: auto; }
+
+.timer-settings { align-items: center; margin-bottom: 0.75rem; }
+.timer-field { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.85rem; }
+.timer-secs { width: 5rem; }
+.timer-sound { display: flex; align-items: center; gap: 0.35rem; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; }
+
+.timer-name { flex: 1; min-width: 8rem; max-width: 18rem; }
+
+.timer-list { list-style: none; }
+
+.timer-prow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  margin-bottom: 0.5rem;
+  border-left: 3px solid transparent;
+}
+.timer-prow.active {
+  border-left-color: var(--accent);
+  background: var(--card-hover);
+}
+
+.timer-pname {
+  flex: 1;
+  min-width: 6rem;
+  font-weight: 600;
+  background: transparent;
+  border-color: transparent;
+}
+.timer-pname:hover { border-color: var(--border); }
+.timer-pname:focus { background: var(--background); border-color: var(--accent); }
+
+.timer-ptotal {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.timer-pcontrols { display: flex; gap: 0.3rem; flex: none; }
+
+.timer-empty { padding: 1rem 0.25rem; }
+
 /* ── Responsive ─────────────────────────────── */
 @media (max-width: 820px) {
   .tool-layout { grid-template-columns: 1fr; }

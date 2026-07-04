@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Game Timer — Tabletop Hacks</title>
+    <link href="../shared/tools.css" rel="stylesheet" />
+    <script defer src="app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="tool-header">
+      <a class="home-link" href="../../">Tabletop <span class="accent">Hacks</span></a>
+      <h1>Game Timer</h1>
+      <nav class="tool-nav">
+        <a href="../generator/">Generator →</a>
+        <a href="../dice/">Dice →</a>
+        <a href="../initiative/">Initiative →</a>
+        <a href="../workshop/">Workshop →</a>
+      </nav>
+    </header>
+    <main class="main-panel timer-panel">
+      <p class="gen-subtitle">
+        A chess-clock shot timer for the table. Give everyone the same time per
+        turn, then tap <strong>Pass</strong> to hand off. The clock runs on
+        timestamps, so it stays correct across tab-switches and reloads.
+      </p>
+
+      <section class="timer-clock" id="clock">
+        <div class="timer-round">
+          <span class="timer-round-label">Round</span>
+          <span class="timer-round-num" id="round-num">1</span>
+        </div>
+        <div class="timer-active-name" id="active-name">—</div>
+        <div class="timer-readout" id="readout">0:00</div>
+        <div class="timer-readout-label" id="readout-label">remaining</div>
+      </section>
+
+      <div class="timer-transport">
+        <button class="btn btn-primary timer-pass" id="pass-btn">Pass ›</button>
+        <button class="btn" id="toggle-btn">Start</button>
+        <button class="btn btn-small" id="reset-turn-btn">Reset turn</button>
+        <button class="btn btn-small timer-newgame" id="reset-btn">New game</button>
+      </div>
+
+      <div class="timer-settings run-bar">
+        <label class="timer-field">
+          <span>Seconds per turn</span>
+          <input class="timer-secs" id="per-turn" type="number" min="0" step="5"
+                 inputmode="numeric" placeholder="off" aria-label="Seconds per turn" />
+        </label>
+        <label class="timer-sound">
+          <input type="checkbox" id="sound-toggle" checked />
+          <span>Beep at zero</span>
+        </label>
+      </div>
+
+      <form class="timer-add run-bar" id="add-form">
+        <input class="timer-name" id="add-name" type="text" placeholder="Player name"
+               aria-label="Player name" autocomplete="off" spellcheck="false" />
+        <button class="btn btn-primary" type="submit">Add player</button>
+      </form>
+
+      <ul class="timer-list" id="player-list"></ul>
+    </main>
+  </body>
+</html>

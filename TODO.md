@@ -111,10 +111,18 @@ building it under `tools/<name>/` (thin `app.js`, testable logic in
   round, and conditions. The state machine lives in the tested
   `tools/shared/encounter.js` (pure/immutable); `app.js` is thin DOM wiring.
   HP/damage tracking is deliberately out of scope (a future extension).
-- [ ] **Game Timer** — chess-clock style countdown for turns and rounds.
-  Per-player clocks, tap-to-pass, configurable time per turn, audible/visual
-  alert at zero. Timers must survive tab-switching (compute from timestamps,
-  not `setInterval` ticks).
+- [x] **Game Timer** — chess-clock style countdown for turns and rounds. Done
+  2026-07-04 — see
+  [docs/superpowers/specs/2026-07-04-game-timer-design.md](docs/superpowers/specs/2026-07-04-game-timer-design.md).
+  Shipped at `tools/timer/` with per-player clocks, tap-to-pass, a configurable
+  per-turn budget (0 = untimed count-up), a round counter, per-player running
+  totals, and a visual + WebAudio-beep alert at zero. The clock is stored as
+  timestamps (not a decrementing number), so it stays correct across
+  tab-switching and full reloads — the whole game persists in `store.js`. The
+  chess-clock state machine lives in the tested `tools/shared/timer.js`
+  (pure/immutable, `now` injected); `app.js` is thin DOM wiring whose
+  `setInterval` only repaints. Total-time-bank (tournament) mode is out of
+  scope, noted as future.
 - [ ] **Score Tracker** — multi-player score sheet for board games. Named
   players, per-round score entry, running totals, optional score categories
   (e.g. for games with multiple scoring tracks). Persist sheets in `store.js`
