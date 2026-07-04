@@ -17,6 +17,8 @@ import {
   isExpired,
   playerTotalMs,
   isValidGame,
+  formatClock,
+  formatCountdown,
   TimerError,
 } from './timer.js';
 
@@ -252,6 +254,33 @@ test('operations do not mutate their input state', () => {
   addPlayer(s, { id: 'b', name: 'B' });
   passTurn(s, T0);
   assert.deepEqual(s, snapshot);
+});
+
+// --- display formatting ----------------------------------------------------
+
+test('formatClock: count-up flooring — a fresh second shows for its whole second', () => {
+  assert.equal(formatClock(0), '0:00');
+  assert.equal(formatClock(999), '0:00'); // still the first second
+  assert.equal(formatClock(1000), '0:01');
+  assert.equal(formatClock(65000), '1:05');
+  assert.equal(formatClock(-1500), '-0:01'); // overtime counts up
+});
+
+test('formatCountdown: a full budget shows the top value for its whole first second', () => {
+  // The bug: with flooring, 1:00 vanished the instant the turn started and the
+  // player saw 0:59 immediately. Ceiling keeps 1:00 up for the full first second.
+  assert.equal(formatCountdown(60000), '1:00');
+  assert.equal(formatCountdown(59500), '1:00'); // 0.5s in, still "1:00"
+  assert.equal(formatCountdown(59001), '1:00'); // 0.999s in, still "1:00"
+  assert.equal(formatCountdown(59000), '0:59'); // a full second has elapsed
+});
+
+test('formatCountdown: the last second and expiry read cleanly', () => {
+  assert.equal(formatCountdown(1000), '0:01');
+  assert.equal(formatCountdown(1), '0:01'); // still have a sliver — show 0:01
+  assert.equal(formatCountdown(0), '0:00'); // exactly expired
+  assert.equal(formatCountdown(-1), '-0:00'); // just into overtime
+  assert.equal(formatCountdown(-1500), '-0:01'); // overtime counts up
 });
 
 // --- validation ------------------------------------------------------------

@@ -18,6 +18,8 @@ import {
   isExpired,
   playerTotalMs,
   isValidGame,
+  formatClock,
+  formatCountdown,
   TimerError,
 } from '../shared/timer.js';
 import { el, clearNode, toast, uid } from '../shared/ui.js';
@@ -64,13 +66,6 @@ function commit(fn) {
   store.set(KEY, state);
   wasExpired = isExpired(state, Date.now());
   render();
-}
-
-/** ms → "M:SS", with a leading "-" in overtime. */
-function fmt(ms) {
-  const neg = ms < 0;
-  const secs = Math.floor(Math.abs(ms) / 1000);
-  return `${neg ? '-' : ''}${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
 }
 
 /** Full structural render — rows and static fields. */
@@ -120,10 +115,10 @@ function paint() {
 
   const remaining = turnRemainingMs(state, now);
   if (remaining === null) {
-    readout.textContent = fmt(turnElapsedMs(state, now));
+    readout.textContent = formatClock(turnElapsedMs(state, now));
     readoutLabel.textContent = 'elapsed';
   } else {
-    readout.textContent = fmt(remaining);
+    readout.textContent = formatCountdown(remaining);
     readoutLabel.textContent = 'remaining';
   }
 
@@ -132,7 +127,7 @@ function paint() {
   if (expired && !wasExpired && state.running && soundToggle.checked) beep();
   wasExpired = expired;
 
-  for (const [id, node] of totalEls) node.textContent = fmt(playerTotalMs(state, id, now));
+  for (const [id, node] of totalEls) node.textContent = formatClock(playerTotalMs(state, id, now));
 }
 
 // --- alert sound (WebAudio, no external asset) -----------------------------

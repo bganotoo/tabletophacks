@@ -200,6 +200,26 @@ export function playerTotalMs(state, id, now) {
   return player.totalMs + live;
 }
 
+/** Format signed milliseconds as "M:SS" (with a leading "-" below zero). */
+function mmss(ms, secs) {
+  return `${ms < 0 ? '-' : ''}${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+}
+
+/** Count-UP display (elapsed, player totals): floor to whole seconds, so a
+ *  fresh second reads as its lower bound for that second's full duration. */
+export function formatClock(ms) {
+  return mmss(ms, Math.floor(Math.abs(ms) / 1000));
+}
+
+/** Count-DOWN display (time remaining): ceil the positive part so the top of
+ *  the budget stays on screen for the whole first second and "0:00" appears
+ *  only at exact expiry — otherwise a full turn flashes to 0:59 instantly. At
+ *  and below zero, overtime counts up (floor) with a minus sign. */
+export function formatCountdown(ms) {
+  if (ms <= 0) return formatClock(ms);
+  return mmss(ms, Math.ceil(ms / 1000));
+}
+
 /** Shape guard for loading possibly-stale/corrupt data from storage. */
 export function isValidGame(value) {
   if (!value || typeof value !== 'object') return false;
