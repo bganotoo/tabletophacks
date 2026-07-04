@@ -119,8 +119,10 @@ Same header/nav chrome as the other tools. A single main panel:
 
 - Expression input (`text`) + **Roll** button (Enter also rolls).
 - A row of quick-die buttons (d4…d100): each sets the input to `1dX` and rolls
-  immediately. **Advantage** / **Disadvantage** buttons set the input to
-  `2d20kh1` / `2d20kl1` and roll.
+  immediately. **Advantage** / **Disadvantage** buttons roll `2d20kh1` /
+  `2d20kl1` as a *one-off* — they do **not** overwrite the input, so the next
+  Roll repeats whatever straight expression you had typed rather than staying
+  stuck on advantage.
 - Result panel: the total large, the parsed expression, and the per-die
   breakdown grouped by term (dropped dice struck through). Invalid notation
   renders an `error-card`, never throws.

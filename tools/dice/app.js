@@ -20,11 +20,16 @@ let current = null;
 let history = store.get(HISTORY_KEY, []);
 if (!Array.isArray(history)) history = [];
 
-/** Parse + roll `expr` (fresh RNG), then render the result or an error card. */
-function doRoll(expr) {
+/**
+ * Parse + roll `expr` (fresh RNG), then render the result or an error card.
+ * `persist` writes the expression back into the input so the next Roll repeats
+ * it; adv/dis pass `persist: false` so they stay one-off adjustments and don't
+ * hijack the straight roll you had typed.
+ */
+function doRoll(expr, { persist = true } = {}) {
   const text = String(expr ?? '').trim();
   if (!text) return;
-  input.value = text;
+  if (persist) input.value = text;
   try {
     current = roll(text, new RNG());
     renderResult(current);
@@ -118,7 +123,7 @@ copyBtn.addEventListener('click', copyResult);
 document.getElementById('dice-quick').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn) return;
-  if (btn.dataset.expr) doRoll(btn.dataset.expr);
+  if (btn.dataset.expr) doRoll(btn.dataset.expr, { persist: false });
   else if (btn.dataset.die) doRoll(`1d${btn.dataset.die}`);
 });
 
