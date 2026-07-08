@@ -73,6 +73,49 @@ export function resultsToText(values) {
   return values.map((v, i) => `#${i + 1}\n${resultToText(v)}`).join('\n\n');
 }
 
+/**
+ * Markdown form for copying into prep docs (Notion/Obsidian): strings verbatim,
+ * objects as `- **key:** value` bullet lists, arrays as `- item` bullets, nested
+ * structures indented two spaces per level. Values are emitted verbatim, like
+ * `resultToText` — no Markdown escaping.
+ * @param {unknown} value @returns {string}
+ */
+export function resultToMarkdown(value) {
+  if (typeof value === 'string') return value;
+  if (value === null || typeof value !== 'object') return String(value);
+  return markdownLines(value, '').join('\n');
+}
+
+/**
+ * Markdown form of a batch. A single-element array is exactly
+ * `resultToMarkdown` of its one value; more than one gives each item a `### <n>`
+ * heading, blank-line separated, so a rolled list gets a real outline.
+ * @param {unknown[]} values @returns {string}
+ */
+export function resultsToMarkdown(values) {
+  if (values.length === 1) return resultToMarkdown(values[0]);
+  return values.map((v, i) => `### ${i + 1}\n\n${resultToMarkdown(v)}`).join('\n\n');
+}
+
+/** @param {unknown} value @param {string} indent @returns {string[]} */
+function markdownLines(value, indent) {
+  if (Array.isArray(value)) {
+    // Object elements already emit their own `- **key:**` bullets, so inline them
+    // at this level rather than nesting a bullet under an empty label.
+    return value.flatMap((v) =>
+      v && typeof v === 'object' ? markdownLines(v, indent) : [`${indent}- ${v}`],
+    );
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([k, v]) =>
+      v && typeof v === 'object'
+        ? [`${indent}- **${k}:**`, ...markdownLines(v, `${indent}  `)]
+        : [`${indent}- **${k}:** ${v}`],
+    );
+  }
+  return [`${indent}- ${value}`];
+}
+
 /** @param {unknown} value @param {string} indent @returns {string[]} */
 function textLines(value, indent) {
   if (Array.isArray(value)) {

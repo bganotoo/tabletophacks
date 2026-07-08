@@ -17,7 +17,7 @@ import {
 } from '../shared/overrides.js';
 import { buildCatalog, filterCatalog, sampleTable } from '../shared/catalog.js';
 import { parseHash, formatGeneratorHash } from '../shared/genhash.js';
-import { renderResults, resultsToText } from '../shared/render.js';
+import { renderResults, resultsToText, resultsToMarkdown } from '../shared/render.js';
 import { clampCount, deriveSeeds } from '../shared/batch.js';
 import { parseLibrary, mergeLibrary } from '../shared/library.js';
 import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
@@ -302,6 +302,7 @@ function generate(seedOverride) {
     state.resultGenerator = state.selected;
     panel.innerHTML = renderResults(results);
     $('copy-btn').disabled = false;
+    $('copy-md-btn').disabled = false;
     $('copy-link-btn').disabled = false;
     $('save-btn').disabled = false;
     showSeed(seed);
@@ -311,6 +312,7 @@ function generate(seedOverride) {
     state.results = [];
     panel.append(el('div', { class: 'error-card' }, String(err.message ?? err)));
     $('copy-btn').disabled = true;
+    $('copy-md-btn').disabled = true;
     $('copy-link-btn').disabled = true;
     $('save-btn').disabled = true;
     $('seed-used').textContent = '';
@@ -498,6 +500,7 @@ function renderLibrary() {
           state.lastSeed = entry.seed;
           state.resultGenerator = entry.generator;
           $('copy-btn').disabled = false;
+          $('copy-md-btn').disabled = false;
           $('copy-link-btn').disabled = !entry.seed; // shareable only if we know the seed
           $('save-btn').disabled = true; // already saved
           showSeed(entry.seed);
@@ -720,6 +723,11 @@ async function main() {
     if (state.results.length === 0) return;
     await navigator.clipboard.writeText(resultsToText(state.results));
     toast('Copied');
+  });
+  $('copy-md-btn').addEventListener('click', async () => {
+    if (state.results.length === 0) return;
+    await navigator.clipboard.writeText(resultsToMarkdown(state.results));
+    toast('Copied as Markdown');
   });
   $('copy-link-btn').addEventListener('click', async () => {
     const url = shareUrl();

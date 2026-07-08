@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, renderResult, resultToText, renderResults, resultsToText } from './render.js';
+import {
+  esc,
+  renderResult,
+  resultToText,
+  renderResults,
+  resultsToText,
+  resultToMarkdown,
+  resultsToMarkdown,
+} from './render.js';
 
 test('esc escapes HTML metacharacters', () => {
   assert.equal(esc(`<a href="x" title='y'>&</a>`),
@@ -101,4 +109,70 @@ test('resultToText renders objects as indented key/value lines', () => {
   assert.equal(lines[3], '  - gold');
   assert.equal(lines[4], 'home:');
   assert.equal(lines[5], '  type: hovel');
+});
+
+// ── resultToMarkdown ──────────────────────────────────────────────────────────
+
+test('resultToMarkdown leaves strings verbatim', () => {
+  assert.equal(resultToMarkdown('a <cursed> *sword*'), 'a <cursed> *sword*');
+});
+
+test('resultToMarkdown renders objects as bold-key bullet lists', () => {
+  const md = resultToMarkdown({ name: 'Wolf', hp: 11 });
+  const lines = md.split('\n');
+  assert.equal(lines[0], '- **name:** Wolf');
+  assert.equal(lines[1], '- **hp:** 11');
+});
+
+test('resultToMarkdown nests arrays and objects with indentation', () => {
+  const md = resultToMarkdown({ name: 'Wolf', inventory: ['map', 'gold'], home: { type: 'hovel' } });
+  const lines = md.split('\n');
+  assert.equal(lines[0], '- **name:** Wolf');
+  assert.equal(lines[1], '- **inventory:**');
+  assert.equal(lines[2], '  - map');
+  assert.equal(lines[3], '  - gold');
+  assert.equal(lines[4], '- **home:**');
+  assert.equal(lines[5], '  - **type:** hovel');
+});
+
+test('resultToMarkdown renders a top-level array as a bullet list', () => {
+  const md = resultToMarkdown(['one', 'two']);
+  assert.equal(md, '- one\n- two');
+});
+
+test('resultToMarkdown renders objects inside arrays', () => {
+  const md = resultToMarkdown([{ name: 'Wolf' }, { name: 'Fox' }]);
+  const lines = md.split('\n');
+  assert.equal(lines[0], '- **name:** Wolf');
+  assert.equal(lines[1], '- **name:** Fox');
+});
+
+test('resultToMarkdown renders primitives via String()', () => {
+  assert.equal(resultToMarkdown(7), '7');
+  assert.equal(resultToMarkdown(true), 'true');
+  assert.equal(resultToMarkdown(null), 'null');
+});
+
+// ── resultsToMarkdown (batch) ─────────────────────────────────────────────────
+
+test('resultsToMarkdown with a single value delegates to resultToMarkdown', () => {
+  assert.equal(resultsToMarkdown(['a *cursed* sword']), 'a *cursed* sword');
+  assert.equal(resultsToMarkdown([{ name: 'Wolf' }]), '- **name:** Wolf');
+});
+
+test('resultsToMarkdown gives each item a numbered heading', () => {
+  const md = resultsToMarkdown(['one', 'two']);
+  assert.equal(md, '### 1\n\none\n\n### 2\n\ntwo');
+});
+
+test('resultsToMarkdown headings precede multi-line object results', () => {
+  const md = resultsToMarkdown([{ name: 'Wolf' }, { name: 'Fox' }]);
+  const lines = md.split('\n');
+  assert.equal(lines[0], '### 1');
+  assert.equal(lines[1], '');
+  assert.equal(lines[2], '- **name:** Wolf');
+  assert.equal(lines[3], '');
+  assert.equal(lines[4], '### 2');
+  assert.equal(lines[5], '');
+  assert.equal(lines[6], '- **name:** Fox');
 });

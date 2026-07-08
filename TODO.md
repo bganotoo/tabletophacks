@@ -86,8 +86,15 @@ Working notes for what's next. Items reference the architecture in
   merge logic lives in the tested `tools/shared/library.js`
   (`parseLibrary`/`mergeLibrary`); `app.js` wiring mirrors the Workshop's pack
   import.
-- [ ] **Copy as Markdown** alongside plain-text copy, for pasting into
-  Notion/Obsidian prep docs.
+- [x] **Copy as Markdown** alongside plain-text copy, for pasting into
+  Notion/Obsidian prep docs. Done 2026-07-07 — see
+  [docs/superpowers/specs/2026-07-07-copy-as-markdown-design.md](docs/superpowers/specs/2026-07-07-copy-as-markdown-design.md).
+  A **Copy as Markdown** button beside **Copy** serializes the shown result (or
+  batch) as Markdown: `- **key:** value` bullet lists, nested bullets for
+  arrays/objects, and `### n` headings per batch item. The serializers
+  `resultToMarkdown`/`resultsToMarkdown` live in the tested `tools/shared/render.js`
+  next to their plain-text counterparts; `app.js` is one button + handler,
+  enabled/disabled in lockstep with Copy. Plain-text copy is unchanged.
 - [x] **Generate N at once** (e.g. roll 5 NPCs into a list) — cheap to do,
   high prep value. Done 2026-07-07 — see
   [docs/superpowers/specs/2026-07-07-generate-n-at-once-design.md](docs/superpowers/specs/2026-07-07-generate-n-at-once-design.md).
