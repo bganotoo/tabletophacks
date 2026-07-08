@@ -53,6 +53,17 @@ export const BUILTIN_PACKS = [
     generators: [{ name: 'quest', title: 'Quest', kind: 'json' }],
   },
   {
+    id: 'treasures',
+    title: 'Treasures',
+    description: 'Magic items, trinkets, and potions for any hoard.',
+    files: ['../../data/treasure.json'],
+    generators: [
+      { name: 'magic-item', title: 'Magic Item', kind: 'json' },
+      { name: 'trinket', title: 'Trinket', kind: 'text' },
+      { name: 'potion', title: 'Potion', kind: 'text' },
+    ],
+  },
+  {
     id: 'common',
     title: 'Word Tables',
     description: 'Shared word tables every pack can build on.',

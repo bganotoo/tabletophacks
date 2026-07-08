@@ -66,3 +66,13 @@ test('the quest generator has the expected shape', async () => {
   assert.equal(typeof quest.goal, 'string');
   assert.equal(typeof quest.reward, 'string');
 });
+
+test('the magic-item generator has the expected shape', async () => {
+  const gen = await Generator.load(files.map((f) => new URL(f, dataDir)));
+  const item = gen.run('magic-item', { seed: 'm1' });
+  assert.ok(item.name.length > 0);
+  assert.equal(typeof item.form, 'string');
+  assert.equal(typeof item.rarity, 'string');
+  assert.equal(typeof item.property, 'string');
+  assert.deepEqual(gen.run('magic-item', { seed: 'm1' }), item); // reproducible
+});

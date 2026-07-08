@@ -190,8 +190,18 @@ building it under `tools/<name>/` (thin `app.js`, testable logic in
   suite in `data/data.test.js` covers the changes automatically; watch
   weights so new entries don't drown out the flavorful rare ones.
 - [ ] More built-in packs (each is JSON + one `BUILTIN_PACKS` entry, and
-  `data/data.test.js` covers it automatically): magic items / trinkets,
-  weather & travel events, traps & hazards, name tables by culture/ancestry.
+  `data/data.test.js` covers it automatically): weather & travel events,
+  traps & hazards, name tables by culture/ancestry.
+  - [x] **Treasures pack** — magic items, trinkets, and potions. Done
+    2026-07-08 — see
+    [docs/superpowers/specs/2026-07-08-treasures-pack-design.md](docs/superpowers/specs/2026-07-08-treasures-pack-design.md).
+    Shipped as `data/treasure.json` with a `magic-item` JSON generator
+    (name/form/rarity/property + optional quirk), a `trinket` curio table, and
+    a `potion` table (appearance/vessel/effect), plus a `Treasures` entry in
+    `BUILTIN_PACKS`. Reuses the shared `adjective`/`noun`/`metal`/`first-name`
+    tables and cross-pack `creature`/`place-name`/`weather`, like `quest.json`.
+    A `magic-item` shape test joins the pack-validation suite.
+- [ ] Further increase the built-in vocabularies and template variations to reduce repetition.
 
 ## Someday / maybe
 
