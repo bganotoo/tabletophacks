@@ -156,6 +156,34 @@ code, textarea, .gen-seed, .seed-input {
 
 .pack-badge.custom { background: var(--accent); color: var(--background); }
 
+/* ── Storage meter ──────────────────────────── */
+.storage-meter { font-size: 0.75rem; }
+
+.storage-label { color: var(--text-muted); margin-bottom: 0.35rem; }
+
+.storage-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.storage-fill {
+  height: 100%;
+  background: var(--ok);
+  transition: width 0.25s ease;
+}
+
+.storage-meter[data-level='warn'] .storage-fill { background: var(--accent); }
+.storage-meter[data-level='critical'] .storage-fill { background: var(--danger); }
+
+.storage-warn {
+  margin-top: 0.4rem;
+  line-height: 1.4;
+  color: var(--accent);
+}
+.storage-meter[data-level='critical'] .storage-warn { color: var(--danger); }
+
 /* ── Buttons & inputs ───────────────────────── */
 .btn {
   font: inherit;

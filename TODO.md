@@ -112,8 +112,17 @@ Working notes for what's next. Items reference the architecture in
 
 - [ ] **Replace `prompt()`/`confirm()` dialogs** (new/rename/delete pack)
   with inline UI, consistent with the rest of the tool.
-- [ ] **Storage usage indicator** — localStorage is the only persistence and
-  it's small; show usage and warn before `store.set` starts failing.
+- [x] **Storage usage indicator** — localStorage is the only persistence and
+  it's small; show usage and warn before `store.set` starts failing. Done
+  2026-07-08 — see
+  [docs/superpowers/specs/2026-07-08-storage-usage-indicator-design.md](docs/superpowers/specs/2026-07-08-storage-usage-indicator-design.md).
+  A usage meter in the Workshop sidebar sums every `localStorage` key against the
+  common ~5 MB per-origin cap, colouring the bar and adding a warning at 80% /
+  95% full so the user can export before saves start failing. All measurement,
+  classification, and formatting live in the tested `tools/shared/storage.js`
+  (`usageBytes`/`usageReport`/`formatBytes`/`storageMeterHtml`); `app.js`
+  refreshes the meter after every `persist()`. The meter is a reusable HTML-string
+  builder any tool can adopt — only the Workshop is wired for now.
 
 ## New tools ("Coming Soon" on the homepage)
 

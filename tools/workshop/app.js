@@ -4,6 +4,7 @@ import { createStore } from '../shared/store.js';
 import { BUILTIN_PACKS, parsePack, buildGenerator } from '../shared/packs.js';
 import { renderResult } from '../shared/render.js';
 import { el, clearNode, toast, download, debounce, uid } from '../shared/ui.js';
+import { usageBytes, storageEntries, usageReport, storageMeterHtml } from '../shared/storage.js';
 import { Generator } from '../../gen/index.js';
 
 const store = createStore();
@@ -42,11 +43,16 @@ function loadPacks() {
 }
 
 function persist() {
-  if (!store.set('packs', state.packs)) {
-    toast('Could not save — browser storage is full');
-    return false;
-  }
-  return true;
+  const ok = store.set('packs', state.packs);
+  if (!ok) toast('Could not save — browser storage is full');
+  refreshStorageMeter();
+  return ok;
+}
+
+/** Repaint the sidebar localStorage usage meter from current storage. */
+function refreshStorageMeter() {
+  const meter = $('storage-meter');
+  if (meter) meter.innerHTML = storageMeterHtml(usageReport(usageBytes(storageEntries())));
 }
 
 function selectedPack() {
@@ -253,6 +259,7 @@ function importPack(file) {
 
 function main() {
   loadPacks();
+  refreshStorageMeter();
 
   $('new-btn').addEventListener('click', newPack);
   $('import-btn').addEventListener('click', () => $('import-input').click());
