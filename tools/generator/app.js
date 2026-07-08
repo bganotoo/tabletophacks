@@ -17,7 +17,8 @@ import {
 } from '../shared/overrides.js';
 import { buildCatalog, filterCatalog, sampleTable } from '../shared/catalog.js';
 import { parseHash, formatGeneratorHash } from '../shared/genhash.js';
-import { renderResult, resultToText } from '../shared/render.js';
+import { renderResults, resultsToText } from '../shared/render.js';
+import { clampCount, deriveSeeds } from '../shared/batch.js';
 import { parseLibrary, mergeLibrary } from '../shared/library.js';
 import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
@@ -35,9 +36,12 @@ const state = {
   /** names defined by built-in packs only, for shadow warnings */ builtinNames: [],
   /** names the user has overridden */ overridden: [],
   /** raw builtin data objects, kept for effectiveDefinition */ builtinData: [],
-  lastResult: null,
+  /** the result values currently shown (one, or a batch); [] on error */
+  results: [],
+  /** how many results are shown (state.results.length while a run is displayed) */
+  count: 1,
   lastSeed: null,
-  /** generator that produced lastResult (may differ from `selected` for library opens) */
+  /** generator that produced the results (may differ from `selected` for library opens) */
   resultGenerator: null,
 };
 
@@ -155,7 +159,7 @@ function renderSidebar() {
 
 // ── Selection ───────────────────────────────────────────────────────────────
 
-function select(name, { updateHash = true, seed = null } = {}) {
+function select(name, { updateHash = true, seed = null, count = null } = {}) {
   const gen = state.list.find((g) => g.name === name) ?? state.list[0];
   if (!gen) return;
   state.view = 'generate';
@@ -164,8 +168,9 @@ function select(name, { updateHash = true, seed = null } = {}) {
   $('tables-view').hidden = true;
   state.selected = gen.name;
   if (updateHash) history.replaceState(null, '', `#${gen.name}`);
-  // Arriving from a shared link: pin its seed so the run reproduces that result.
+  // Arriving from a shared link: pin its seed and count so the run reproduces it.
   if (seed) $('seed-input').value = seed;
+  if (count) $('count-input').value = count;
   const settings = store.get('settings', {});
   store.set('settings', { ...settings, lastGenerator: gen.name });
   $('gen-title').textContent = gen.title;
@@ -282,22 +287,28 @@ function randomSeed() {
 function generate(seedOverride) {
   if (!state.selected || !state.generator) return;
   const seed = seedOverride ?? ($('seed-input').value.trim() || randomSeed());
+  const count = clampCount($('count-input').value);
+  $('count-input').value = count; // reflect the clamp back into the field
   const panel = $('result-panel');
   clearNode(panel);
   try {
-    const result = state.generator.run(state.selected, { seed, mode: 'strict' });
-    state.lastResult = result;
+    // A batch of N reproduces from one base seed via N derived sub-seeds.
+    const results = deriveSeeds(seed, count).map((s) =>
+      state.generator.run(state.selected, { seed: s, mode: 'strict' }),
+    );
+    state.results = results;
+    state.count = count;
     state.lastSeed = seed;
     state.resultGenerator = state.selected;
-    panel.innerHTML = renderResult(result);
+    panel.innerHTML = renderResults(results);
     $('copy-btn').disabled = false;
     $('copy-link-btn').disabled = false;
     $('save-btn').disabled = false;
     showSeed(seed);
     // Keep the address bar a link that reproduces exactly what's shown.
-    history.replaceState(null, '', `#${formatGeneratorHash(state.selected, seed)}`);
+    history.replaceState(null, '', `#${formatGeneratorHash(state.selected, seed, count)}`);
   } catch (err) {
-    state.lastResult = null;
+    state.results = [];
     panel.append(el('div', { class: 'error-card' }, String(err.message ?? err)));
     $('copy-btn').disabled = true;
     $('copy-link-btn').disabled = true;
@@ -310,7 +321,7 @@ function generate(seedOverride) {
 function shareUrl() {
   if (!state.resultGenerator || !state.lastSeed) return null;
   const url = new URL(location.href);
-  url.hash = formatGeneratorHash(state.resultGenerator, state.lastSeed);
+  url.hash = formatGeneratorHash(state.resultGenerator, state.lastSeed, state.count);
   return url.toString();
 }
 
@@ -478,8 +489,12 @@ function renderLibrary() {
         class: 'lib-name',
         title: 'Show this result',
         onclick: () => {
-          $('result-panel').innerHTML = renderResult(entry.data);
-          state.lastResult = entry.data;
+          // Older entries predate batches: no `count`, `data` is a single value.
+          const count = entry.count ?? 1;
+          const results = count > 1 ? entry.data : [entry.data];
+          $('result-panel').innerHTML = renderResults(results);
+          state.results = results;
+          state.count = count;
           state.lastSeed = entry.seed;
           state.resultGenerator = entry.generator;
           $('copy-btn').disabled = false;
@@ -535,18 +550,25 @@ function importLibrary(file) {
 }
 
 function saveToLibrary() {
-  if (state.lastResult === null) return;
+  if (state.results.length === 0) return;
   const gen = state.list.find((g) => g.name === state.selected);
+  const count = state.results.length;
+  const first = state.results[0];
   const excerpt =
-    typeof state.lastResult === 'string'
-      ? state.lastResult
-      : Object.values(state.lastResult).find((v) => typeof v === 'string') ?? '';
+    typeof first === 'string'
+      ? first
+      : first && typeof first === 'object'
+        ? Object.values(first).find((v) => typeof v === 'string') ?? ''
+        : String(first);
+  const title = gen?.title ?? state.selected;
   const entry = {
     id: uid(),
-    name: `${gen?.title ?? state.selected}${excerpt ? ` — ${excerpt.slice(0, 60)}` : ''}`,
+    name: `${title}${count > 1 ? ` ×${count}` : ''}${excerpt ? ` — ${excerpt.slice(0, 60)}` : ''}`,
     generator: state.selected,
     seed: state.lastSeed,
-    data: state.lastResult,
+    count,
+    // Keep single results shaped exactly as before; store a batch as an array.
+    data: count === 1 ? first : state.results,
     savedAt: new Date().toISOString(),
   };
   if (!store.set('library', [entry, ...library()])) {
@@ -691,9 +713,12 @@ async function main() {
   $('seed-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') generate();
   });
+  $('count-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') generate();
+  });
   $('copy-btn').addEventListener('click', async () => {
-    if (state.lastResult === null) return;
-    await navigator.clipboard.writeText(resultToText(state.lastResult));
+    if (state.results.length === 0) return;
+    await navigator.clipboard.writeText(resultsToText(state.results));
     toast('Copied');
   });
   $('copy-link-btn').addEventListener('click', async () => {
@@ -743,10 +768,14 @@ async function main() {
       if (state.view !== 'tables') showTables({ updateHash: false });
     } else if (parsed.route === 'generate' && parsed.name) {
       if (parsed.name !== state.selected) {
-        select(parsed.name, { updateHash: false, seed: parsed.seed });
-      } else if (parsed.seed && parsed.seed !== state.lastSeed) {
-        // Same generator, a freshly pasted seed: reproduce it.
-        $('seed-input').value = parsed.seed;
+        select(parsed.name, { updateHash: false, seed: parsed.seed, count: parsed.count });
+      } else if (
+        (parsed.seed && parsed.seed !== state.lastSeed) ||
+        (parsed.count ?? 1) !== state.count
+      ) {
+        // Same generator, a freshly pasted seed and/or count: reproduce it.
+        if (parsed.seed) $('seed-input').value = parsed.seed;
+        $('count-input').value = parsed.count ?? 1;
         generate();
       }
     }
@@ -767,7 +796,7 @@ async function main() {
   if (parsed.route === 'create') showCreate({ updateHash: false });
   else if (parsed.route === 'tables') showTables({ updateHash: false });
   else if (parsed.route === 'generate' && state.list.some((g) => g.name === parsed.name))
-    select(parsed.name, { updateHash: false, seed: parsed.seed });
+    select(parsed.name, { updateHash: false, seed: parsed.seed, count: parsed.count });
   else select(initialSelection());
 }
 

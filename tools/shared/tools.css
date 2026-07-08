@@ -216,6 +216,16 @@ select { background: var(--card); }
 
 .seed-input { width: 11rem; }
 
+.count-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.count-input { width: 3.5rem; text-align: center; }
+
 .gen-title { font-size: 1.5rem; font-weight: 700; }
 
 .gen-subtitle { color: var(--text-muted); font-size: 0.875rem; }
@@ -272,6 +282,31 @@ select { background: var(--card); }
 .gen-list li { padding: 0.1rem 0; }
 
 .gen-list li::before { content: '• '; color: var(--accent); }
+
+/* ── Batch (generate N at once) ─────────────── */
+.gen-batch { display: flex; flex-direction: column; }
+
+.gen-batch-item {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.gen-batch-item:first-child { padding-top: 0; border-top: none; }
+.gen-batch-item:last-child { padding-bottom: 0; }
+
+.gen-batch-index {
+  flex: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.15rem;
+  min-width: 1.25rem;
+  text-align: right;
+}
+
+.gen-batch-body { min-width: 0; flex: 1; }
 
 .error-card {
   border: 1px solid var(--danger);

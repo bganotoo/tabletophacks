@@ -88,8 +88,18 @@ Working notes for what's next. Items reference the architecture in
   import.
 - [ ] **Copy as Markdown** alongside plain-text copy, for pasting into
   Notion/Obsidian prep docs.
-- [ ] **Generate N at once** (e.g. roll 5 NPCs into a list) — cheap to do,
-  high prep value.
+- [x] **Generate N at once** (e.g. roll 5 NPCs into a list) — cheap to do,
+  high prep value. Done 2026-07-07 — see
+  [docs/superpowers/specs/2026-07-07-generate-n-at-once-design.md](docs/superpowers/specs/2026-07-07-generate-n-at-once-design.md).
+  A count control (1–12) in the run bar rolls N results from one base seed via
+  derived sub-seeds, shown as a numbered stack. Count 1 is byte-identical to the
+  old single-run behaviour, so existing shared links still reproduce. The base
+  seed and count both ride in the hash (`#npc:s=abc:n=5`) so a shared/pinned link
+  reproduces the whole batch; Copy, Copy link, and Save to library all handle the
+  batch (saved as one library entry, backward compatible with pre-batch entries).
+  Seed derivation lives in the tested `tools/shared/batch.js`
+  (`deriveSeeds`/`clampCount`); rendering in `renderResults`/`resultsToText`
+  (`render.js`); the hash carries `count` via `genhash.js`.
 
 ## Workshop
 

@@ -44,6 +44,35 @@ export function resultToText(value) {
   return textLines(value, '').join('\n');
 }
 
+/**
+ * Render a batch of results. A single-element array is exactly `renderResult`
+ * of its one value (unchanged single output); more than one becomes a
+ * `.gen-batch` stack, each item numbered.
+ * @param {unknown[]} values @returns {string}
+ */
+export function renderResults(values) {
+  if (values.length === 1) return renderResult(values[0]);
+  const items = values
+    .map(
+      (v, i) =>
+        `<div class="gen-batch-item"><div class="gen-batch-index">${i + 1}</div>` +
+        `<div class="gen-batch-body">${renderResult(v)}</div></div>`,
+    )
+    .join('');
+  return `<div class="gen-batch">${items}</div>`;
+}
+
+/**
+ * Plain-text form of a batch for copying. A single-element array is exactly
+ * `resultToText` of its one value; more than one is each item under a `#<n>`
+ * header line, blank-line separated.
+ * @param {unknown[]} values @returns {string}
+ */
+export function resultsToText(values) {
+  if (values.length === 1) return resultToText(values[0]);
+  return values.map((v, i) => `#${i + 1}\n${resultToText(v)}`).join('\n\n');
+}
+
 /** @param {unknown} value @param {string} indent @returns {string[]} */
 function textLines(value, indent) {
   if (Array.isArray(value)) {
