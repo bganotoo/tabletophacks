@@ -5,9 +5,23 @@
   ],
   "npc-quirk": [
     "hums sea shanties constantly",
+    "can't whistle but tries anyway",
+    "whistles through their teeth when pronouncing an S sound",
     "collects teeth",
     "never says a person's name",
-    "is afraid of {noun#animal.plural}"
+    "calls everyone 'sunny'",
+    "always remembers the 'good old days'",
+    "is obsessed with puns",
+    "always mutters under their breath",
+    "always confuses left and right",
+    "is alergic to everything",
+    "is a hoarder",
+    "misplaces everything",
+    "can never remember the names of things",
+    "does everything with a flourish",
+    "is extremely gullable when treasure is involved",
+    "is afraid of {noun#animal.plural}",
+    "talks with a lisp"
   ],
   "loot": [
     { "text": "{2-20} gold pieces", "tags": ["treasure"] },
