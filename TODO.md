@@ -201,7 +201,7 @@ building it under `tools/<name>/` (thin `app.js`, testable logic in
     `BUILTIN_PACKS`. Reuses the shared `adjective`/`noun`/`metal`/`first-name`
     tables and cross-pack `creature`/`place-name`/`weather`, like `quest.json`.
     A `magic-item` shape test joins the pack-validation suite.
-- [ ] Further increase (at least 10x) the built-in vocabularies and template variations across the board to reduce repetition. Every roll should feel distinct.
+- [x] Further increase (at least 10x) the built-in vocabularies and template variations across the board to reduce repetition. Every roll should feel distinct. _(2026-07-09 — [plan](docs/superpowers/plans/expand-vocabularies.md); leaf entries ~575 → ~2370, plus new sub-part fields on every generator and 3-5x more top-level template patterns.)_
 
 ## Someday / maybe
 
