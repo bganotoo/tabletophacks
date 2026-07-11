@@ -176,3 +176,61 @@ test('resultsToMarkdown headings precede multi-line object results', () => {
   assert.equal(lines[5], '');
   assert.equal(lines[6], '- **name:** Fox');
 });
+
+test('renderResult without a tree is byte-identical to the no-arg call', () => {
+  const v = { name: 'Wolf', inventory: ['map', 'gold'] };
+  assert.equal(renderResult(v), renderResult(v, null));
+  assert.ok(!renderResult(v).includes('reroll-part'));
+});
+
+test('renderResult with a tree annotates each non-root row with its path', () => {
+  const value = { home: { name: 'The Owl' } };
+  const tree = {
+    kind: 'object', source: {}, children: {
+      home: {
+        kind: 'object', source: {}, children: {
+          name: { kind: 'leaf', source: '{tavern-name}' },
+        },
+      },
+    },
+  };
+  const html = renderResult(value, tree);
+  assert.ok(html.includes('data-reroll-path="[&quot;home&quot;]"'));
+  assert.ok(html.includes('data-reroll-path="[&quot;home&quot;,&quot;name&quot;]"'));
+});
+
+test('the root node gets no reroll button', () => {
+  const value = { name: 'Wolf' };
+  const tree = { kind: 'object', source: {}, children: { name: { kind: 'leaf', source: '{n}' } } };
+  const html = renderResult(value, tree);
+  assert.equal((html.match(/reroll-part/g) || []).length, 1); // only `name`, none for root
+});
+
+test('array elements get indexed reroll paths', () => {
+  const value = { inv: ['map', 'gold'] };
+  const tree = {
+    kind: 'object', source: {}, children: {
+      inv: {
+        kind: 'array', source: {}, children: [
+          { kind: 'leaf', source: '{loot}' },
+          { kind: 'leaf', source: '{loot}' },
+        ],
+      },
+    },
+  };
+  const html = renderResult(value, tree);
+  assert.ok(html.includes('data-reroll-path="[&quot;inv&quot;,0]"'));
+  assert.ok(html.includes('data-reroll-path="[&quot;inv&quot;,1]"'));
+});
+
+test('renderResults threads one tree per result', () => {
+  const values = [{ a: 'x' }, { a: 'y' }];
+  const oneTree = () => ({ kind: 'object', source: {}, children: { a: { kind: 'leaf', source: '{n}' } } });
+  const html = renderResults(values, [oneTree(), oneTree()]);
+  assert.equal((html.match(/reroll-part/g) || []).length, 2);
+});
+
+test('renderResults without trees stays byte-identical', () => {
+  const values = ['one', 'two'];
+  assert.equal(renderResults(values), renderResults(values, null));
+});
