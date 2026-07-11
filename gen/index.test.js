@@ -68,3 +68,37 @@ test('fromData merges multiple datasets', () => {
   const gen = Generator.fromData({ metal: ['iron'] }, { gem: ['ruby'] });
   assert.deepEqual(gen.names().sort(), ['gem', 'metal']);
 });
+
+test('runTraced returns a populated tree for JSON templates', () => {
+  const g = Generator.fromData({ npc: { name: '{n}' }, n: ['wolf'] });
+  const { value, tree } = g.runTraced('npc', { seed: 1 });
+  assert.equal(value.name, 'wolf');
+  assert.equal(tree.kind, 'object');
+  assert.equal(tree.children.name.source, '{n}');
+});
+
+test('runTraced returns a null tree for flat tables', () => {
+  const g = Generator.fromData({ n: ['wolf'] });
+  const { value, tree } = g.runTraced('n', { seed: 1 });
+  assert.equal(value, 'wolf');
+  assert.equal(tree, null);
+});
+
+test('runTraced value matches run() under the same seed', () => {
+  const g = Generator.fromData({ npc: { a: '{n}', b: { $repeat: 2, of: '{n}' } }, n: ['wolf', 'fox'] });
+  assert.deepEqual(g.runTraced('npc', { seed: 3 }).value, g.run('npc', { seed: 3 }));
+});
+
+test('runTraced throws on an unknown generator', () => {
+  const g = Generator.fromData({ n: ['wolf'] });
+  assert.throws(() => g.runTraced('nope'), /unknown generator/);
+});
+
+test('rerollPath re-rolls one field without touching siblings', () => {
+  const g = Generator.fromData({ npc: { a: '{n}', b: '{n}' }, n: ['w', 'x', 'y', 'z', 'p', 'q'] });
+  const { value, tree } = g.runTraced('npc', { seed: 1 });
+  const b0 = value.b;
+  const r = g.rerollPath(tree, ['a'], { seed: 5 });
+  assert.equal(typeof r.value, 'string');
+  assert.equal(value.b, b0); // rerollPath does not mutate; sibling intact
+});
