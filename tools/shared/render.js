@@ -12,26 +12,47 @@ export function esc(str) {
 
 /**
  * Render a generation result as HTML. Strings become flowing text; objects
- * become definition cards; arrays become lists.
- * @param {unknown} value @returns {string}
+ * become definition cards; arrays become lists. When a reroll `tree` is given,
+ * every non-root row gains a ↻ button carrying its path.
+ * @param {unknown} value @param {object|null} [tree] RerollNode from runTraced
+ * @returns {string}
  */
-export function renderResult(value) {
+export function renderResult(value, tree = null) {
   if (typeof value === 'string') return `<p class="gen-text">${esc(value)}</p>`;
-  return renderValue(value);
+  return renderValue(value, tree, []);
 }
 
-/** @param {unknown} value @returns {string} inline/nested HTML */
-function renderValue(value) {
+/** @param {unknown} value @param {object|null} node @param {(string|number)[]} path */
+function renderValue(value, node, path) {
   if (Array.isArray(value)) {
-    return `<ul class="gen-list">${value.map((v) => `<li>${renderValue(v)}</li>`).join('')}</ul>`;
+    const items = value.map((v, i) => {
+      const child = node && Array.isArray(node.children) ? node.children[i] : null;
+      const childPath = path.concat(i);
+      return `<li>${rerollButton(child, childPath)}${renderValue(v, child, childPath)}</li>`;
+    });
+    return `<ul class="gen-list">${items.join('')}</ul>`;
   }
   if (value && typeof value === 'object') {
     const rows = Object.entries(value)
-      .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${renderValue(v)}</dd>`)
+      .map(([k, v]) => {
+        const child = node && node.children && !Array.isArray(node.children) ? node.children[k] : null;
+        const childPath = path.concat(k);
+        return `<dt>${esc(k)}${rerollButton(child, childPath)}</dt><dd>${renderValue(v, child, childPath)}</dd>`;
+      })
       .join('');
     return `<dl class="gen-card">${rows}</dl>`;
   }
   return esc(value);
+}
+
+/** A ↻ button for a rerollable node, or '' when there is no tree at this path. */
+function rerollButton(node, path) {
+  if (!node) return '';
+  const data = esc(JSON.stringify(path));
+  return (
+    `<button type="button" class="reroll-part" data-reroll-path="${data}"` +
+    ` title="Reroll just this part" aria-label="Reroll this part">↻</button>`
+  );
 }
 
 /**
@@ -46,18 +67,20 @@ export function resultToText(value) {
 
 /**
  * Render a batch of results. A single-element array is exactly `renderResult`
- * of its one value (unchanged single output); more than one becomes a
- * `.gen-batch` stack, each item numbered.
- * @param {unknown[]} values @returns {string}
+ * of its one value; more than one becomes a `.gen-batch` stack, each item
+ * numbered. An optional `trees` array supplies one reroll tree per result.
+ * @param {unknown[]} values @param {(object|null)[]|null} [trees] @returns {string}
  */
-export function renderResults(values) {
-  if (values.length === 1) return renderResult(values[0]);
+export function renderResults(values, trees = null) {
+  if (values.length === 1) return renderResult(values[0], trees ? trees[0] : null);
   const items = values
-    .map(
-      (v, i) =>
+    .map((v, i) => {
+      const body = renderResult(v, trees ? trees[i] : null);
+      return (
         `<div class="gen-batch-item"><div class="gen-batch-index">${i + 1}</div>` +
-        `<div class="gen-batch-body">${renderResult(v)}</div></div>`,
-    )
+        `<div class="gen-batch-body">${body}</div></div>`
+      );
+    })
     .join('');
   return `<div class="gen-batch">${items}</div>`;
 }

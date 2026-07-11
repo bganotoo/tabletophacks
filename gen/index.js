@@ -1,6 +1,14 @@
 /** Public API for the generator framework. */
 import { RNG } from './rng.js';
-import { Registry, createContext, evaluateText, evaluateJson, GenError } from './engine.js';
+import {
+  Registry,
+  createContext,
+  evaluateText,
+  evaluateJson,
+  evaluateJsonTraced,
+  rerollNode,
+  GenError,
+} from './engine.js';
 
 export { registerTransform } from './transforms.js';
 export { GenError };
@@ -53,6 +61,32 @@ export class Generator {
     if (template !== null) return evaluateJson(template, ctx);
     if (this.registry.getTable(name) !== null) return evaluateText(`{${name}}`, ctx);
     throw new GenError(`unknown generator \`${name}\``);
+  }
+
+  /**
+   * Run a named generator, also returning a reroll tree for in-place per-part
+   * reroll. JSON templates return a populated tree; flat tables return
+   * { value, tree: null } (text behavior unchanged, no per-part reroll).
+   * @param {string} name @param {RunOptions} [opts]
+   * @returns {{ value: unknown, tree: object|null }}
+   */
+  runTraced(name, opts = {}) {
+    const ctx = this.#context(opts);
+    const template = this.registry.getTemplate(name);
+    if (template !== null) return evaluateJsonTraced(template, ctx);
+    if (this.registry.getTable(name) !== null) {
+      return { value: evaluateText(`{${name}}`, ctx), tree: null };
+    }
+    throw new GenError(`unknown generator \`${name}\``);
+  }
+
+  /**
+   * Re-evaluate the subtree at `path` (from a runTraced tree) with a fresh RNG.
+   * @param {object} tree @param {(string|number)[]} path @param {RunOptions} [opts]
+   * @returns {{ value: unknown, node: object }}
+   */
+  rerollPath(tree, path, opts = {}) {
+    return rerollNode(tree, path, this.#context(opts));
   }
 
   /**

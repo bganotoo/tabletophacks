@@ -17,7 +17,7 @@ import {
 } from '../shared/overrides.js';
 import { buildCatalog, filterCatalog, sampleTable } from '../shared/catalog.js';
 import { parseHash, formatGeneratorHash } from '../shared/genhash.js';
-import { renderResults, resultsToText, resultsToMarkdown } from '../shared/render.js';
+import { renderResult, renderResults, resultsToText, resultsToMarkdown } from '../shared/render.js';
 import { clampCount, deriveSeeds } from '../shared/batch.js';
 import { parseLibrary, mergeLibrary } from '../shared/library.js';
 import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
@@ -38,6 +38,10 @@ const state = {
   /** raw builtin data objects, kept for effectiveDefinition */ builtinData: [],
   /** the result values currently shown (one, or a batch); [] on error */
   results: [],
+  /** reroll trees parallel to `results` (null entries = not per-part rerollable) */
+  resultTrees: [],
+  /** true once a per-part reroll has hand-edited the shown result */
+  diverged: false,
   /** how many results are shown (state.results.length while a run is displayed) */
   count: 1,
   lastSeed: null,
@@ -293,29 +297,85 @@ function generate(seedOverride) {
   clearNode(panel);
   try {
     // A batch of N reproduces from one base seed via N derived sub-seeds.
-    const results = deriveSeeds(seed, count).map((s) =>
-      state.generator.run(state.selected, { seed: s, mode: 'strict' }),
+    const runs = deriveSeeds(seed, count).map((s) =>
+      state.generator.runTraced(state.selected, { seed: s, mode: 'strict' }),
     );
-    state.results = results;
+    state.results = runs.map((r) => r.value);
+    state.resultTrees = runs.map((r) => r.tree);
+    state.diverged = false;
     state.count = count;
     state.lastSeed = seed;
     state.resultGenerator = state.selected;
-    panel.innerHTML = renderResults(results);
+    panel.innerHTML = renderResults(state.results, state.resultTrees);
     $('copy-btn').disabled = false;
     $('copy-md-btn').disabled = false;
     $('copy-link-btn').disabled = false;
+    $('copy-link-btn').title = 'Copy a link that reproduces this exact result';
     $('save-btn').disabled = false;
     showSeed(seed);
     // Keep the address bar a link that reproduces exactly what's shown.
     history.replaceState(null, '', `#${formatGeneratorHash(state.selected, seed, count)}`);
   } catch (err) {
     state.results = [];
+    state.resultTrees = [];
+    state.diverged = false;
     panel.append(el('div', { class: 'error-card' }, String(err.message ?? err)));
     $('copy-btn').disabled = true;
     $('copy-md-btn').disabled = true;
     $('copy-link-btn').disabled = true;
     $('save-btn').disabled = true;
     $('seed-used').textContent = '';
+  }
+}
+
+/** Set value at an array/object path (all but the last key already exist). */
+function setAtPath(root, path, value) {
+  let obj = root;
+  for (let k = 0; k < path.length - 1; k++) obj = obj[path[k]];
+  obj[path[path.length - 1]] = value;
+}
+
+/** Set a subtree node at a path within a reroll tree. */
+function setTreeAtPath(tree, path, node) {
+  let n = tree;
+  for (let k = 0; k < path.length - 1; k++) n = n.children[path[k]];
+  n.children[path[path.length - 1]] = node;
+}
+
+/** Re-render just result `i` (whole panel for a single, one card for a batch). */
+function rerenderResult(i) {
+  const panel = $('result-panel');
+  if (state.results.length === 1) {
+    panel.innerHTML = renderResults(state.results, state.resultTrees);
+  } else {
+    const body = panel.querySelectorAll('.gen-batch-body')[i];
+    if (body) body.innerHTML = renderResult(state.results[i], state.resultTrees[i]);
+  }
+}
+
+/** First per-part reroll: the seed no longer reproduces the result. */
+function markDiverged() {
+  state.diverged = true;
+  const btn = $('copy-link-btn');
+  btn.disabled = true;
+  btn.title = 'This result was hand-edited; the seed no longer reproduces it.';
+}
+
+/** Handle a click on a ↻ per-part reroll button (delegated from the panel). */
+function handlePartReroll(btn) {
+  const path = JSON.parse(btn.dataset.rerollPath);
+  const item = btn.closest('.gen-batch-item');
+  const i = item ? [...item.parentNode.children].indexOf(item) : 0;
+  const tree = state.resultTrees[i];
+  if (!tree) return;
+  try {
+    const { value, node } = state.generator.rerollPath(tree, path, { seed: randomSeed(), mode: 'strict' });
+    setAtPath(state.results[i], path, value);
+    setTreeAtPath(tree, path, node);
+    rerenderResult(i);
+    if (!state.diverged) markDiverged();
+  } catch {
+    toast("Couldn't reroll this part on its own.");
   }
 }
 
@@ -494,7 +554,9 @@ function renderLibrary() {
           // Older entries predate batches: no `count`, `data` is a single value.
           const count = entry.count ?? 1;
           const results = count > 1 ? entry.data : [entry.data];
-          $('result-panel').innerHTML = renderResults(results);
+          state.resultTrees = results.map(() => null);
+          state.diverged = false;
+          $('result-panel').innerHTML = renderResults(results, state.resultTrees);
           state.results = results;
           state.count = count;
           state.lastSeed = entry.seed;
@@ -713,6 +775,10 @@ async function main() {
 
   $('generate-btn').addEventListener('click', () => generate());
   $('reroll-btn').addEventListener('click', () => generate(randomSeed()));
+  $('result-panel').addEventListener('click', (e) => {
+    const btn = e.target.closest('.reroll-part');
+    if (btn) handlePartReroll(btn);
+  });
   $('seed-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') generate();
   });

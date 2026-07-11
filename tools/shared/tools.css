@@ -311,6 +311,27 @@ select { background: var(--card); }
 
 .gen-list li::before { content: '• '; color: var(--accent); }
 
+/* ── Per-part reroll button ─────────────────── */
+.reroll-part {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85em;
+  line-height: 1;
+  padding: 0 0.3rem;
+  opacity: 0;
+  transition: opacity 0.1s, color 0.1s;
+}
+
+.gen-card dt:hover .reroll-part,
+.gen-list li:hover > .reroll-part,
+.reroll-part:focus-visible {
+  opacity: 1;
+}
+
+.reroll-part:hover { color: var(--accent); }
+
 /* ── Batch (generate N at once) ─────────────── */
 .gen-batch { display: flex; flex-direction: column; }
 

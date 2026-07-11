@@ -367,23 +367,50 @@ function applyTransforms(text, mods, ctx) {
 const OMIT = Symbol('omit');
 
 /**
- * Evaluate a JSON template: strings expand, arrays/objects are walked,
- * `$repeat`/`$maybe`/`$or` objects are directives.
+ * @typedef {{ source: unknown, kind: 'leaf'|'object'|'array',
+ *   children?: Record<string, RerollNode> | RerollNode[] }} RerollNode
+ */
+
+/**
+ * Evaluate a JSON template to a plain value (nodes discarded).
  * @param {unknown} value @param {object} ctx from createContext()
  * @returns {unknown}
  */
 export function evaluateJson(value, ctx) {
-  const out = evalJsonValue(value, ctx);
-  return out === OMIT ? null : out;
+  const r = evalJsonValue(value, ctx);
+  return r === OMIT ? null : r.value;
 }
 
+/**
+ * Traced evaluation: the same value as evaluateJson, plus a parallel RerollNode
+ * tree mapping each kept value to the source fragment that produced it.
+ * @param {unknown} value @param {object} ctx from createContext()
+ * @returns {{ value: unknown, tree: RerollNode | null }}
+ */
+export function evaluateJsonTraced(value, ctx) {
+  const r = evalJsonValue(value, ctx);
+  if (r === OMIT) return { value: null, tree: null };
+  return { value: r.value, tree: r.node };
+}
+
+/** @returns {typeof OMIT | { value: unknown, node: RerollNode }} */
 function evalJsonValue(value, ctx) {
-  if (typeof value === 'string') return evalJsonString(value, ctx);
+  if (typeof value === 'string') {
+    return { value: evalJsonString(value, ctx), node: { kind: 'leaf', source: value } };
+  }
   if (Array.isArray(value)) {
-    return value.map((v) => evalJsonValue(v, ctx)).filter((v) => v !== OMIT);
+    const items = [];
+    const children = [];
+    for (const v of value) {
+      const r = evalJsonValue(v, ctx);
+      if (r === OMIT) continue;
+      items.push(r.value);
+      children.push(r.node);
+    }
+    return { value: items, node: { kind: 'array', source: value, children } };
   }
   if (value && typeof value === 'object') return evalJsonObject(value, ctx);
-  return value; // number, boolean, null
+  return { value, node: { kind: 'leaf', source: value } }; // number, boolean, null
 }
 
 /** Type passthrough: exactly one expansion yielding a number stays a number. */
@@ -403,7 +430,11 @@ function evalJsonObject(obj, ctx) {
     if (typeof p !== 'number' || p < 0 || p > 1) {
       throw new GenError(`$maybe probability must be a number in [0, 1], got ${JSON.stringify(p)}`);
     }
-    return ctx.rng.next() < p ? evalJsonValue(obj.value, ctx) : OMIT;
+    if (ctx.rng.next() >= p) return OMIT;
+    const r = evalJsonValue(obj.value, ctx);
+    if (r === OMIT) return OMIT;
+    // Reroll re-evaluates the inner value only, so the field stays present.
+    return { value: r.value, node: { ...r.node, source: obj.value } };
   }
   if ('$or' in obj) {
     const branches = obj.$or;
@@ -415,18 +446,25 @@ function evalJsonObject(obj, ctx) {
         ? b.$weight
         : 1;
     const branch = ctx.rng.weighted(branches, weightOf);
+    let picked = branch;
     if (branch && typeof branch === 'object' && !Array.isArray(branch)) {
       const { $weight, ...rest } = branch;
-      return evalJsonValue(rest, ctx);
+      picked = rest;
     }
-    return evalJsonValue(branch, ctx);
+    const r = evalJsonValue(picked, ctx);
+    if (r === OMIT) return OMIT;
+    // Reroll re-evaluates the whole $or, so it can re-pick a branch.
+    return { value: r.value, node: { ...r.node, source: obj } };
   }
   const out = {};
+  const children = {};
   for (const [key, value] of Object.entries(obj)) {
-    const result = evalJsonValue(value, ctx);
-    if (result !== OMIT) out[key] = result;
+    const r = evalJsonValue(value, ctx);
+    if (r === OMIT) continue;
+    out[key] = r.value;
+    children[key] = r.node;
   }
-  return out;
+  return { value: out, node: { kind: 'object', source: obj, children } };
 }
 
 function evalRepeatDirective(obj, ctx) {
@@ -442,11 +480,13 @@ function evalRepeatDirective(obj, ctx) {
   }
   if (!('of' in obj)) throw new GenError('$repeat requires an "of" value');
 
-  const results = [];
+  const items = [];
+  const children = [];
   const seen = new Set();
   let extraDraws = 0;
-  while (results.length < count) {
-    const value = evalJsonValue(obj.of, ctx);
+  while (items.length < count) {
+    const r = evalJsonValue(obj.of, ctx);
+    const value = r === OMIT ? null : r.value;
     if (obj.unique) {
       const key = JSON.stringify(value);
       if (seen.has(key)) {
@@ -459,7 +499,35 @@ function evalRepeatDirective(obj, ctx) {
       }
       seen.add(key);
     }
-    results.push(value === OMIT ? null : value);
+    items.push(value);
+    // Each element reroll re-evaluates `of`, producing one fresh item; the whole
+    // array node's source is the $repeat itself, so a container reroll re-rolls
+    // both count and items.
+    children.push(r === OMIT ? { kind: 'leaf', source: obj.of } : { ...r.node, source: obj.of });
   }
-  return results;
+  return { value: items, node: { kind: 'array', source: obj, children } };
+}
+
+/**
+ * Re-evaluate the subtree at `path` with a fresh context (fresh RNG), in place.
+ * Does not mutate the tree — the caller splices the returned value/node back in.
+ * @param {RerollNode} tree root node from evaluateJsonTraced
+ * @param {(string|number)[]} path keys/indices from the root
+ * @param {object} ctx a fresh context (fresh RNG)
+ * @returns {{ value: unknown, node: RerollNode }}
+ */
+export function rerollNode(tree, path, ctx) {
+  let node = tree;
+  for (const key of path) {
+    const child = node && node.children ? node.children[key] : undefined;
+    if (child === undefined) throw new GenError(`no reroll node at path ${JSON.stringify(path)}`);
+    node = child;
+  }
+  if (path.length === 0) throw new GenError('cannot reroll the root node');
+  const r = evalJsonValue(node.source, ctx);
+  if (r === OMIT) {
+    // A source that declines (a bare $maybe) keeps the field present as null.
+    return { value: null, node: { kind: 'leaf', source: node.source } };
+  }
+  return { value: r.value, node: r.node };
 }
