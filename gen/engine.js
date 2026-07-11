@@ -507,3 +507,27 @@ function evalRepeatDirective(obj, ctx) {
   }
   return { value: items, node: { kind: 'array', source: obj, children } };
 }
+
+/**
+ * Re-evaluate the subtree at `path` with a fresh context (fresh RNG), in place.
+ * Does not mutate the tree — the caller splices the returned value/node back in.
+ * @param {RerollNode} tree root node from evaluateJsonTraced
+ * @param {(string|number)[]} path keys/indices from the root
+ * @param {object} ctx a fresh context (fresh RNG)
+ * @returns {{ value: unknown, node: RerollNode }}
+ */
+export function rerollNode(tree, path, ctx) {
+  let node = tree;
+  for (const key of path) {
+    const child = node && node.children ? node.children[key] : undefined;
+    if (child === undefined) throw new GenError(`no reroll node at path ${JSON.stringify(path)}`);
+    node = child;
+  }
+  if (path.length === 0) throw new GenError('cannot reroll the root node');
+  const r = evalJsonValue(node.source, ctx);
+  if (r === OMIT) {
+    // A source that declines (a bare $maybe) keeps the field present as null.
+    return { value: null, node: { kind: 'leaf', source: node.source } };
+  }
+  return { value: r.value, node: r.node };
+}
