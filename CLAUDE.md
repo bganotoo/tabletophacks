@@ -34,7 +34,7 @@ Three layers, each building on the one before:
 
 3. **`tools/` — the web tools** (Generator at `tools/generator/`, Workshop at `tools/workshop/`). Testable logic lives in `tools/shared/` as pure/injectable modules (`store.js` versioned localStorage wrapper, `packs.js` pack catalog + assembly, `render.js` result→HTML). Each tool's `app.js` is deliberately thin, untested DOM wiring — put any logic worth testing in a shared module instead. `tools/shared/packs.js` also holds `BUILTIN_PACKS`, the manifest that makes a data pack visible in the tools; new built-in packs must be added there.
 
-The landing page (`index.html`) links to the tools; card badges are "Live" (anchor) or "Coming Soon" (div).
+The landing page (`index.html`) links to the tools; card badges are "Live" (anchor) or "Coming Soon" (div). Its screenshots (`assets/shot-*.webp`) are hand-captured from the real tools — retake them after a visible UI change.
 
 Two site pages sit outside `tools/`: `your-data/` (what is saved, per tool, plus whole-site backup and restore — the one home for those) and `privacy/` (static prose; keep it true when anything new talks to a third party). Every page, `404.html` included, ends with the same `<footer class="site-footer">` linking Home, Your data, and Privacy; `seo.test.js` enforces it. Only pages under `tools/` carry `SoftwareApplication` JSON-LD.
 

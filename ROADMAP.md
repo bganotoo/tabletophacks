@@ -190,11 +190,19 @@ Left open deliberately:
 - [ ] **Email capture** (a Buttondown or ConvertKit embed — static-friendly).
   Highest-leverage item on the whole roadmap: without a list, the first paid
   pack launches to nobody.
-- [ ] **Screenshots or a short loop** of the Generator and Initiative Tracker
-  in use. Seven text cards ask visitors to imagine the product.
-- [ ] **A real value proposition** above the fold — who it is for and why it
+- [x] **Screenshots or a short loop** of the Generator and Initiative Tracker
+  in use. Seven text cards ask visitors to imagine the product. *(2026-10-10
+  — a "See it at the table" section: the Generator on desktop and the
+  Initiative Tracker on a phone, real captures as WebP (37 KB and 26 KB), with
+  alt text. They are hand-captured, so retake them after a visible UI
+  change. A short loop would sell harder; it needs a screen recorder, not a
+  script.)*
+- [x] **A real value proposition** above the fold — who it is for and why it
   beats the alternatives ("no install, no account, works on the phone already
-  in your hand at the table").
+  in your hand at the table"). *(2026-10-10 — a two-sentence pitch under the
+  tagline, a primary "Roll up an NPC" button and a "See all the tools" one,
+  and three reasons under the screenshots. **Needs your read:** it is brand
+  copy, drafted from the line above; the tagline and title are untouched.)*
 - [ ] **Footer links**: About, Privacy, Terms, Contact. *(Partly done
   2026-10-10: every page now has a footer with Home, Your data, and Privacy,
   and `seo.test.js` fails a page without it. Terms and Contact join when

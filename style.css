@@ -77,6 +77,90 @@ body {
   color: var(--text-muted);
 }
 
+.pitch {
+  max-width: 36rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.6rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.cta:hover { border-color: var(--accent); background: var(--card-hover); }
+
+.cta-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--background);
+}
+
+.cta-primary:hover { background: var(--accent-light); border-color: var(--accent-light); }
+
+/* ── Showcase ─────────────────────────────── */
+.showcase {
+  padding: 4rem 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.showcase-grid {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.shot { margin: 0; }
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.shot figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.reasons {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.reasons strong { display: block; color: var(--text-primary); margin-bottom: 0.25rem; }
+.reasons a { color: var(--accent); }
+
 .scroll-chevron-wrapper {
   position: absolute;
   bottom: 2rem;
@@ -279,4 +363,9 @@ a:focus-visible {
 @media (max-width: 639px) {
   :root { font-size: 90%; }
   .tools-grid { grid-template-columns: 1fr; }
+  .showcase { padding: 3rem 1.25rem 0; }
+  .showcase-grid { grid-template-columns: 1fr; }
+  .shot-phone { max-width: 320px; margin: 0 auto; }
+  .reasons { grid-template-columns: 1fr; gap: 1rem; }
+  .wordmark { font-size: 2.4rem; }
 }
