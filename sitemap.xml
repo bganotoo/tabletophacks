@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Hand-maintained; eight static URLs. Directory form (trailing slash) is
+<!-- Hand-maintained; ten static URLs. Directory form (trailing slash) is
      canonical throughout, matching every <link rel="canonical"> on the site.
      No <lastmod>: a hand-written one is stale within a week, and a stale
      lastmod is worse than none. seo.test.js asserts this list matches the
@@ -44,5 +44,15 @@
     <loc>https://tabletophacks.com/tools/reference/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://tabletophacks.com/your-data/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://tabletophacks.com/privacy/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

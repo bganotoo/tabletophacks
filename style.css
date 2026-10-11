@@ -193,13 +193,30 @@ a.card {
   white-space: nowrap;
 }
 
-/* ── Footer ────────────────────────────────── */
-.footer {
+/* ── Site footer (every page) ───────────────── */
+.site-footer {
   text-align: center;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   font-size: 0.875rem;
   color: var(--text-muted);
 }
+
+.site-footer nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.site-footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.25rem 0;
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible { color: var(--accent); }
 
 /* ── Card Hover ────────────────────────────── */
 .card:hover {

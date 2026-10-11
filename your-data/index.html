@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Your Data — Tabletop Hacks</title>
+
+    <meta content="See everything Tabletop Hacks has saved in this browser, back it all up to one file, and restore it on another device. Nothing is stored on a server." name="description" />
+    <link href="https://tabletophacks.com/your-data/" rel="canonical" />
+
+    <meta content="website" property="og:type" />
+    <meta content="Tabletop Hacks" property="og:site_name" />
+    <meta content="Your Data — Tabletop Hacks" property="og:title" />
+    <meta content="See everything Tabletop Hacks has saved in this browser, back it all up to one file, and restore it on another device. Nothing is stored on a server." property="og:description" />
+    <meta content="https://tabletophacks.com/your-data/" property="og:url" />
+    <meta content="https://tabletophacks.com/og-image.png" property="og:image" />
+    <meta content="1200" property="og:image:width" />
+    <meta content="630" property="og:image:height" />
+    <meta content="The Tabletop Hacks d20 mark beside the words &quot;Tools for the table. No app required.&quot;" property="og:image:alt" />
+    <meta content="summary_large_image" name="twitter:card" />
+
+    <link href="/favicon.ico" rel="icon" sizes="32x32" />
+    <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon" />
+    <link href="/site.webmanifest" rel="manifest" />
+    <meta content="#0d0d1a" name="theme-color" />
+
+    <link href="/tools/shared/tools.css" rel="stylesheet" />
+    <script defer src="app.js" type="module"></script>
+  </head>
+  <body>
+    <header class="tool-header">
+      <a class="home-link" href="/">Tabletop <span class="accent">Hacks</span></a>
+      <h1>Your Data</h1>
+      <nav class="tool-nav">
+        <a href="/privacy/">Privacy</a>
+      </nav>
+    </header>
+    <main class="main-panel page-panel">
+      <p class="gen-subtitle">
+        Everything you save on Tabletop Hacks lives in this browser, on this
+        device. None of it is sent anywhere — which also means nobody else can
+        get it back for you. A backup file is the only copy that survives
+        clearing your browsing data.
+      </p>
+
+      <section class="tool-section">
+        <h2>Saved in this browser</h2>
+        <div id="inventory"></div>
+        <div class="data-meter" id="storage-meter"></div>
+      </section>
+
+      <section class="tool-section">
+        <h2>Back up and restore</h2>
+        <p class="page-text">
+          A backup is one JSON file covering every tool on the site — packs,
+          saved results, encounters, score sheets, timers, and settings.
+          Restoring it replaces only what the file contains and leaves
+          everything else alone.
+        </p>
+        <div class="data-actions">
+          <button class="btn btn-primary" id="backup-btn" type="button">Back up everything</button>
+          <button class="btn" id="restore-btn" type="button">Restore from a file…</button>
+          <input type="file" id="restore-input" accept=".json,application/json" hidden />
+        </div>
+        <div class="restore-plan" id="restore-plan" hidden></div>
+      </section>
+
+      <section class="tool-section">
+        <h2>Good to know</h2>
+        <ul class="page-list">
+          <li><strong>Moving to another device:</strong> back up here, open
+            this page on the other device, and restore the file.</li>
+          <li><strong>Private or incognito windows</strong> forget everything
+            when they close. Back up before you close one.</li>
+          <li><strong>Just one tool?</strong> The Initiative Tracker, Score
+            Tracker, and Game Timer each have their own Export button, the
+            Generator exports its library, and the Workshop exports single
+            packs.</li>
+        </ul>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <nav aria-label="Site">
+        <a href="/">Home</a>
+        <a href="/your-data/">Your data</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
+      <p>tabletophacks.com</p>
+    </footer>
+  </body>
+</html>

@@ -111,6 +111,20 @@ function pngSize(file) {
 
 const PAGES = findPages();
 
+/** Every page links these from its footer, so the Privacy page and the
+ *  backup/restore home are one click from anywhere — including from the one
+ *  tool page that is all some visitors ever open. */
+const FOOTER_LINKS = ['/', '/your-data/', '/privacy/'];
+
+function assertFooter(html) {
+  const footer = html.match(/<footer\b[^>]*\bsite-footer\b[\s\S]*?<\/footer>/i)?.[0];
+  assert.ok(footer, 'missing <footer class="site-footer">');
+  const hrefs = [...footer.matchAll(/href=["']([^"']*)["']/gi)].map((m) => m[1]);
+  for (const href of FOOTER_LINKS) {
+    assert.ok(hrefs.includes(href), `footer does not link ${href}`);
+  }
+}
+
 const REQUIRED_OG = [
   'og:type',
   'og:site_name',
@@ -202,9 +216,13 @@ for (const page of PAGES) {
       assert.equal(metaByName(html, 'theme-color'), '#0d0d1a');
     });
 
-    // The landing page is a site, not an application; only the tools claim to
-    // be SoftwareApplications.
-    if (page !== 'index.html') {
+    test('carries the site footer', () => {
+      assertFooter(html);
+    });
+
+    // The landing page and the site pages (Privacy, Your data) are not
+    // applications; only the tools claim to be SoftwareApplications.
+    if (page.startsWith('tools/')) {
       test('describes itself as a free SoftwareApplication', () => {
         const app = jsonLd(html, page).find((b) => b['@type'] === 'SoftwareApplication');
         assert.ok(app, 'missing SoftwareApplication JSON-LD');
@@ -220,6 +238,10 @@ for (const page of PAGES) {
     }
   });
 }
+
+test('the 404 page carries the site footer too', () => {
+  assertFooter(readFileSync(join(ROOT, '404.html'), 'utf8'));
+});
 
 describe('site-wide crawl files', () => {
   test('the required static files exist', () => {

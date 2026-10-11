@@ -35,6 +35,8 @@ Three layers, each building on the one before:
 
 The landing page (`index.html`) links to the tools; card badges are "Live" (anchor) or "Coming Soon" (div).
 
+Two site pages sit outside `tools/`: `your-data/` (what is saved, per tool, plus whole-site backup and restore — the one home for those) and `privacy/` (static prose; keep it true when anything new talks to a third party). Every page, `404.html` included, ends with the same `<footer class="site-footer">` linking Home, Your data, and Privacy; `seo.test.js` enforces it. Only pages under `tools/` carry `SoftwareApplication` JSON-LD.
+
 ## Invariants
 
 - All engine runs in the tools use strict mode; every `GenError` is caught and rendered as an error card, never left uncaught.

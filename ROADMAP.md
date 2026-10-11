@@ -92,9 +92,15 @@ Left open deliberately, now that the plumbing exists:
 Required by both Phase 1 paths, and the cheapest work on this list to get
 wrong expensively.
 
-- [ ] **Privacy policy page.** Ads require one; so does a Gumroad/Lemon
+- [x] **Privacy policy page.** Ads require one; so does a Gumroad/Lemon
   Squeezy checkout. Say plainly what is true: data lives in the visitor's
-  browser, the site stores nothing server-side.
+  browser, the site stores nothing server-side. *(2026-10-10 — `/privacy/`,
+  linked from every page's footer; see [the design spec](docs/superpowers/specs/2026-10-10-site-pages-design.md). It names the two outside
+  parties that exist today — the web host's logs and Google Fonts — and
+  promises to change before analytics, ads, a list, or a store do.
+  **Needs your read:** it is plain-language and accurate, but it is a legal
+  page written without a lawyer, and it has no contact address yet. Self-
+  hosting the font would shorten it by a bullet.)*
 - [ ] **Terms of use page**, including a refund policy for pack sales.
 - [ ] **Cookie/consent banner** — only if ads serve to EU/UK visitors. Skip it
   entirely if ads are geo-limited or the ad network is cookieless.
@@ -168,10 +174,13 @@ fails silently.
 
 Left open deliberately:
 
-- [ ] **A discoverable home for backup/restore.** It lives in the Workshop,
+- [x] **A discoverable home for backup/restore.** It lives in the Workshop,
   which is the author-facing tool — a GM who only uses Initiative never sees
   it. A footer "Your data" page would fix that, and it pairs naturally with
-  the About/Privacy/Terms footer links already on this list.
+  the About/Privacy/Terms footer links already on this list. *(2026-10-10 —
+  `/your-data/` lists every saved item by tool with its size, and holds
+  backup and restore. Restore now confirms inline instead of with
+  `confirm()`. The Workshop keeps its meter and links here.)*
 - [ ] **Merging imported score sheets by id** instead of replacing the book.
   Replace is what "restore my lost sheet" means; merge is a real feature if
   anyone asks to move one sheet between devices.
@@ -186,7 +195,12 @@ Left open deliberately:
 - [ ] **A real value proposition** above the fold — who it is for and why it
   beats the alternatives ("no install, no account, works on the phone already
   in your hand at the table").
-- [ ] **Footer links**: About, Privacy, Terms, Contact.
+- [ ] **Footer links**: About, Privacy, Terms, Contact. *(Partly done
+  2026-10-10: every page now has a footer with Home, Your data, and Privacy,
+  and `seo.test.js` fails a page without it. Terms and Contact join when
+  their pages exist — each needs a decision of yours: a refund policy and an
+  email address. About is optional; the landing page's value-prop work may
+  cover it.)*
 - [ ] **A contact/support channel.** An email alias is enough, and it becomes
   mandatory the moment someone pays.
 - [x] **Link the Syntax Reference from the landing page.** *(2026-10-10 — it
