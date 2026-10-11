@@ -198,6 +198,16 @@ test('effectiveDefinition ignores invalid custom packs', () => {
   assert.deepEqual(effectiveDefinition(builtinData, customs, 'loot'), ['built-in']);
 });
 
+test('every data pack is in the manifest, and every manifest file exists', async () => {
+  const { readdir } = await import('node:fs/promises');
+  const onDisk = (await readdir(new URL('../../data/', import.meta.url)))
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => `../../data/${f}`)
+    .sort();
+  const listed = [...new Set(BUILTIN_PACKS.flatMap((p) => p.files))].sort();
+  assert.deepEqual(listed, onDisk, 'a pack missing from BUILTIN_PACKS never reaches the tools');
+});
+
 test('BUILTIN_PACKS manifest is well-formed', () => {
   assert.ok(Array.isArray(BUILTIN_PACKS) && BUILTIN_PACKS.length > 0);
   for (const pack of BUILTIN_PACKS) {

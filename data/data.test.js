@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { Generator } from '../gen/index.js';
 
 const dataDir = new URL('./', import.meta.url);
@@ -8,6 +8,20 @@ const files = (await readdir(dataDir)).filter((f) => f.endsWith('.json'));
 
 test('there is at least one data file', () => {
   assert.ok(files.length > 0, 'expected JSON files in data/');
+});
+
+// All built-in packs load into one generator, where a later file silently
+// replaces an earlier table of the same name. That is the right rule for
+// custom packs overriding built-ins, and always a bug between two built-ins.
+test('no table or template name is defined in two packs', async () => {
+  const owner = new Map();
+  for (const file of files) {
+    const data = JSON.parse(await readFile(new URL(file, dataDir), 'utf8'));
+    for (const name of Object.keys(data)) {
+      assert.ok(!owner.has(name), `${name} is defined in both ${owner.get(name)} and ${file}`);
+      owner.set(name, file);
+    }
+  }
 });
 
 test('every generator strict-runs clean across seeds', async () => {
@@ -65,6 +79,24 @@ test('the quest generator has the expected shape', async () => {
   assert.ok(quest.patron.name.length > 0);
   assert.equal(typeof quest.goal, 'string');
   assert.equal(typeof quest.reward, 'string');
+});
+
+test('the travel-day generator has the expected shape', async () => {
+  const gen = await Generator.load(files.map((f) => new URL(f, dataDir)));
+  const day = gen.run('travel-day', { seed: 't1' });
+  assert.equal(typeof day.weather, 'string');
+  assert.equal(typeof day.road, 'string');
+  assert.equal(typeof day.event, 'string');
+  assert.deepEqual(gen.run('travel-day', { seed: 't1' }), day);
+});
+
+test('the trap generator has the expected shape', async () => {
+  const gen = await Generator.load(files.map((f) => new URL(f, dataDir)));
+  const trap = gen.run('trap', { seed: 'tr1' });
+  for (const field of ['trigger', 'effect', 'tell', 'disarm']) {
+    assert.equal(typeof trap[field], 'string', field);
+  }
+  assert.deepEqual(gen.run('trap', { seed: 'tr1' }), trap);
 });
 
 test('the magic-item generator has the expected shape', async () => {

@@ -302,7 +302,13 @@ covers it automatically.
 
 - [ ] More built-in packs: weather & travel events, traps & hazards, name
   tables by culture/ancestry. These make the free tier worth visiting, which
-  is what gives the paid packs an audience.
+  is what gives the paid packs an audience. *(2026-10-10 — Weather & Travel
+  (`travel-day`, `travel-event`, `forecast`) and Traps & Hazards (`trap`,
+  `hazard`) shipped; see
+  [the design](docs/superpowers/specs/2026-10-10-travel-hazard-packs-design.md).
+  Name tables by culture are left: they are the easiest place to stumble into
+  a real culture's names carelessly, so that pack wants your call on which
+  cultures, and how — real-world-inspired or wholly invented.)*
 
 ## Deferred to a later launch
 

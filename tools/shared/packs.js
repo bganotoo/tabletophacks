@@ -65,6 +65,27 @@ export const BUILTIN_PACKS = [
     ],
   },
   {
+    id: 'travel',
+    title: 'Weather & Travel',
+    description: 'A day on the road: weather, going, sights, events, and camp.',
+    files: ['../../data/travel.json'],
+    generators: [
+      { name: 'travel-day', title: 'Travel Day', kind: 'json' },
+      { name: 'travel-event', title: 'Road Event', kind: 'text' },
+      { name: 'forecast', title: 'Weather', kind: 'text' },
+    ],
+  },
+  {
+    id: 'hazards',
+    title: 'Traps & Hazards',
+    description: 'Traps with a trigger, a tell, and a way past; natural dangers.',
+    files: ['../../data/hazard.json'],
+    generators: [
+      { name: 'trap', title: 'Trap', kind: 'json' },
+      { name: 'hazard', title: 'Natural Hazard', kind: 'text' },
+    ],
+  },
+  {
     id: 'common',
     title: 'Word Tables',
     description: 'Shared word tables every pack can build on.',

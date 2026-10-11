@@ -146,3 +146,24 @@ because it is an ordinary word the packs already use.
 
 The denylist is a floor, not a clearance. A new paid pack still deserves a
 read with this document's method before it ships.
+
+## Addendum — `travel.json` and `hazard.json` (2026-10-10)
+
+Two packs added after the audit, written fresh in this repo and read with the
+same method before they shipped.
+
+- **Compared against:** the DMG's weather tables (temperature / wind /
+  precipitation) and wilderness-travel rules; the DMG's sample traps (falling
+  net, fire-breathing statue, pits, poison darts, poison needle, rolling
+  sphere, sphere of annihilation); the DMG / SRD 5.1 named hazards (brown
+  mold, yellow mold, green slime, webs, razorvine, thin ice, quicksand,
+  frigid water); and the best-known trap set-pieces in fiction and modules —
+  the rolling boulder, the *Tomb of Horrors* face whose mouth is a void.
+- **Result:** no lifted text. The forecast is prose built on `common.json`'s
+  own `weather` table rather than a temperature/wind/precipitation grid. No
+  named SRD hazard appears; the natural hazards are real-world dangers in the
+  packs' own words. Traps share generic mechanisms with the DMG's (darts,
+  pits, a falling net), which is unavoidable and not protected, and none of
+  the iconic set-pieces above is reproduced.
+- **Names:** neither pack introduces a proper noun. Creature references reuse
+  the existing `creature` table, so they add no new SRD terms.
