@@ -218,6 +218,25 @@ a.card {
 .site-footer a:hover,
 .site-footer a:focus-visible { color: var(--accent); }
 
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .site-footer a { padding: 0.6rem 0.25rem; }
+}
+
+/* Respect a reduced-motion preference: the stagger, wiggle, and bounce are
+   decoration, so they go entirely. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ── Card Hover ────────────────────────────── */
 .card:hover {
   transform: translateY(-4px);

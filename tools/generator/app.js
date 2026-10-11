@@ -23,7 +23,7 @@ import { clampCount, deriveSeeds } from '../shared/batch.js';
 import { parseLibrary, mergeLibrary } from '../shared/library.js';
 import { planImport } from '../shared/packimport.js';
 import { formatVersion } from '../shared/packmeta.js';
-import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
+import { el, clearNode, toast, download, uid, debounce, wireSidebarToggle } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
 
 const store = createStore(undefined, { onError: (e) => toast(e.message) });
@@ -933,6 +933,7 @@ async function main() {
   $('tpl-input').addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runTemplate();
   });
+  wireSidebarToggle($('sidebar-toggle'), $('sidebar'));
   $('catalog-search').addEventListener('input', debounce((e) => renderCatalog(e.target.value), 120));
   $('import-pack-btn').addEventListener('click', () => $('import-pack-input').click());
   $('import-pack-input').addEventListener('change', (e) => {

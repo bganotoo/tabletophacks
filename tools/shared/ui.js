@@ -65,6 +65,26 @@ export function noticeBar(message, { actionText = 'Got it', onAction } = {}) {
   return bar;
 }
 
+/**
+ * Collapse a sidebar behind a toggle button on narrow screens. The CSS only
+ * honours `.collapsed` (and only shows the toggle) at phone widths, so this
+ * is inert on desktop. Picking a `.side-item` collapses it again, so the
+ * choice and its result are what the reader sees next.
+ * @param {HTMLElement} toggle a button with aria-controls
+ * @param {HTMLElement} sidebar carries `collapsible collapsed` classes
+ */
+export function wireSidebarToggle(toggle, sidebar) {
+  const set = (open) => {
+    sidebar.classList.toggle('collapsed', !open);
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+  toggle.addEventListener('click', () => set(sidebar.classList.contains('collapsed')));
+  sidebar.addEventListener('click', (e) => {
+    // Only when the toggle is actually showing — i.e. on a phone.
+    if (toggle.offsetParent !== null && e.target.closest('.side-item')) set(false);
+  });
+}
+
 /** Trigger a client-side text file download. */
 export function download(filename, text, type = 'application/json') {
   const url = URL.createObjectURL(new Blob([text], { type }));

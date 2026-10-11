@@ -9,6 +9,7 @@ npm test                              # full suite (node --test, 460+ tests)
 node --test tools/shared/store.test.js   # one test file
 node --test data/                     # just the content-pack validation suite
 node --test seo.test.js               # just the per-page metadata suite
+node --test a11y.test.js              # static labels/names on every HTML page
 ```
 
 There is no build step, no lint step, and no npm dependencies — `package.json` exists only for the `test` script. Node's built-in test runner (`node:test` + `node:assert/strict`) is the only tooling.

@@ -213,13 +213,26 @@ Left open deliberately:
 
 ### Platform checks
 
-- [ ] **Mobile and touch pass** on every tool. Phones and tablets are where
+- [x] **Mobile and touch pass** on every tool. Phones and tablets are where
   these get used at a table, and tap targets and layout have never been
-  audited.
-- [ ] **Accessibility pass**: keyboard navigation, focus states, contrast,
-  labels on the tool controls.
+  audited. *(2026-10-10 — every page probed at 390px with touch emulation;
+  see [the spec](docs/superpowers/specs/2026-10-10-mobile-a11y-pass-design.md). Fixed: tool headers made every tool page scroll sideways; the
+  Generator's sidebar pushed results ~800px down (now a "Generators"
+  toggle on phones); per-part reroll was hover-only, so invisible on touch;
+  number inputs were unstyled; buttons were 28px tall. Touch-only rules
+  bring targets to 36–44px without changing the mouse layout.)*
+- [x] **Accessibility pass**: keyboard navigation, focus states, contrast,
+  labels on the tool controls. *(2026-10-10 — one `:focus-visible` ring
+  site-wide; the landing page honours `prefers-reduced-motion`; the palette
+  passes contrast. Every control already had a label or name, and
+  `a11y.test.js` now keeps it that way for static markup. Not done: a
+  screen-reader walkthrough of the dynamic tools — worth doing with a real
+  screen reader rather than a probe.)*
 - [ ] **Safari/iOS check.** Private-mode `localStorage` behaves differently,
-  which matters for a storage-only product.
+  which matters for a storage-only product. *(Still open: it needs a real
+  iPhone or Safari. The mobile pass used Chromium emulation, which is not
+  WebKit. Worth checking alongside it: the Generator's sidebar toggle and
+  the `(hover: none)` reroll buttons.)*
 
 ## Monetization — Phase 1 (no backend)
 
