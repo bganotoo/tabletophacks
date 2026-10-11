@@ -114,7 +114,10 @@ hosting config.
   serve returning visitors a stale `app.js` against fresh HTML — the failure
   mode that looks like a broken site. Long-cache hashed assets or short-cache
   the JS; do not leave it to the host's default.
-- [ ] **404 page** that links back to the tools.
+- [x] **404 page** that links back to the tools. *(2026-10-10 — `404.html`
+  at the root, which is what GitHub Pages, Cloudflare Pages, and Netlify all
+  serve by default. Marked `noindex, follow`; deliberately carries no
+  canonical, Open Graph, or sitemap entry.)*
 
 ### Trust & data safety
 
@@ -145,12 +148,13 @@ Workshop can export and import; **Initiative, Score, and Timer cannot.**
 - [ ] **Footer links**: About, Privacy, Terms, Contact.
 - [ ] **A contact/support channel.** An email alias is enough, and it becomes
   mandatory the moment someone pays.
-- [ ] **Link the Syntax Reference from the landing page.** `tools/reference/`
-  is live and reachable only from inside the Generator and Workshop.
-- [ ] **Resolve the "Rules Reference — Coming Soon" card.** It promises a tool
-  that does not exist while a finished reference tool sits unlinked. Build it,
-  relabel the card to point at the Syntax Reference, or drop it — but a dead
-  promise on the one page everyone sees is worse than a shorter grid.
+- [x] **Link the Syntax Reference from the landing page.** *(2026-10-10 — it
+  now has its own Live card in the grid, and the 404 page links the tools
+  too.)*
+- [x] **Resolve the "Rules Reference — Coming Soon" card.** *(2026-10-10 —
+  replaced with a live Syntax Reference card — the second of the three options.
+  The grid is now seven live tools and no promises. A real Rules Reference
+  can come back as a card when it exists; the idea is parked under Deferred.)*
 
 ### Platform checks
 
@@ -235,6 +239,15 @@ first dollar.
 - [ ] Premium accounts can participate in massively multiplayer tabletop
   worlds.
 - [ ] Premium accounts can take utilize AI features.
+
+### New tools
+
+- [ ] **Rules Reference** — quick-lookup cards for common conditions and
+  actions. *Deferred: this was the landing page's one "Coming Soon" card and
+  is now unadvertised, so it ships when it is built rather than blocking
+  anything. It is also the item most likely to need an originality pass
+  (condition text is exactly the kind of thing lifted from an SRD), which is
+  a reason to build it after the `data/` IP audit, not before.*
 
 ### Architecture
 

@@ -37,6 +37,13 @@ body {
   position: relative;
 }
 
+/* The full-height hero is a landing-page device: it invites a scroll. On the
+   404 page there is nothing to invite — the links out are the point, so they
+   stay above the fold. */
+.hero-short {
+  min-height: 50vh;
+}
+
 .hero-content {
   display: flex;
   flex-direction: column;
