@@ -16,7 +16,7 @@ import {
   isValidEncounter,
   EncounterError,
 } from '../shared/encounter.js';
-import { el, clearNode, toast, uid, download } from '../shared/ui.js';
+import { el, clearNode, toast, uid, download, confirmDialog } from '../shared/ui.js';
 import { createStore } from '../shared/store.js';
 import { buildSnapshot, parseSnapshot, snapshotFilename } from '../shared/backup.js';
 import { showStorageNoticeOnce } from '../shared/notices.js';
@@ -130,10 +130,13 @@ function exportEncounter() {
 function importEncounter(file) {
   const reader = new FileReader();
   reader.onerror = () => toast('Could not read that file');
-  reader.onload = () => {
+  reader.onload = async () => {
     const result = parseSnapshot(String(reader.result), KEY);
     if (!result.ok) return toast(`Import failed — ${result.error}`);
-    if (state.combatants.length && !confirm('Replace the current encounter with the imported one?')) return;
+    if (
+      state.combatants.length &&
+      !(await confirmDialog('Replace the current encounter with the imported one?', { confirmText: 'Replace', danger: true }))
+    ) return;
     // parseSnapshot ran isValidEncounter, so this is safe to adopt as state.
     state = result.data;
     if (store.set(KEY, state)) showStorageNoticeOnce(store);
@@ -158,8 +161,8 @@ addForm.addEventListener('submit', (e) => {
 document.getElementById('sort-btn').addEventListener('click', () => commit(sortByInitiative));
 document.getElementById('next-btn').addEventListener('click', () => commit(nextTurn));
 document.getElementById('prev-btn').addEventListener('click', () => commit(prevTurn));
-document.getElementById('reset-btn').addEventListener('click', () => {
-  if (state.combatants.length && !confirm('Clear the whole encounter?')) return;
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  if (state.combatants.length && !(await confirmDialog('Clear the whole encounter?', { confirmText: 'Clear', danger: true }))) return;
   commit(() => createEncounter());
 });
 

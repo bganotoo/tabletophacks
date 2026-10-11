@@ -85,6 +85,56 @@ export function wireSidebarToggle(toggle, sidebar) {
   });
 }
 
+/**
+ * In-page stand-ins for confirm() and prompt(), built on a native <dialog>:
+ * it traps focus, Esc cancels, screen readers announce it as a dialog, and it
+ * matches the site instead of the browser. Both return promises.
+ */
+function openDialog({ message, value = null, confirmText, cancelText, danger }) {
+  return new Promise((resolve) => {
+    const field =
+      value === null ? null : el('input', { type: 'text', class: 'dialog-input', value, 'aria-label': message });
+    const dialog = el('dialog', { class: 'dialog' });
+    const ok = el('button', { class: `btn ${danger ? 'btn-danger' : 'btn-primary'}`, type: 'submit', value: 'ok' }, confirmText);
+    const cancel = el('button', { class: 'btn', type: 'button', onclick: () => dialog.close('cancel') }, cancelText);
+    dialog.append(
+      el(
+        'form',
+        { method: 'dialog' },
+        el('p', { class: 'dialog-message' }, message),
+        ...(field ? [field] : []),
+        el('div', { class: 'dialog-actions' }, cancel, ok),
+      ),
+    );
+    dialog.addEventListener('close', () => {
+      const confirmed = dialog.returnValue === 'ok';
+      dialog.remove();
+      if (!field) return resolve(confirmed);
+      const text = field.value.trim();
+      resolve(confirmed && text ? text : null);
+    });
+    document.body.append(dialog);
+    dialog.showModal();
+    if (field) {
+      field.focus();
+      field.select();
+    } else {
+      // Default to the safe choice for destructive questions.
+      (danger ? cancel : ok).focus();
+    }
+  });
+}
+
+/** @returns {Promise<boolean>} */
+export function confirmDialog(message, { confirmText = 'OK', cancelText = 'Cancel', danger = false } = {}) {
+  return openDialog({ message, confirmText, cancelText, danger });
+}
+
+/** @returns {Promise<string|null>} the trimmed answer, or null if cancelled or blank */
+export function promptDialog(message, { value = '', confirmText = 'OK', cancelText = 'Cancel' } = {}) {
+  return openDialog({ message, value, confirmText, cancelText, danger: false });
+}
+
 /** Trigger a client-side text file download. */
 export function download(filename, text, type = 'application/json') {
   const url = URL.createObjectURL(new Blob([text], { type }));

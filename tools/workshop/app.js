@@ -3,7 +3,7 @@
 import { createStore } from '../shared/store.js';
 import { BUILTIN_PACKS, parsePack, buildGenerator } from '../shared/packs.js';
 import { renderResult } from '../shared/render.js';
-import { el, clearNode, toast, download, debounce, uid } from '../shared/ui.js';
+import { el, clearNode, toast, download, debounce, uid, confirmDialog, promptDialog } from '../shared/ui.js';
 import { usageBytes, storageEntries, usageReport, storageMeterHtml } from '../shared/storage.js';
 import { showStorageNoticeOnce } from '../shared/notices.js';
 import { planImport } from '../shared/packimport.js';
@@ -95,8 +95,8 @@ function renderPackList() {
 
 // ── Selection & editor ──────────────────────────────────────────────────────
 
-function select(id, { updateHash = true } = {}) {
-  if (state.dirty && !confirm('Discard unsaved changes to this pack?')) return;
+async function select(id, { updateHash = true } = {}) {
+  if (state.dirty && !(await confirmDialog('Discard unsaved changes to this pack?', { confirmText: 'Discard', danger: true }))) return;
   state.selected = id;
   state.dirty = false;
   if (updateHash) history.replaceState(null, '', id ? `#${id}` : '#');
@@ -203,19 +203,19 @@ function createPack(name, source) {
   return pack;
 }
 
-function newPack() {
-  const name = prompt('Pack name:', 'My Pack');
+async function newPack() {
+  const name = await promptDialog('Name the new pack', { value: 'My Pack', confirmText: 'Create' });
   if (!name) return;
-  const pack = createPack(name.trim(), STARTER_SOURCE);
+  const pack = createPack(name, STARTER_SOURCE);
   if (pack) select(pack.id);
 }
 
-function renamePack() {
+async function renamePack() {
   const pack = selectedPack();
   if (!pack) return;
-  const name = prompt('New name:', pack.name);
+  const name = await promptDialog('Rename this pack', { value: pack.name, confirmText: 'Rename' });
   if (!name) return;
-  pack.name = name.trim();
+  pack.name = name;
   if (persist()) {
     $('pack-name').textContent = pack.name;
     renderPackList();
@@ -229,10 +229,14 @@ function duplicatePack() {
   if (copy) select(copy.id);
 }
 
-function deletePack() {
+async function deletePack() {
   const pack = selectedPack();
   if (!pack) return;
-  if (!confirm(`Delete “${pack.name}”? This cannot be undone.`)) return;
+  const sure = await confirmDialog(`Delete “${pack.name}”? This cannot be undone.`, {
+    confirmText: 'Delete',
+    danger: true,
+  });
+  if (!sure) return;
   state.packs = state.packs.filter((p) => p.id !== pack.id);
   state.dirty = false;
   persist();
@@ -248,7 +252,7 @@ function exportPack() {
 
 function importPack(file) {
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = async () => {
     const source = String(reader.result);
     // Same planner as the Generator's import view, so re-importing a newer
     // version of a titled pack updates it here too instead of duplicating it.
@@ -263,7 +267,7 @@ function importPack(file) {
       return;
     }
     if (plan.action === 'update') {
-      if (state.dirty && !confirm('Discard unsaved changes to this pack?')) return;
+      if (state.dirty && !(await confirmDialog('Discard unsaved changes to this pack?', { confirmText: 'Discard', danger: true }))) return;
       state.dirty = false;
       const existing = plan.existing;
       const before = { source: existing.source, updatedAt: existing.updatedAt };

@@ -23,7 +23,7 @@ import {
   formatCountdown,
   TimerError,
 } from '../shared/timer.js';
-import { el, clearNode, toast, uid, download } from '../shared/ui.js';
+import { el, clearNode, toast, uid, download, confirmDialog } from '../shared/ui.js';
 import { createStore } from '../shared/store.js';
 import { buildSnapshot, parseSnapshot, snapshotFilename } from '../shared/backup.js';
 import { showStorageNoticeOnce } from '../shared/notices.js';
@@ -171,10 +171,13 @@ function exportGame() {
 function importGame(file) {
   const reader = new FileReader();
   reader.onerror = () => toast('Could not read that file');
-  reader.onload = () => {
+  reader.onload = async () => {
     const result = parseSnapshot(String(reader.result), KEY);
     if (!result.ok) return toast(`Import failed — ${result.error}`);
-    if (state.players.length && !confirm('Replace the current timer with the imported one?')) return;
+    if (
+      state.players.length &&
+      !(await confirmDialog('Replace the current timer with the imported one?', { confirmText: 'Replace', danger: true }))
+    ) return;
     // parseSnapshot ran isValidGame, so the shape is safe. Land paused
     // regardless: a turnStartedAt from another machine's clock would make the
     // turn read as hours long. Elapsed time already in the file is kept.
@@ -202,8 +205,8 @@ document.getElementById('import-input').addEventListener('change', (e) => {
 document.getElementById('pass-btn').addEventListener('click', () => commit((s) => passTurn(s, Date.now())));
 toggleBtn.addEventListener('click', () => commit((s) => toggle(s, Date.now())));
 document.getElementById('reset-turn-btn').addEventListener('click', () => commit((s) => resetTurn(s, Date.now())));
-document.getElementById('reset-btn').addEventListener('click', () => {
-  if (state.players.length && !confirm('Clear the whole game?')) return;
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  if (state.players.length && !(await confirmDialog('Clear the whole game?', { confirmText: 'Clear', danger: true }))) return;
   commit(() => createGame({ perTurnMs: state.perTurnMs }));
 });
 

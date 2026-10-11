@@ -359,10 +359,15 @@ first dollar.
 
 ### Interface
 
-- [ ] **Replace `prompt()`/`confirm()` dialogs** (new/rename/delete pack)
+- [x] **Replace `prompt()`/`confirm()` dialogs** (new/rename/delete pack)
   with inline UI, consistent with the rest of the tool. *Deferred: visibly
   unpolished, but only on the Workshop path authors use, not the one visitors
-  and buyers see.*
+  and buyers see.* *(2026-10-10 — done for all eleven, not only the
+  Workshop's: Initiative, Score, and Timer asked the same way. One shared
+  `confirmDialog`/`promptDialog` pair in `ui.js` on a native `<dialog>`
+  (focus trap, Esc to cancel, announced as a dialog). Destructive questions
+  name the action on the button — Delete, Clear, Replace — and focus Cancel.
+  The Your data page's restore confirmation stays inline in the page.)*
 - [ ] Make inline edits undoable. Save confirmation dialogs for navigation
   events like closing a page without saving. Deletes, edits, rerolls, etc.
   should all be undoable. The undo/redo stack should be accessible via a toast-

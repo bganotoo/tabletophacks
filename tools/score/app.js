@@ -25,7 +25,7 @@ import {
   isValidBook,
   ScoreError,
 } from '../shared/scoresheet.js';
-import { el, clearNode, toast, uid, download } from '../shared/ui.js';
+import { el, clearNode, toast, uid, download, confirmDialog } from '../shared/ui.js';
 import { createStore } from '../shared/store.js';
 import { buildSnapshot, parseSnapshot, snapshotFilename } from '../shared/backup.js';
 import { showStorageNoticeOnce } from '../shared/notices.js';
@@ -197,11 +197,12 @@ function exportBook() {
 function importBook(file) {
   const reader = new FileReader();
   reader.onerror = () => toast('Could not read that file');
-  reader.onload = () => {
+  reader.onload = async () => {
     const result = parseSnapshot(String(reader.result), KEY);
     if (!result.ok) return toast(`Import failed — ${result.error}`);
     const count = state.sheets.length;
-    if (count && !confirm(`Replace your ${count} saved sheet${count === 1 ? '' : 's'} with the imported ones?`)) return;
+    const question = `Replace your ${count} saved sheet${count === 1 ? '' : 's'} with the imported ones?`;
+    if (count && !(await confirmDialog(question, { confirmText: 'Replace', danger: true }))) return;
     // parseSnapshot ran isValidBook, so this is safe to adopt as state.
     state = result.data;
     if (store.set(KEY, state)) showStorageNoticeOnce(store);
@@ -231,11 +232,12 @@ document.getElementById('new-sheet').addEventListener('click', () => {
   sheetName.select();
 });
 
-document.getElementById('delete-sheet').addEventListener('click', () => {
+document.getElementById('delete-sheet').addEventListener('click', async () => {
   const sheet = activeSheet(state);
   if (!sheet) return;
   const hasData = sheet.players.length || sheet.columns.length;
-  if (hasData && !confirm(`Delete “${sheet.name}” and its scores?`)) return;
+  const question = `Delete “${sheet.name}” and its scores?`;
+  if (hasData && !(await confirmDialog(question, { confirmText: 'Delete', danger: true }))) return;
   commit((s) => removeSheet(s, s.activeId));
 });
 
