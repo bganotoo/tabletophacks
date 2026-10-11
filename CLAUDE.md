@@ -39,7 +39,9 @@ The landing page (`index.html`) links to the tools; card badges are "Live" (anch
 
 - All engine runs in the tools use strict mode; every `GenError` is caught and rendered as an error card, never left uncaught.
 - Any user or generated text interpolated into HTML goes through `esc()` from `tools/shared/render.js`.
-- localStorage keys are namespaced and versioned: `th:<name>:v1` (handled by `store.js`; never touch localStorage directly).
+- localStorage keys are namespaced and versioned: `th:<name>:v1` (handled by `store.js`; never touch localStorage directly). `store.setRaw` is the one entry point that takes a full key — for restoring a backup — and it refuses anything outside `th:`.
+- `store.set` returning `false` means the write was lost. Tools pass `onError` to `createStore` and let it report the reason; do **not** add a second failure toast at the call site, because `toast` is single-slot and would replace the useful message.
+- Export files are `backup.js` envelopes tagged with a kind and a `SNAPSHOT_VERSION`. Adding an exportable tool means a `SNAPSHOT_KINDS` entry (with its shape guard) — not a new file format. Bump `SNAPSHOT_VERSION` only for a breaking change; a file with a higher version is refused.
 - Pack load order matters: later loads win, which is how custom packs override built-in tables. `buildGenerator` and `listGenerators` must stay consistent on this.
 - `a` and `an` are reserved names (smart article), rejected by the Registry.
 - Every page carries the same SEO head block (description, canonical, Open Graph, Twitter card, icons, manifest) plus `SoftwareApplication` JSON-LD on tool pages. `seo.test.js` auto-discovers every `index.html` and enforces it, so **a new tool page also needs a `sitemap.xml` entry** or the suite fails. Canonical origin is `https://tabletophacks.com`, directory URLs with trailing slashes.
