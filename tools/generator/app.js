@@ -1,6 +1,7 @@
 /** Generator tool: pick a generator, run it, save results to the library. */
 
 import { createStore } from '../shared/store.js';
+import { showStorageNoticeOnce } from '../shared/notices.js';
 import { BUILTIN_PACKS, buildGenerator, listGenerators, effectiveDefinition } from '../shared/packs.js';
 import {
   MY_TEMPLATES_ID,
@@ -23,7 +24,7 @@ import { parseLibrary, mergeLibrary } from '../shared/library.js';
 import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
 
-const store = createStore();
+const store = createStore(undefined, { onError: (e) => toast(e.message) });
 
 const $ = (id) => document.getElementById(id);
 
@@ -64,6 +65,16 @@ async function fetchBuiltinData() {
 
 function customPacks() {
   return store.get('packs', []);
+}
+
+/** Persist, and on the first success show the one-time storage notice.
+ *  Returns false when the write failed — the store's onError has already
+ *  toasted why, and `toast` is single-slot, so callers must not add their own
+ *  message or it replaces the useful one. */
+function saveAndNotice(name, value) {
+  if (!store.set(name, value)) return false;
+  showStorageNoticeOnce(store);
+  return true;
 }
 
 async function rebuild() {
@@ -480,10 +491,7 @@ async function vtSaveChanges() {
     setVtStatus('bad', `✗ ${result.error}`);
     return;
   }
-  if (!store.set('packs', result.packs)) {
-    toast('Could not save — browser storage is full');
-    return;
-  }
+  if (!saveAndNotice('packs', result.packs)) return;
   await rebuild();
   select(gen.name); // re-runs with the new definition and re-renders the panel
   toast('Saved your version');
@@ -492,10 +500,7 @@ async function vtSaveChanges() {
 async function vtReset() {
   const gen = selectedGen();
   if (!gen) return;
-  if (!store.set('packs', removeOverride(customPacks(), gen.name))) {
-    toast('Could not save — browser storage is full');
-    return;
-  }
+  if (!saveAndNotice('packs', removeOverride(customPacks(), gen.name))) return;
   await rebuild();
   select(gen.name);
   toast('Reset to the built-in');
@@ -521,10 +526,7 @@ async function vtSaveAs() {
     setVtStatus('bad', `✗ ${result.error}`);
     return;
   }
-  if (!store.set('packs', result.packs)) {
-    toast('Could not save — browser storage is full');
-    return;
-  }
+  if (!saveAndNotice('packs', result.packs)) return;
   await rebuild();
   select(name); // jump to the new custom generator
   toast(`Saved as “${name}” under Custom`);
@@ -604,10 +606,7 @@ function importLibrary(file) {
       toast('Library already up to date');
       return;
     }
-    if (!store.set('library', merged)) {
-      toast('Could not save — browser storage is full');
-      return;
-    }
+    if (!saveAndNotice('library', merged)) return;
     renderLibrary();
     toast(`Imported ${added} result${added === 1 ? '' : 's'}`);
   };
@@ -636,10 +635,7 @@ function saveToLibrary() {
     data: count === 1 ? first : state.results,
     savedAt: new Date().toISOString(),
   };
-  if (!store.set('library', [entry, ...library()])) {
-    toast('Could not save — browser storage is full');
-    return;
-  }
+  if (!saveAndNotice('library', [entry, ...library()])) return;
   renderLibrary();
   toast('Saved to library');
 }
@@ -705,10 +701,7 @@ async function saveNewTemplate() {
     setTemplateStatus('bad', `✗ ${result.error}`);
     return;
   }
-  if (!store.set('packs', result.packs)) {
-    toast('Could not save — browser storage is full');
-    return;
-  }
+  if (!saveAndNotice('packs', result.packs)) return;
   await rebuild();
   renderTemplateList();
   setTemplateStatus('ok', `✓ saved — {${name}} is under Custom in the sidebar`);
@@ -748,10 +741,7 @@ function renderTemplateList() {
       {
         class: 'btn btn-small btn-danger',
         onclick: async () => {
-          if (!store.set('packs', deleteTemplate(customPacks(), name))) {
-            toast('Could not save — browser storage is full');
-            return;
-          }
+          if (!saveAndNotice('packs', deleteTemplate(customPacks(), name))) return;
           await rebuild();
           renderTemplateList();
         },
