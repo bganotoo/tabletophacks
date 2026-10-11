@@ -113,6 +113,8 @@ code, textarea, .gen-seed, .seed-input {
 
 .side-group ul { list-style: none; }
 
+.side-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+
 .side-item {
   display: flex;
   align-items: center;

@@ -5,9 +5,11 @@ import { BUILTIN_PACKS, parsePack, buildGenerator } from '../shared/packs.js';
 import { renderResult } from '../shared/render.js';
 import { el, clearNode, toast, download, debounce, uid } from '../shared/ui.js';
 import { usageBytes, storageEntries, usageReport, storageMeterHtml } from '../shared/storage.js';
+import { buildBackup, parseBackup, restorePlan, backupFilename } from '../shared/backup.js';
+import { showStorageNoticeOnce } from '../shared/notices.js';
 import { Generator } from '../../gen/index.js';
 
-const store = createStore();
+const store = createStore(undefined, { onError: (e) => toast(e.message) });
 
 const $ = (id) => document.getElementById(id);
 
@@ -43,8 +45,12 @@ function loadPacks() {
 }
 
 function persist() {
+  // No failure toast here: the store's onError already said why the write
+  // failed, and `toast` is single-slot — a second message would replace the
+  // useful one. A pack is the only thing this tool saves, so there is nothing
+  // to disambiguate.
   const ok = store.set('packs', state.packs);
-  if (!ok) toast('Could not save — browser storage is full');
+  if (ok) showStorageNoticeOnce(store);
   refreshStorageMeter();
   return ok;
 }
@@ -53,6 +59,41 @@ function persist() {
 function refreshStorageMeter() {
   const meter = $('storage-meter');
   if (meter) meter.innerHTML = storageMeterHtml(usageReport(usageBytes(storageEntries())));
+}
+
+// ── Backup & restore ────────────────────────────────────────────────────────
+
+function backupEverything() {
+  const now = new Date();
+  download(backupFilename(now), JSON.stringify(buildBackup(storageEntries(), now), null, 2));
+  toast('Backup downloaded');
+}
+
+function restoreEverything(file) {
+  const reader = new FileReader();
+  reader.onerror = () => toast('Could not read that file');
+  reader.onload = () => {
+    const parsed = parseBackup(String(reader.result));
+    if (!parsed.ok) return toast(`Restore failed — ${parsed.error}`);
+    const plan = restorePlan(storageEntries(), parsed.keys);
+    if (!plan.writes.length) return toast('That backup is empty — nothing to restore');
+    const plural = (n) => (n === 1 ? '' : 's');
+    const summary =
+      'Restore this backup?\n\n' +
+      `Replaces ${plan.replaced.length} saved item${plural(plan.replaced.length)}, ` +
+      `adds ${plan.added.length}.\n` +
+      `${plan.unaffected.length} item${plural(plan.unaffected.length)} not in the backup ` +
+      'will be left alone.\n\n' +
+      'The page will reload so every tool reads the restored data.';
+    if (!confirm(summary)) return;
+    for (const [key, value] of plan.writes) {
+      // setRaw refuses anything outside th:, and onError already explained any
+      // failure — stop rather than leave a half-restored mix.
+      if (!store.setRaw(key, value)) return;
+    }
+    location.reload();
+  };
+  reader.readAsText(file);
 }
 
 function selectedPack() {
@@ -274,6 +315,14 @@ function main() {
   $('delete-btn').addEventListener('click', deletePack);
   $('export-btn').addEventListener('click', exportPack);
   $('preview-btn').addEventListener('click', runPreview);
+
+  $('backup-btn').addEventListener('click', backupEverything);
+  $('restore-btn').addEventListener('click', () => $('restore-input').click());
+  $('restore-input').addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) restoreEverything(file);
+    e.target.value = ''; // let the same file be re-restored
+  });
 
   const validateSoon = debounce(validateEditor, 300);
   $('editor').addEventListener('input', () => {

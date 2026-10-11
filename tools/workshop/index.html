@@ -73,6 +73,13 @@
         <div class="side-group">
           <h2>Storage</h2>
           <div id="storage-meter"></div>
+          <div class="side-actions">
+            <button class="btn btn-small" id="backup-btn">Back up everything</button>
+            <button class="btn btn-small" id="restore-btn">Restore…</button>
+            <input type="file" id="restore-input" accept=".json,application/json" hidden />
+          </div>
+          <p class="hint">A backup is one JSON file covering every tool on this
+            site — packs, library, encounters, score sheets, and timers.</p>
         </div>
       </nav>
       <main class="main-panel">
