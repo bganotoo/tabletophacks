@@ -22,6 +22,7 @@ import { renderResult, renderResults, resultsToText, resultsToMarkdown } from '.
 import { clampCount, deriveSeeds } from '../shared/batch.js';
 import { parseLibrary, mergeLibrary } from '../shared/library.js';
 import { planImport } from '../shared/packimport.js';
+import { attachAutocomplete } from '../shared/autocomplete.js';
 import { formatVersion } from '../shared/packmeta.js';
 import { el, clearNode, toast, download, uid, debounce, wireSidebarToggle } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
@@ -934,6 +935,9 @@ async function main() {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runTemplate();
   });
   wireSidebarToggle($('sidebar-toggle'), $('sidebar'));
+  // Table names and tags as you type; the catalog is rebuilt with the generator.
+  attachAutocomplete($('tpl-input'), () => state.catalog);
+  attachAutocomplete($('vt-def'), () => state.catalog);
   $('catalog-search').addEventListener('input', debounce((e) => renderCatalog(e.target.value), 120));
   $('import-pack-btn').addEventListener('click', () => $('import-pack-input').click());
   $('import-pack-input').addEventListener('change', (e) => {

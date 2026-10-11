@@ -1155,6 +1155,44 @@ select { background: var(--card); }
 
 .dialog .btn-danger { border-color: var(--danger); color: var(--danger); }
 
+/* ── Autocomplete (autocomplete.js) ─────────── */
+.ac-wrap { position: relative; }
+
+.ac-list {
+  position: absolute;
+  z-index: 20;
+  min-width: 220px;
+  max-width: 320px;
+  max-height: 16rem;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0.25rem;
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.ac-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.ac-item[aria-selected='true'] { background: var(--card-hover); color: var(--accent); }
+
+.ac-value { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; }
+
+.ac-detail { color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; }
+
+@media (pointer: coarse) {
+  .ac-item { padding: 0.6rem; }
+}
+
 /* ── Focus ──────────────────────────────────── */
 /* One visible ring for keyboard users everywhere; text inputs keep their
    accent border instead (see the input rules above). */

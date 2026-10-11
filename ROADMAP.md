@@ -377,10 +377,12 @@ first dollar.
 
 ### Template authoring support
 
-- [ ] **Autocomplete for table names in template inputs** (Create page and
+- [x] **Autocomplete for table names in template inputs** (Create page and
   Workshop editor). Nice-to-have after the catalog exists, since it needs the
   same name index. *Deferred: author-facing, and authors are not the paying
-  audience in Phase 1.*
+  audience in Phase 1.* *(2026-10-10 — table names after `{` and tags after
+  `#`, in the Create box, the template editor, and the Workshop editor; see
+  [the design](docs/superpowers/specs/2026-10-10-template-autocomplete-design.md).)*
 
 ### Generator
 

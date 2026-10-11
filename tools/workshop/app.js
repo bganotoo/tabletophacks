@@ -7,6 +7,8 @@ import { el, clearNode, toast, download, debounce, uid, confirmDialog, promptDia
 import { usageBytes, storageEntries, usageReport, storageMeterHtml } from '../shared/storage.js';
 import { showStorageNoticeOnce } from '../shared/notices.js';
 import { planImport } from '../shared/packimport.js';
+import { attachAutocomplete } from '../shared/autocomplete.js';
+import { buildCatalog } from '../shared/catalog.js';
 import { formatVersion } from '../shared/packmeta.js';
 import { Generator } from '../../gen/index.js';
 
@@ -36,6 +38,7 @@ const state = {
   /** custom packs, mirrors th:packs:v1 */ packs: [],
   /** selected pack id */ selected: null,
   /** built-in data objects for previews */ builtinData: null,
+  /** tables the editor can reference, for autocomplete */ catalog: [],
   dirty: false,
 };
 
@@ -121,8 +124,23 @@ function validateEditor() {
   status.className = `editor-status ${result.ok ? 'ok' : 'bad'}`;
   status.append(result.ok ? '✓ valid pack' : `✗ ${result.error}`);
   if (state.dirty) status.append(el('span', { class: 'dirty-flag' }, ' • unsaved changes'));
-  if (result.ok) renderPreviewSelect();
+  if (result.ok) {
+    renderPreviewSelect();
+    refreshCatalog();
+  }
   return result;
+}
+
+/** What autocomplete offers: the built-ins plus this pack's own tables, the
+ *  same set a preview runs against. */
+async function refreshCatalog() {
+  try {
+    const builtinData = await fetchBuiltinData();
+    const { generator } = buildGenerator(builtinData, [{ id: 'editor', source: $('editor').value }]);
+    state.catalog = buildCatalog(generator);
+  } catch {
+    // Built-ins failed to load: autocomplete just offers nothing.
+  }
 }
 
 function save() {
@@ -310,6 +328,8 @@ function main() {
   $('export-btn').addEventListener('click', exportPack);
   $('preview-btn').addEventListener('click', runPreview);
 
+  attachAutocomplete($('editor'), () => state.catalog);
+  refreshCatalog();
   const validateSoon = debounce(validateEditor, 300);
   $('editor').addEventListener('input', () => {
     state.dirty = true;
