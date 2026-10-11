@@ -674,6 +674,32 @@ select { background: var(--card); }
 
 .toast.toast-visible { opacity: 1; transform: translate(-50%, 0); }
 
+/* ── Notice bar ─────────────────────────────── */
+/* z-index sits one above .toast so a save toast cannot cover the notice that
+   the same save triggered. */
+.notice-bar {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(42rem, calc(100vw - 2rem));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--card-hover);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.35);
+  z-index: 11;
+}
+
+.notice-bar p { margin: 0; flex: 1 1 18rem; line-height: 1.5; }
+
 /* ── Initiative Tracker ─────────────────────── */
 .init-panel { max-width: 720px; }
 

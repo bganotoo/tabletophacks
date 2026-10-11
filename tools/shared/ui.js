@@ -43,6 +43,28 @@ export function toast(message) {
   toastTimer = setTimeout(() => node.classList.remove('toast-visible'), 2200);
 }
 
+/** Dismissible notice bar, bottom of the page. Unlike `toast`, it stays until
+ *  the reader dismisses it — for things worth reading, not confirmations.
+ *  @param {string} message
+ *  @param {{ actionText?: string, onAction?: () => void }} [options]
+ *  @returns {HTMLElement} */
+export function noticeBar(message, { actionText = 'Got it', onAction } = {}) {
+  document.querySelector('.notice-bar')?.remove();
+  const bar = el('div', { class: 'notice-bar', role: 'status' }, el('p', {}, message));
+  bar.append(
+    el('button', {
+      class: 'btn btn-small',
+      type: 'button',
+      onclick: () => {
+        bar.remove();
+        onAction?.();
+      },
+    }, actionText),
+  );
+  document.body.append(bar);
+  return bar;
+}
+
 /** Trigger a client-side text file download. */
 export function download(filename, text, type = 'application/json') {
   const url = URL.createObjectURL(new Blob([text], { type }));
