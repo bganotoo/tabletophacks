@@ -1,0 +1,9 @@
+# Default: let git normalize text line endings.
+* text=auto
+
+# Shell scripts must stay LF — a CRLF build-icons.sh fails to run under sh.
+*.sh text eol=lf
+
+# Generated icons and the social card: binary, never line-ending-converted.
+*.png binary
+*.ico binary

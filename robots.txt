@@ -1,0 +1,5 @@
+# tabletophacks.com — everything here is public, static, and crawlable.
+User-agent: *
+Allow: /
+
+Sitemap: https://tabletophacks.com/sitemap.xml

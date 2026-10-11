@@ -29,32 +29,45 @@ of the items look equally urgent. They are not. In order:
    cached `app.js`. It presents as "the site is broken" with nothing in the
    logs. Settle it before the service worker (see Deferred → Architecture,
    which notes the same dependency from the other side).
-4. **The SEO and favicon pass** — mechanical, mostly one edit per page, and
-   nothing else is discoverable until it ships.
+4. ~~**The SEO and favicon pass**~~ — *done 2026-10-10.* Mechanical, mostly
+   one edit per page, and nothing else was discoverable until it shipped.
 
 Everything after that can go in whatever order suits the week.
 
 ### Discoverability & SEO
 
-The tools are good and currently invisible. Every page carries only `charset`,
-`viewport`, and a `<title>`; for ad revenue and pack sales, organic search *is*
-the business.
+**Done 2026-10-10** — see
+[the design spec](docs/superpowers/specs/2026-10-10-seo-metadata-design.md).
+All eight pages now carry the same head block, and `seo.test.js` auto-discovers
+every `index.html` and fails the suite if a new one ships without metadata or
+without a sitemap entry.
 
-- [ ] **Per-page `<meta name="description">`** on the landing page and all
+- [x] **Per-page `<meta name="description">`** on the landing page and all
   seven tool pages. One sentence each, written for a search result, not for a
   developer.
-- [ ] **Open Graph + Twitter card tags** on every page, plus a single
+- [x] **Open Graph + Twitter card tags** on every page, plus a single
   **social preview image** (1200×630). Links to the site currently unfurl as
   bare URLs everywhere they get shared — which is every launch channel.
-- [ ] **Favicon and app icons.** The d20 SVG already in `index.html` is the
+- [x] **Favicon and app icons.** The d20 SVG already in `index.html` is the
   artwork; export `favicon.ico`, a 180px apple-touch-icon, and a
   `site.webmanifest`. Every tab shows a blank page icon today.
-- [ ] **`robots.txt` and `sitemap.xml`.** Eight static URLs — hand-written is
+- [x] **`robots.txt` and `sitemap.xml`.** Eight static URLs — hand-written is
   fine, no generator needed.
-- [ ] **Canonical URL tags**, so `/tools/dice/` and `/tools/dice/index.html`
+- [x] **Canonical URL tags**, so `/tools/dice/` and `/tools/dice/index.html`
   do not compete with each other.
-- [ ] **`SoftwareApplication` JSON-LD** on each tool page. Cheap, and it is
+- [x] **`SoftwareApplication` JSON-LD** on each tool page. Cheap, and it is
   what earns a rich result for "free initiative tracker" style queries.
+
+Left open deliberately, now that the plumbing exists:
+
+- [ ] **Keyword-bearing `<title>` tags.** The titles are unchanged ("Tabletop
+  Hacks", "Dice Roller — Tabletop Hacks") because they are brand copy, not
+  plumbing. The title is the single largest on-page ranking factor, so it is
+  worth one deliberate pass — but it is a naming decision, not a mechanical
+  one. `og:title` tracks `<title>` automatically, enforced by the test.
+- [ ] **Per-tool social preview images.** One site-wide card ships today; a
+  per-tool card is a one-line change per page once there is traffic data
+  saying which tools get shared.
 
 ### Measurement
 
@@ -94,7 +107,9 @@ hosting config.
 - [ ] **Commit the deploy path**, whatever it is — a GitHub Actions workflow,
   or a `DEPLOYING.md`. Right now the deploy lives only in your head.
 - [ ] **Custom domain + HTTPS** wired to the host, with the `www` → apex
-  redirect settled one way.
+  redirect settled one way. The repo already *states* the answer: every
+  canonical tag, every `og:url`, and `sitemap.xml` name the apex. What is
+  left is the host-side redirect.
 - [ ] **Cache headers.** A no-build ES-module site on default caching will
   serve returning visitors a stale `app.js` against fresh HTML — the failure
   mode that looks like a broken site. Long-cache hashed assets or short-cache

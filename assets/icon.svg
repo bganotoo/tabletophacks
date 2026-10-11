@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"
+     fill="none" role="img" aria-label="Tabletop Hacks d20">
+  <!-- Outer pentagonal silhouette -->
+  <path d="M32 4 L58 20 L50 56 L14 56 L6 20 Z"
+        stroke="#f59e0b" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Horizontal divider across the two middle vertices -->
+  <line x1="6" y1="20" x2="58" y2="20" stroke="#f59e0b" stroke-width="3"/>
+  <!-- Internal lines radiating from center point (32,40) — the 5-triangle face pattern -->
+  <line x1="6"  y1="20" x2="32" y2="40" stroke="#f59e0b" stroke-width="2.5"/>
+  <line x1="58" y1="20" x2="32" y2="40" stroke="#f59e0b" stroke-width="2.5"/>
+  <line x1="32" y1="4"  x2="32" y2="40" stroke="#f59e0b" stroke-width="2.5"/>
+  <line x1="32" y1="40" x2="14" y2="56" stroke="#f59e0b" stroke-width="2.5"/>
+  <line x1="32" y1="40" x2="50" y2="56" stroke="#f59e0b" stroke-width="2.5"/>
+</svg>

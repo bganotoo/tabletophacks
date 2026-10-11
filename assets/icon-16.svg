@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"
+     fill="none" role="img" aria-label="Tabletop Hacks d20">
+  <!-- Simplified mark for the 16px favicon frame: at that size the internal
+       face lines of icon-solid.svg collapse into a blob, so only the
+       silhouette survives. Drawn larger in frame to compensate. -->
+  <rect width="64" height="64" fill="#0d0d1a"/>
+  <path d="M32 8 L57 23 L49 56 L15 56 L7 23 Z"
+        stroke="#f59e0b" stroke-width="7" stroke-linejoin="round"/>
+</svg>

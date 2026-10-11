@@ -5,9 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```sh
-npm test                              # full suite (node --test, 140+ tests)
+npm test                              # full suite (node --test, 460+ tests)
 node --test tools/shared/store.test.js   # one test file
 node --test data/                     # just the content-pack validation suite
+node --test seo.test.js               # just the per-page metadata suite
 ```
 
 There is no build step, no lint step, and no npm dependencies — `package.json` exists only for the `test` script. Node's built-in test runner (`node:test` + `node:assert/strict`) is the only tooling.
@@ -41,6 +42,8 @@ The landing page (`index.html`) links to the tools; card badges are "Live" (anch
 - localStorage keys are namespaced and versioned: `th:<name>:v1` (handled by `store.js`; never touch localStorage directly).
 - Pack load order matters: later loads win, which is how custom packs override built-in tables. `buildGenerator` and `listGenerators` must stay consistent on this.
 - `a` and `an` are reserved names (smart article), rejected by the Registry.
+- Every page carries the same SEO head block (description, canonical, Open Graph, Twitter card, icons, manifest) plus `SoftwareApplication` JSON-LD on tool pages. `seo.test.js` auto-discovers every `index.html` and enforces it, so **a new tool page also needs a `sitemap.xml` entry** or the suite fails. Canonical origin is `https://tabletophacks.com`, directory URLs with trailing slashes.
+- Site icons (`favicon.*`, `apple-touch-icon.png`, `icon-*.png`, `og-image.png`) are committed binaries generated from `assets/*.svg` by `assets/build-icons.sh`. That script is authoring-time only — never a build step, never run by the site or the tests.
 
 ## Design docs
 

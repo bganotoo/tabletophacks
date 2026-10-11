@@ -8,8 +8,11 @@ A static site of browser-based tools for tabletop gaming, live at **tabletophack
 
 - **[Random Generators](tools/generator/)** — roll up NPCs, encounters, settlements, dungeons, quests, and loot. Optional seed input makes every result reproducible; save favorites to a local library and export them as JSON.
 - **[Template Workshop](tools/workshop/)** — write your own generator packs as JSON with live validation and preview. Custom packs show up in the Generator automatically and can build on (or override) the built-in word tables.
-
-More tools (dice roller, initiative tracker, timers) are on the roadmap — see the landing page.
+- **[Dice Roller](tools/dice/)** — any dice notation (`3d6`, `1d20+5`, `4d6kh3`), with advantage, disadvantage, and a running history.
+- **[Initiative Tracker](tools/initiative/)** — turn order, rounds, and conditions whose durations tick down on their own.
+- **[Game Timer](tools/timer/)** — a chess-clock turn timer for board games and RPGs.
+- **[Score Tracker](tools/score/)** — a multi-player score sheet that totals as you go.
+- **[Syntax Reference](tools/reference/)** — every piece of template syntax, each with a live example you can reroll.
 
 ## Running locally
 
@@ -30,7 +33,26 @@ Requires Node 20+ (uses the built-in test runner; no npm install needed):
 npm test                                  # everything
 node --test gen/                          # just the engine
 node --test data/                         # just content-pack validation
+node --test seo.test.js                   # just page metadata
 ```
+
+`seo.test.js` auto-discovers every `index.html` in the repo and checks its
+description, canonical URL, Open Graph tags, icons, and `SoftwareApplication`
+JSON-LD, plus that `sitemap.xml` lists exactly those pages. A new tool page
+cannot ship without metadata.
+
+## Site icons
+
+The favicon, app icons, and the 1200×630 social card are **committed** at the
+repo root. They are generated from the SVG sources in [assets/](assets/):
+
+```sh
+sh assets/build-icons.sh   # requires ImageMagick 7; not part of npm test
+```
+
+This is an authoring-time script, not a build step — the site never runs it and
+nothing depends on it. Re-run it after editing any SVG in `assets/`, then commit
+the regenerated binaries.
 
 ## How it works
 

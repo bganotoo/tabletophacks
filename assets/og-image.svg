@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"
+     role="img" aria-label="Tabletop Hacks — tools for the table, no app required">
+  <rect width="1200" height="630" fill="#0d0d1a"/>
+  <rect x="0" y="0" width="1200" height="10" fill="#f59e0b"/>
+
+  <!-- d20 mark, 64-unit artwork scaled to 220px and inset from the left edge -->
+  <g transform="translate(112 219) scale(3.44)" fill="none">
+    <path d="M32 4 L58 20 L50 56 L14 56 L6 20 Z"
+          stroke="#f59e0b" stroke-width="2.4" stroke-linejoin="round"/>
+    <line x1="6" y1="20" x2="58" y2="20" stroke="#f59e0b" stroke-width="1.8" opacity="0.75"/>
+    <line x1="6"  y1="20" x2="32" y2="40" stroke="#f59e0b" stroke-width="1.4" opacity="0.6"/>
+    <line x1="58" y1="20" x2="32" y2="40" stroke="#f59e0b" stroke-width="1.4" opacity="0.6"/>
+    <line x1="32" y1="4"  x2="32" y2="40" stroke="#f59e0b" stroke-width="1.4" opacity="0.6"/>
+    <line x1="32" y1="40" x2="14" y2="56" stroke="#f59e0b" stroke-width="1.4" opacity="0.6"/>
+    <line x1="32" y1="40" x2="50" y2="56" stroke="#f59e0b" stroke-width="1.4" opacity="0.6"/>
+  </g>
+
+  <g font-family="DM Sans, Segoe UI, Arial, sans-serif">
+    <text x="400" y="248" font-size="92" font-weight="700" fill="#f0f0f0">Tabletop<tspan fill="#f59e0b"> Hacks</tspan></text>
+    <text x="404" y="320" font-size="40" font-weight="400" fill="#8888aa">Tools for the table. No app required.</text>
+    <text x="404" y="399" font-size="29" font-weight="500" fill="#f0f0f0">Generators &#183; Dice &#183; Initiative &#183; Timer &#183; Score &#183; Workshop</text>
+    <text x="404" y="460" font-size="28" font-weight="400" fill="#8888aa">tabletophacks.com</text>
+  </g>
+</svg>
