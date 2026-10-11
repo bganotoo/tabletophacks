@@ -49,8 +49,8 @@ export function formatBytes(bytes) {
 }
 
 const MESSAGES = {
-  warn: 'Storage is filling up — consider exporting anything you want to keep.',
-  critical: 'Storage nearly full — export your packs and library before saves start failing.',
+  warn: 'Storage is filling up — consider backing up anything you want to keep.',
+  critical: 'Storage nearly full — back up your work before saves start failing.',
 };
 
 /** Sidebar meter markup. All interpolated values are computed numbers or fixed
