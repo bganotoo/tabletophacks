@@ -6,7 +6,7 @@ import { RNG } from '../../gen/rng.js';
 import { el, clearNode, toast } from '../shared/ui.js';
 import { createStore } from '../shared/store.js';
 
-const store = createStore();
+const store = createStore(undefined, { onError: (e) => toast(e.message) });
 const HISTORY_KEY = 'dice-history';
 const HISTORY_MAX = 50;
 
