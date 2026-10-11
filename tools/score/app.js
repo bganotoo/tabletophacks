@@ -25,10 +25,12 @@ import {
   isValidBook,
   ScoreError,
 } from '../shared/scoresheet.js';
-import { el, clearNode, toast, uid } from '../shared/ui.js';
+import { el, clearNode, toast, uid, download } from '../shared/ui.js';
 import { createStore } from '../shared/store.js';
+import { buildSnapshot, parseSnapshot, snapshotFilename } from '../shared/backup.js';
+import { showStorageNoticeOnce } from '../shared/notices.js';
 
-const store = createStore();
+const store = createStore(undefined, { onError: (e) => toast(e.message) });
 const KEY = 'score';
 
 const sheetSelect = document.getElementById('sheet-select');
@@ -57,7 +59,7 @@ function commit(fn, { structural = true } = {}) {
     if (err instanceof ScoreError) return toast(err.message);
     throw err;
   }
-  store.set(KEY, state);
+  if (store.set(KEY, state)) showStorageNoticeOnce(store);
   structural ? render() : repaintTotals();
 }
 
@@ -180,6 +182,44 @@ function repaintTotals() {
 }
 
 // --- wiring ----------------------------------------------------------------
+
+// --- export / import -------------------------------------------------------
+
+function exportBook() {
+  const now = new Date();
+  download(snapshotFilename(KEY, now), JSON.stringify(buildSnapshot(KEY, state, now), null, 2));
+  toast('Score sheets exported');
+}
+
+/** Replaces the whole book rather than merging sheets by id. Merging is
+ *  defensible, but replace is what the other tools do and what "restore my
+ *  lost sheet" means. */
+function importBook(file) {
+  const reader = new FileReader();
+  reader.onerror = () => toast('Could not read that file');
+  reader.onload = () => {
+    const result = parseSnapshot(String(reader.result), KEY);
+    if (!result.ok) return toast(`Import failed — ${result.error}`);
+    const count = state.sheets.length;
+    if (count && !confirm(`Replace your ${count} saved sheet${count === 1 ? '' : 's'} with the imported ones?`)) return;
+    // parseSnapshot ran isValidBook, so this is safe to adopt as state.
+    state = result.data;
+    if (store.set(KEY, state)) showStorageNoticeOnce(store);
+    render();
+    const n = state.sheets.length;
+    toast(`Imported ${n} sheet${n === 1 ? '' : 's'}`);
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('export-btn').addEventListener('click', exportBook);
+document.getElementById('import-btn').addEventListener('click', () =>
+  document.getElementById('import-input').click());
+document.getElementById('import-input').addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (file) importBook(file);
+  e.target.value = ''; // let the same file be re-imported
+});
 
 sheetSelect.addEventListener('change', () => commit((s) => selectSheet(s, sheetSelect.value)));
 sheetName.addEventListener('change', () => commit((s) => renameSheet(s, state.activeId, sheetName.value)));
