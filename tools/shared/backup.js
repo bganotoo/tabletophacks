@@ -145,3 +145,104 @@ export function parseSnapshot(source, expectedKind) {
 
   return { ok: true, kind, data: envelope.data, exportedAt: envelope.exportedAt };
 }
+
+// ── Whole-origin backup ─────────────────────────────────────────────────────
+
+export function backupFilename(now) {
+  return `tabletophacks-${BACKUP_KIND}-${isoDay(now)}.json`;
+}
+
+/**
+ * Every `th:` key in one envelope. Values stay **raw strings** rather than
+ * parsed JSON: parsing would read better in an editor but makes restore
+ * ambiguous (a stored string `"x"` and a corrupt raw `x` both come back as
+ * `x`), and a value that is not JSON at all could not round-trip. A backup's
+ * one job is to be lossless.
+ * @param {Iterable<[string, string]>} entries from storageEntries()
+ * @param {Date|number|string} now
+ */
+export function buildBackup(entries, now) {
+  const keys = {};
+  for (const [key, value] of entries) {
+    if (typeof key === 'string' && key.startsWith(KEY_PREFIX)) {
+      keys[key] = String(value);
+    }
+  }
+  return {
+    [FIELD]: BACKUP_KIND,
+    version: SNAPSHOT_VERSION,
+    exportedAt: new Date(now).toISOString(),
+    keys,
+  };
+}
+
+/**
+ * @param {string} source file contents
+ * @returns {{ ok: true, keys: Record<string, string>, exportedAt: unknown }
+ *          | { ok: false, error: string }}
+ */
+export function parseBackup(source) {
+  const opened = openEnvelope(source);
+  if (!opened.ok) return opened;
+  const envelope = opened.envelope;
+
+  if (envelope[FIELD] !== BACKUP_KIND) {
+    const kind = SNAPSHOT_KINDS[envelope[FIELD]];
+    return {
+      ok: false,
+      error: kind
+        ? `this is ${kind.article} ${kind.label} export, not a full backup — ` +
+          `open it in the ${kind.tool} instead`
+        : 'this is not a full backup file',
+    };
+  }
+
+  const stale = versionError(envelope);
+  if (stale) return { ok: false, error: stale };
+
+  const keys = envelope.keys;
+  if (!isPlainObject(keys)) {
+    return { ok: false, error: 'this backup is damaged — it has no stored values' };
+  }
+  for (const [key, value] of Object.entries(keys)) {
+    if (!key.startsWith(KEY_PREFIX)) {
+      return {
+        ok: false,
+        error: `this backup contains a key outside this site's storage (${key}); ` +
+          `expected every key to start with "${KEY_PREFIX}"`,
+      };
+    }
+    if (typeof value !== 'string') {
+      return { ok: false, error: `this backup is damaged — the value for ${key} is not text` };
+    }
+  }
+
+  return { ok: true, keys, exportedAt: envelope.exportedAt };
+}
+
+/**
+ * What a restore would do, so the UI can say it before doing it. Keys in
+ * storage but absent from the file are reported as `unaffected` and left
+ * alone: a restore puts back what the backup covered, it does not wipe what
+ * it did not.
+ * @param {Iterable<[string, string]>} existingEntries
+ * @param {Record<string, string>} incomingKeys
+ * @returns {{ writes: [string, string][], replaced: string[], added: string[],
+ *             unaffected: string[] }}
+ */
+export function restorePlan(existingEntries, incomingKeys) {
+  const existing = new Set();
+  for (const [key] of existingEntries) {
+    if (typeof key === 'string' && key.startsWith(KEY_PREFIX)) existing.add(key);
+  }
+  const writes = [];
+  const replaced = [];
+  const added = [];
+  for (const [key, value] of Object.entries(incomingKeys)) {
+    writes.push([key, value]);
+    (existing.has(key) ? replaced : added).push(key);
+  }
+  const incoming = new Set(Object.keys(incomingKeys));
+  const unaffected = [...existing].filter((key) => !incoming.has(key));
+  return { writes, replaced, added, unaffected };
+}
