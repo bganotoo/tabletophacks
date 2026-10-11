@@ -31,6 +31,11 @@ of the items look equally urgent. They are not. In order:
    which notes the same dependency from the other side).
 4. ~~**The SEO and favicon pass**~~ — *done 2026-10-10.* Mechanical, mostly
    one edit per page, and nothing else was discoverable until it shipped.
+5. ~~**Trust & data safety**~~ — *done 2026-10-10.* Export, import,
+   whole-site backup, and save failures that say what went wrong. It was not
+   ranked here originally; it went first because it was the only band that was
+   pure code with no outside dependency — no mailing-list account, no hosting
+   decision, no judgment call on table text.
 
 Everything after that can go in whatever order suits the week.
 
@@ -121,19 +126,37 @@ hosting config.
 
 ### Trust & data safety
 
-Everything persists only in `localStorage` under `th:<name>:v1`. Generator and
-Workshop can export and import; **Initiative, Score, and Timer cannot.**
+**Done 2026-10-10** — see
+[the design spec](docs/superpowers/specs/2026-10-10-data-safety-design.md).
+Every tool that holds a GM's work can now get it out and back in, and no save
+fails silently.
 
-- [ ] **Export/import for Initiative and Score.** A GM who loses a combat
-  roster or a campaign score sheet does not come back. `tools/shared/store.js`
-  already centralizes the keys, so this is one shared helper, not three
-  features.
-- [ ] **"Back up everything" button** — one JSON file across all `th:*` keys,
-  next to the existing storage indicator.
-- [ ] **A plain warning that clearing browser data erases saved work**, shown
-  on first save rather than buried in a help page.
-- [ ] **Graceful `QuotaExceededError` handling.** `store.js` should surface a
-  readable message instead of silently failing a save mid-session.
+- [x] **Export/import for Initiative and Score** — *and Timer*, which had the
+  same risk, the same shape guard, and three lines of the same wiring. All
+  three go through one new shared module, `tools/shared/backup.js`, whose
+  envelope carries the kind — so a score export opened in Initiative is
+  refused by name instead of written in as a broken encounter.
+- [x] **"Back up everything" button** — one JSON file across all `th:*` keys,
+  next to the storage indicator in the Workshop. A restore says what it will
+  replace, add, and leave alone before doing it.
+- [x] **A plain warning that clearing browser data erases saved work**, shown
+  as a dismissible bar on the first deliberate save, then never again.
+- [x] **Graceful `QuotaExceededError` handling.** `store.js` now reports
+  *why* a write failed (full / blocked / unknown) through an `onError` channel
+  given at construction — which is what reached the three tools that were
+  ignoring `set()`'s return value entirely. Reading `globalThis.localStorage`
+  is also guarded now: the property access itself throws when a browser blocks
+  site data, which used to white-screen the tool.
+
+Left open deliberately:
+
+- [ ] **A discoverable home for backup/restore.** It lives in the Workshop,
+  which is the author-facing tool — a GM who only uses Initiative never sees
+  it. A footer "Your data" page would fix that, and it pairs naturally with
+  the About/Privacy/Terms footer links already on this list.
+- [ ] **Merging imported score sheets by id** instead of replacing the book.
+  Replace is what "restore my lost sheet" means; merge is a real feature if
+  anyone asks to move one sheet between devices.
 
 ### Landing page & conversion
 
