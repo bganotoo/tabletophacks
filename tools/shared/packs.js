@@ -2,6 +2,7 @@
 
 import { Generator } from '../../gen/index.js';
 import { MY_OVERRIDES_ID } from './overrides.js';
+import { readPackMeta } from './packmeta.js';
 
 /** Custom packs in load order: overrides always last so they win. */
 function orderedCustomPacks(customPacks) {
@@ -73,9 +74,10 @@ export const BUILTIN_PACKS = [
 ];
 
 /**
- * Parse and engine-validate one custom pack's JSON source.
+ * Parse and engine-validate one custom pack's JSON source, including its
+ * optional `$pack` metadata block.
  * @param {string} source
- * @returns {{ ok: true, data: object } | { ok: false, error: string }}
+ * @returns {{ ok: true, data: object, meta: object } | { ok: false, error: string }}
  */
 export function parsePack(source) {
   let data;
@@ -89,7 +91,9 @@ export function parsePack(source) {
   } catch (err) {
     return { ok: false, error: err.message };
   }
-  return { ok: true, data };
+  const meta = readPackMeta(data);
+  if (!meta.ok) return { ok: false, error: meta.error };
+  return { ok: true, data, meta: meta.meta };
 }
 
 /**
@@ -117,7 +121,8 @@ export function buildGenerator(builtinData, customPacks = []) {
  * on name collisions (so customs shadow built-ins, mirroring buildGenerator).
  * @param {typeof BUILTIN_PACKS} builtinPacks
  * @param {{ id: string, name: string, source: string }[]} customPacks
- * @returns {{ name: string, title: string, packTitle: string, packId: string, custom: boolean }[]}
+ * @returns {{ name: string, title: string, packTitle: string, packId: string,
+ *             packVersion: string|null, custom: boolean }[]}
  */
 export function listGenerators(builtinPacks, customPacks = []) {
   const byName = new Map();
@@ -128,6 +133,7 @@ export function listGenerators(builtinPacks, customPacks = []) {
         title: gen.title,
         packTitle: pack.title,
         packId: pack.id,
+        packVersion: null,
         custom: false,
       });
     }
@@ -137,7 +143,14 @@ export function listGenerators(builtinPacks, customPacks = []) {
     const parsed = parsePack(pack.source);
     if (!parsed.ok) continue;
     for (const name of Generator.fromData(parsed.data).names()) {
-      byName.set(name, { name, title: name, packTitle: pack.name, packId: pack.id, custom: true });
+      byName.set(name, {
+        name,
+        title: name,
+        packTitle: pack.name,
+        packId: pack.id,
+        packVersion: parsed.meta.version ?? null,
+        custom: true,
+      });
     }
   }
   return [...byName.values()];

@@ -14,6 +14,9 @@ export class GenError extends Error {
 
 const NAME_RE = /^[A-Za-z_][A-Za-z0-9_-]*$/;
 
+/** Reserved top-level key for pack metadata, read by tools/shared/packmeta.js. */
+const PACK_META_KEY = '$pack';
+
 /**
  * @typedef {{ text: string, tags: string[], weight: number,
  *             variants: Record<string, string> }} NormalizedEntry
@@ -40,6 +43,9 @@ export class Registry {
       throw new GenError('generator data must be a JSON object of named tables');
     }
     for (const [name, value] of Object.entries(data)) {
+      // Pack metadata (title, version, …) for the tools; not a table. It is
+      // the one `$` name accepted, and NAME_RE keeps it from colliding.
+      if (name === PACK_META_KEY) continue;
       if (!NAME_RE.test(name)) throw new GenError(`invalid table name \`${name}\``);
       if (name === 'a' || name === 'an') {
         throw new GenError(`table name \`${name}\` is reserved for the smart article`);

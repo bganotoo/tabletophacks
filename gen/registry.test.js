@@ -77,6 +77,13 @@ test('validation errors are specific', () => {
   assert.ok(GenError.prototype instanceof Error);
 });
 
+test('the $pack metadata key is skipped, and no other $ name is', () => {
+  const r = make({ $pack: { title: 'Anything', version: 7 }, noun: ['x'] });
+  assert.deepEqual(r.tableNames(), ['noun']);
+  assert.deepEqual(r.templateNames(), []);
+  assert.throws(() => make({ $other: ['x'] }), /invalid table name/);
+});
+
 test('decimal weights are allowed', () => {
   const r = make({ noun: [{ text: 'x', weight: 0.5 }] });
   assert.equal(r.getTable('noun')[0].weight, 0.5);

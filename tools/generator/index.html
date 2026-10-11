@@ -50,7 +50,10 @@
     <header class="tool-header">
       <a class="home-link" href="../../">Tabletop <span class="accent">Hacks</span></a>
       <h1>Generator</h1>
-      <nav class="tool-nav"><a href="../workshop/">Workshop →</a></nav>
+      <nav class="tool-nav">
+        <a href="#import">Import a pack</a>
+        <a href="../workshop/">Workshop →</a>
+      </nav>
     </header>
     <div class="tool-layout">
       <nav class="sidebar" id="sidebar" aria-label="Generators"></nav>
@@ -168,6 +171,25 @@
             <span class="gen-seed" id="catalog-count"></span>
           </div>
           <div id="catalog-list"></div>
+        </div>
+
+        <div id="import-view" hidden>
+          <div>
+            <h2 class="gen-title">Import a pack</h2>
+            <p class="gen-subtitle">Bought or downloaded a generator pack? Add its
+              <code>.json</code> file here and its generators appear in the
+              sidebar. Importing a newer version of a pack you already have
+              updates it in place.</p>
+          </div>
+          <div class="import-drop" id="import-drop">
+            <button class="btn btn-primary" id="import-pack-btn" type="button">Choose a pack file…</button>
+            <input type="file" id="import-pack-input" accept=".json,application/json" hidden />
+            <p class="hint">…or drop it here. The file is read in your browser;
+              nothing is uploaded.</p>
+          </div>
+          <div id="import-result" aria-live="polite"></div>
+          <p class="hint">Want to change a pack, or write your own? Use the
+            <a href="../workshop/">Workshop</a>.</p>
         </div>
       </main>
     </div>

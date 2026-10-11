@@ -15,7 +15,8 @@ export const STORAGE_NOTICE_ID = 'storage';
 
 export const STORAGE_NOTICE =
   'Your saved work lives in this browser only. Clearing your browsing data — ' +
-  'or using private browsing — will erase it. Use Export to keep a copy.';
+  'or using private browsing — will erase it. Use Export to keep a copy, or back up ' +
+  'everything from Your data at the bottom of any page.';
 
 function flags(seen) {
   return seen !== null && typeof seen === 'object' && !Array.isArray(seen) ? seen : {};

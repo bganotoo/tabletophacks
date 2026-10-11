@@ -10,9 +10,10 @@ test('parseHash treats empty/null/undefined as the empty route', () => {
   assert.deepEqual(parseHash(undefined), { route: 'empty' });
 });
 
-test('parseHash recognises the reserved create/tables routes', () => {
+test('parseHash recognises the reserved create/tables/import routes', () => {
   assert.deepEqual(parseHash('create'), { route: 'create' });
   assert.deepEqual(parseHash('tables'), { route: 'tables' });
+  assert.deepEqual(parseHash('import'), { route: 'import' });
 });
 
 test('parseHash reads a bare generator name with a null seed', () => {

@@ -6,6 +6,8 @@ import { renderResult } from '../shared/render.js';
 import { el, clearNode, toast, download, debounce, uid } from '../shared/ui.js';
 import { usageBytes, storageEntries, usageReport, storageMeterHtml } from '../shared/storage.js';
 import { showStorageNoticeOnce } from '../shared/notices.js';
+import { planImport } from '../shared/packimport.js';
+import { formatVersion } from '../shared/packmeta.js';
 import { Generator } from '../../gen/index.js';
 
 const store = createStore(undefined, { onError: (e) => toast(e.message) });
@@ -74,7 +76,9 @@ function renderPackList() {
     return;
   }
   for (const pack of state.packs) {
-    const invalid = !parsePack(pack.source).ok;
+    const parsed = parsePack(pack.source);
+    const invalid = !parsed.ok;
+    const version = parsed.ok ? formatVersion(parsed.meta.version) : '';
     const item = el(
       'button',
       {
@@ -82,6 +86,7 @@ function renderPackList() {
         onclick: () => select(pack.id),
       },
       pack.name,
+      ...(version ? [el('span', { class: 'pack-version' }, ` ${version}`)] : []),
       ...(invalid ? [el('span', { class: 'item-flag', title: 'This pack has errors' }, '⚠')] : []),
     );
     list.append(el('li', {}, item));
@@ -245,13 +250,34 @@ function importPack(file) {
   const reader = new FileReader();
   reader.onload = () => {
     const source = String(reader.result);
-    const parsed = parsePack(source);
-    if (!parsed.ok) {
-      toast(`Import failed: ${parsed.error}`);
+    // Same planner as the Generator's import view, so re-importing a newer
+    // version of a titled pack updates it here too instead of duplicating it.
+    const plan = planImport(state.packs, source, file.name);
+    if (!plan.ok) {
+      toast(`Import failed: ${plan.detail}`);
       return;
     }
-    const name = file.name.replace(/\.json$/i, '') || 'Imported Pack';
-    const pack = createPack(name, source);
+    if (plan.action === 'unchanged') {
+      select(plan.existing.id);
+      toast('You already have this version');
+      return;
+    }
+    if (plan.action === 'update') {
+      if (state.dirty && !confirm('Discard unsaved changes to this pack?')) return;
+      state.dirty = false;
+      const existing = plan.existing;
+      const before = { source: existing.source, updatedAt: existing.updatedAt };
+      existing.source = source;
+      existing.updatedAt = new Date().toISOString();
+      if (!persist()) {
+        Object.assign(existing, before);
+        return;
+      }
+      select(existing.id);
+      toast(`Updated ${plan.name}`);
+      return;
+    }
+    const pack = createPack(plan.name, source);
     if (pack) {
       select(pack.id);
       toast('Pack imported');

@@ -11,6 +11,7 @@ import {
 test('the storage notice names the risk and the remedy', () => {
   assert.match(STORAGE_NOTICE, /this browser/i);
   assert.match(STORAGE_NOTICE, /export/i);
+  assert.match(STORAGE_NOTICE, /Your data/, 'names the page that backs up everything');
 });
 
 test('the notices store name is a plain unversioned name', () => {

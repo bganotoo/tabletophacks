@@ -26,6 +26,19 @@ test('parsePack accepts a valid pack', () => {
   assert.deepEqual(Object.keys(result.data), ['color', 'gem']);
 });
 
+test('parsePack returns the pack metadata, or an empty object', () => {
+  assert.deepEqual(parsePack(VALID_SOURCE).meta, {});
+  const withMeta = parsePack(JSON.stringify({ $pack: { title: 'Coast', version: '1.0' }, x: ['y'] }));
+  assert.equal(withMeta.ok, true);
+  assert.deepEqual(withMeta.meta, { title: 'Coast', version: '1.0' });
+});
+
+test('parsePack rejects a malformed $pack block', () => {
+  const result = parsePack(JSON.stringify({ $pack: { version: 2 }, x: ['y'] }));
+  assert.equal(result.ok, false);
+  assert.match(result.error, /version/);
+});
+
 test('parsePack rejects malformed JSON with an error message', () => {
   const result = parsePack('{oops');
   assert.equal(result.ok, false);
@@ -88,11 +101,32 @@ test('listGenerators labels built-in and custom generators', () => {
   const customs = [{ id: 'p1', name: 'My Pack', source: VALID_SOURCE }];
   const list = listGenerators(builtins, customs);
   const npc = list.find((g) => g.name === 'npc');
-  assert.deepEqual(npc, { name: 'npc', title: 'NPC', packTitle: 'Core', packId: 'core', custom: false });
+  assert.deepEqual(npc, {
+    name: 'npc',
+    title: 'NPC',
+    packTitle: 'Core',
+    packId: 'core',
+    packVersion: null,
+    custom: false,
+  });
   const gem = list.find((g) => g.name === 'gem');
-  assert.deepEqual(gem, { name: 'gem', title: 'gem', packTitle: 'My Pack', packId: 'p1', custom: true });
+  assert.deepEqual(gem, {
+    name: 'gem',
+    title: 'gem',
+    packTitle: 'My Pack',
+    packId: 'p1',
+    packVersion: null,
+    custom: true,
+  });
   // tables in custom packs are runnable too
   assert.ok(list.some((g) => g.name === 'color'));
+});
+
+test('listGenerators carries a custom pack version and never lists $pack', () => {
+  const source = JSON.stringify({ $pack: { title: 'Coast', version: '1.2.0' }, wreck: ['a hull'] });
+  const list = listGenerators([], [{ id: 'p2', name: 'Coast', source }]);
+  assert.deepEqual(list.map((g) => g.name), ['wreck']);
+  assert.equal(list[0].packVersion, '1.2.0');
 });
 
 test('listGenerators dedupes by name with custom winning', () => {

@@ -158,6 +158,51 @@ code, textarea, .gen-seed, .seed-input {
 
 .pack-badge.custom { background: var(--accent); color: var(--background); }
 
+.pack-version {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Import a pack ──────────────────────────── */
+.import-drop {
+  margin: 1.25rem 0;
+  padding: 2rem 1.25rem;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.import-drop.dragging { border-color: var(--accent); background: var(--card); }
+
+.import-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.import-card h3 { font-size: 1.05rem; margin-bottom: 0.35rem; }
+.import-card p { margin-bottom: 0.5rem; }
+.import-ok { border-left-color: var(--ok); }
+.import-failed { border-left-color: var(--danger); }
+
+.import-gens { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
+
+.import-card summary { cursor: pointer; color: var(--text-muted); font-size: 0.85rem; }
+
+.import-detail {
+  margin-top: 0.5rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 /* ── Storage meter ──────────────────────────── */
 .storage-meter { font-size: 0.75rem; }
 

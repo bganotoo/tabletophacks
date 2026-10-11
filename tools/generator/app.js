@@ -21,6 +21,8 @@ import { parseHash, formatGeneratorHash } from '../shared/genhash.js';
 import { renderResult, renderResults, resultsToText, resultsToMarkdown } from '../shared/render.js';
 import { clampCount, deriveSeeds } from '../shared/batch.js';
 import { parseLibrary, mergeLibrary } from '../shared/library.js';
+import { planImport } from '../shared/packimport.js';
+import { formatVersion } from '../shared/packmeta.js';
 import { el, clearNode, toast, download, uid, debounce } from '../shared/ui.js';
 import { Generator } from '../../gen/index.js';
 
@@ -131,7 +133,14 @@ function renderSidebar() {
     const badge = gens[0].custom
       ? el('span', { class: 'pack-badge custom' }, 'custom')
       : null;
-    const heading = el('h2', {}, packTitle, ...(badge ? [badge] : []));
+    const version = formatVersion(gens[0].packVersion);
+    const heading = el(
+      'h2',
+      {},
+      packTitle,
+      ...(version ? [el('span', { class: 'pack-version' }, version)] : []),
+      ...(badge ? [badge] : []),
+    );
     const list = el('ul', {}, ...gens.map(sideItem));
     sidebar.append(el('div', { class: 'side-group' }, heading, list));
   }
@@ -147,6 +156,18 @@ function renderSidebar() {
           onclick: () => showCreate(),
         },
         '+ New template',
+      ),
+    ),
+    el(
+      'li',
+      {},
+      el(
+        'button',
+        {
+          class: `side-item${state.view === 'import' ? ' selected' : ''}`,
+          onclick: () => showImport(),
+        },
+        'Import a pack…',
       ),
     ),
   );
@@ -178,9 +199,7 @@ function select(name, { updateHash = true, seed = null, count = null } = {}) {
   const gen = state.list.find((g) => g.name === name) ?? state.list[0];
   if (!gen) return;
   state.view = 'generate';
-  $('gen-view').hidden = false;
-  $('create-view').hidden = true;
-  $('tables-view').hidden = true;
+  showOnly('gen-view');
   state.selected = gen.name;
   if (updateHash) history.replaceState(null, '', `#${gen.name}`);
   // Arriving from a shared link: pin its seed and count so the run reproduces it.
@@ -194,20 +213,31 @@ function select(name, { updateHash = true, seed = null, count = null } = {}) {
     gen.packId === MY_TEMPLATES_ID
       ? 'your saved template'
       : gen.custom
-        ? `from your pack “${gen.packTitle}”`
+        ? `from your pack ${packLabel(gen)}`
         : pack?.description ?? '';
   renderSidebar();
   generate();
   renderViewTemplate();
 }
 
+const VIEWS = ['gen-view', 'create-view', 'tables-view', 'import-view'];
+
+/** Show one main-panel view and hide the rest. */
+function showOnly(id) {
+  for (const view of VIEWS) $(view).hidden = view !== id;
+}
+
+/** `“Haunted Coast” v1.1.0`, or just the quoted title when unversioned. */
+function packLabel(gen) {
+  const version = formatVersion(gen.packVersion);
+  return `“${gen.packTitle}”${version ? ` ${version}` : ''}`;
+}
+
 function showCreate({ updateHash = true } = {}) {
   state.view = 'create';
   state.selected = null;
   if (updateHash) history.replaceState(null, '', '#create');
-  $('gen-view').hidden = true;
-  $('create-view').hidden = false;
-  $('tables-view').hidden = true;
+  showOnly('create-view');
   renderSidebar();
   renderTemplateList();
 }
@@ -216,12 +246,101 @@ function showTables({ updateHash = true } = {}) {
   state.view = 'tables';
   state.selected = null;
   if (updateHash) history.replaceState(null, '', '#tables');
-  $('gen-view').hidden = true;
-  $('create-view').hidden = true;
-  $('tables-view').hidden = false;
+  showOnly('tables-view');
   $('catalog-search').value = '';
   renderSidebar();
   renderCatalog('');
+}
+
+function showImport({ updateHash = true } = {}) {
+  state.view = 'import';
+  state.selected = null;
+  if (updateHash) history.replaceState(null, '', '#import');
+  showOnly('import-view');
+  clearNode($('import-result'));
+  renderSidebar();
+}
+
+// ── Import a pack ───────────────────────────────────────────────────────────
+
+/** Read a pack file, plan the import, write it, and say what happened —
+ *  inline, not in a toast: a buyer needs time to read a failure. */
+function importPackFile(file) {
+  const reader = new FileReader();
+  reader.onerror = () =>
+    showImportFailure({ message: 'That file could not be read.', detail: String(reader.error), support: null });
+  reader.onload = async () => {
+    const packs = customPacks();
+    const plan = planImport(packs, String(reader.result), file.name);
+    if (!plan.ok) return showImportFailure(plan);
+    if (plan.action === 'unchanged') return showImportSuccess(plan, plan.existing.id);
+
+    const now = new Date().toISOString();
+    const source = String(reader.result);
+    let id;
+    let next;
+    if (plan.action === 'update') {
+      id = plan.existing.id;
+      next = packs.map((p) => (p.id === id ? { ...p, source, updatedAt: now } : p));
+    } else {
+      id = uid();
+      next = [...packs, { id, name: plan.name, description: '', source, updatedAt: now }];
+    }
+    // No message on failure: the store's onError already said why.
+    if (!saveAndNotice('packs', next)) return;
+    await rebuild();
+    showImportSuccess(plan, id);
+  };
+  reader.readAsText(file);
+}
+
+function showImportSuccess(plan, packId) {
+  const host = $('import-result');
+  clearNode(host);
+  const version = formatVersion(plan.meta.version);
+  const label = `${plan.name}${version ? ` ${version}` : ''}`;
+  const previous = formatVersion(plan.previous?.version);
+  const heading =
+    plan.action === 'unchanged'
+      ? `You already have ${label}`
+      : plan.action === 'update'
+        ? `Updated ${label}${previous && previous !== version ? ` (was ${previous})` : ''}`
+        : `Installed ${label}`;
+  const gens = state.list.filter((g) => g.packId === packId);
+  const card = el('div', { class: 'import-card import-ok', role: 'status' }, el('h3', {}, heading));
+  if (plan.meta.author) card.append(el('p', { class: 'hint' }, `by ${plan.meta.author}`));
+  if (gens.length) {
+    card.append(
+      el('p', {}, gens.length === 1 ? 'It adds one generator:' : `It adds ${gens.length} generators:`),
+      el(
+        'div',
+        { class: 'import-gens' },
+        ...gens.map((g) => el('button', { class: 'btn btn-small', type: 'button', onclick: () => select(g.name) }, g.title)),
+      ),
+    );
+  }
+  if (plan.meta.license) card.append(el('p', { class: 'hint' }, `License: ${plan.meta.license}`));
+  host.append(card);
+}
+
+function showImportFailure({ message, detail, support }) {
+  const host = $('import-result');
+  clearNode(host);
+  host.append(
+    el(
+      'div',
+      { class: 'import-card import-failed', role: 'alert' },
+      el('h3', {}, message),
+      el(
+        'p',
+        {},
+        support
+          ? `Send the details below to ${support} and they can fix it for you.`
+          : 'Send the details below to whoever gave you this file and they can fix it.',
+      ),
+      el('details', {}, el('summary', {}, 'Details'), el('pre', { class: 'import-detail' }, detail)),
+    ),
+  );
 }
 
 // ── Browse tables ───────────────────────────────────────────────────────────
@@ -449,7 +568,7 @@ function renderViewTemplate() {
   $('vt-subtitle').textContent = !builtin
     ? gen.packId === MY_TEMPLATES_ID
       ? 'One of your saved templates — edit it on the Create page.'
-      : `From your pack “${gen.packTitle}” — edit it in the Workshop.`
+      : `From your pack ${packLabel(gen)} — edit it in the Workshop.`
     : overridden
       ? 'Built-in generator — modified. You are running your edited copy.'
       : 'Built-in generator.';
@@ -815,6 +934,24 @@ async function main() {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runTemplate();
   });
   $('catalog-search').addEventListener('input', debounce((e) => renderCatalog(e.target.value), 120));
+  $('import-pack-btn').addEventListener('click', () => $('import-pack-input').click());
+  $('import-pack-input').addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) importPackFile(file);
+    e.target.value = ''; // let the same file be chosen again
+  });
+  const drop = $('import-drop');
+  drop.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    drop.classList.add('dragging');
+  });
+  drop.addEventListener('dragleave', () => drop.classList.remove('dragging'));
+  drop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    drop.classList.remove('dragging');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) importPackFile(file);
+  });
   $('tpl-browse-tables').addEventListener('click', (e) => {
     e.preventDefault();
     showTables();
@@ -830,6 +967,8 @@ async function main() {
       if (state.view !== 'create') showCreate({ updateHash: false });
     } else if (parsed.route === 'tables') {
       if (state.view !== 'tables') showTables({ updateHash: false });
+    } else if (parsed.route === 'import') {
+      if (state.view !== 'import') showImport({ updateHash: false });
     } else if (parsed.route === 'generate' && parsed.name) {
       if (parsed.name !== state.selected) {
         select(parsed.name, { updateHash: false, seed: parsed.seed, count: parsed.count });
@@ -850,7 +989,7 @@ async function main() {
       rebuild().then(() => {
         if (state.view === 'create') renderTemplateList();
         else if (state.view === 'tables') renderCatalog($('catalog-search').value);
-        else select(state.selected);
+        else if (state.view !== 'import') select(state.selected);
       });
     }
   });
@@ -859,6 +998,7 @@ async function main() {
   const parsed = parseHash(location.hash.slice(1));
   if (parsed.route === 'create') showCreate({ updateHash: false });
   else if (parsed.route === 'tables') showTables({ updateHash: false });
+  else if (parsed.route === 'import') showImport({ updateHash: false });
   else if (parsed.route === 'generate' && state.list.some((g) => g.name === parsed.name))
     select(parsed.name, { updateHash: false, seed: parsed.seed, count: parsed.count });
   else select(initialSelection());

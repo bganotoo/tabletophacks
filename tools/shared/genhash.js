@@ -5,11 +5,12 @@
  *   ''                     -> the empty route (fall back to remembered/first)
  *   'create'               -> the Create view
  *   'tables'               -> the Browse tables view
+ *   'import'               -> the Import a pack view
  *   '<name>[:s=<seed>][:n=<count>]'
  *                          -> run generator <name>, optionally at <seed>,
  *                             optionally producing a batch of <count>
  *
- * `create`/`tables` are reserved route words. Generator names match
+ * `create`/`tables`/`import` are reserved route words. Generator names match
  * `/^[A-Za-z_][A-Za-z0-9_-]*$/`, so they never contain the `:s=` delimiter and
  * the split is unambiguous. A seed can be arbitrary user-pinned text, so it is
  * percent-encoded in the hash — and so an encoded seed never contains a literal
@@ -35,6 +36,7 @@ export function parseHash(raw) {
   if (s === '') return { route: 'empty' };
   if (s === 'create') return { route: 'create' };
   if (s === 'tables') return { route: 'tables' };
+  if (s === 'import') return { route: 'import' };
 
   // Split off a trailing `:n=<digits>` batch count first. The encoded seed can
   // never contain a `:`, so a trailing `:n=<digits>` is unambiguously the count.

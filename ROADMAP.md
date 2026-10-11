@@ -237,14 +237,30 @@ delivery mechanism exists.
   feature gate on the engine.
 - [ ] **Static store page** listing packs, each with a payment link (Gumroad
   or Lemon Squeezy — both handle checkout, delivery, and VAT with no server).
-- [ ] **Frictionless purchased-pack import.** Buyers arrive holding a JSON
+- [x] **Frictionless purchased-pack import.** Buyers arrive holding a JSON
   file; getting it into the Generator must not require a tour of the Workshop.
-  Add a direct "Import a pack" entry point.
-- [ ] **Pack versioning and updates.** A `version` field in pack JSON, the
+  Add a direct "Import a pack" entry point. *(2026-10-10 — the Generator has
+  an Import view at `/tools/generator/#import` (link it from the store and
+  the purchase email), reachable from the header and the sidebar: a button,
+  a drop zone, and an inline result listing the generators it added. See the
+  [spec](docs/superpowers/specs/2026-10-10-pack-import-design.md).)*
+- [x] **Pack versioning and updates.** A `version` field in pack JSON, the
   version visible in the tools, and a decision on how buyers get fixes.
-- [ ] **Validation errors that do not blame the buyer.** A failed import of a
+  *(2026-10-10 — packs may carry a reserved `$pack` block: `title`,
+  `version`, `author`, `license`, `support`, `url`. The version shows in
+  the Generator sidebar, the template subtitle, and the Workshop list.
+  **How buyers get fixes:** download the new file and import it again; a
+  pack whose `$pack.title` matches an installed one updates it in place
+  ("Updated Haunted Coast v1.1.0 (was v1.0.0)"). Untitled packs never match,
+  so a hand-made pack is never replaced. Whether to also announce updates
+  — the mailing list is the obvious channel — is still open.)*
+- [x] **Validation errors that do not blame the buyer.** A failed import of a
   paid pack is a refund request; the message should name the problem and the
-  support address.
+  support address. *(2026-10-10 — "This pack file could not be loaded. The
+  problem is in the file, not anything you did." It names the pack's own
+  `$pack.support` contact when the block is readable, even if the tables
+  are broken, and keeps the technical reason under Details for the seller.
+  The site-wide fallback address waits on the Contact item.)*
 - [ ] **Pricing, store copy, refund policy, and the buyer license**, written
   once and kept consistent between store page and pack file.
 
