@@ -21,9 +21,11 @@ of the items look equally urgent. They are not. In order:
 1. **Email capture** — without a list, the first paid pack launches to nobody.
    Every other item here affects one launch; this one compounds across all of
    them.
-2. **Originality / IP audit of `data/`** — the only blocker that can become a
-   real problem rather than lost revenue. It has to land *before* the store
-   page exists, not after.
+2. ~~**Originality / IP audit of `data/`**~~ — *done 2026-10-10.* The only
+   blocker that could become a real problem rather than lost revenue, so it
+   had to land before the store page. No lifted text was found; 20 entries
+   that sat too close to the PHB or to other franchises were rewritten, and a
+   test now keeps them out.
 3. **Cache headers** — a landmine specific to this architecture: no build step
    means no content hashing, so a returning visitor can get new HTML against a
    cached `app.js`. It presents as "the site is broken" with nothing in the
@@ -99,10 +101,26 @@ wrong expensively.
 - [ ] **A stated content license.** The one item here that can actually bite:
   buyers need to know whether output from a paid pack may appear in an
   adventure they publish commercially. Decide it, put it on the pack page, and
-  repeat it inside the pack JSON.
-- [ ] **Originality / IP audit of `data/`.** Before money changes hands,
-  confirm no table text is lifted from a published SRD or supplement, or mark
-  what is OGL/CC-BY and attribute it.
+  repeat it inside the pack JSON. *Carry the SRD 5.1 CC-BY attribution line
+  wherever this lands. The packs use "owlbear", "stirge", and the rarity
+  ladder, all from SRD 5.1. The audit's position is that bare names do not
+  require attribution, but one sentence settles the question. The exact
+  wording is in the audit.*
+- [x] **Originality / IP audit of `data/`.** *(2026-10-10 — see
+  [the audit](docs/superpowers/specs/2026-10-10-data-originality-audit.md).)*
+  No table text is lifted. Eleven trinkets that paraphrased the PHB's d100
+  table were rewritten. So were nine names tied to other franchises:
+  Dawnbreaker and Oathkeeper as item names, plus Oathkeeper, Kettleblack,
+  Ninefingers, Corvo and others as person names. No WotC Product Identity
+  appears. `data/originality.test.js` now fails the suite if a denylisted
+  name (Product Identity, WotC settings, enforced Tolkien terms, or anything
+  this audit removed) appears in any built-in pack.
+  - Accepted, not fixed: compound place names can occasionally land on a name
+    fiction also uses (*Blackmoor*, *Ravenholm*). They are ordinary English
+    place-name elements, and preventing them would need an engine change.
+  - The audit is a careful read against the tables these generators
+    resemble, not a plagiarism-database match. A new paid pack should get the
+    same read before it ships; the test is a floor, not a clearance.
 
 ### Deploy & domain
 
