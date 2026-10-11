@@ -16,10 +16,12 @@ import {
   isValidEncounter,
   EncounterError,
 } from '../shared/encounter.js';
-import { el, clearNode, toast, uid } from '../shared/ui.js';
+import { el, clearNode, toast, uid, download } from '../shared/ui.js';
 import { createStore } from '../shared/store.js';
+import { buildSnapshot, parseSnapshot, snapshotFilename } from '../shared/backup.js';
+import { showStorageNoticeOnce } from '../shared/notices.js';
 
-const store = createStore();
+const store = createStore(undefined, { onError: (e) => toast(e.message) });
 const KEY = 'encounter';
 
 const list = document.getElementById('init-list');
@@ -39,7 +41,7 @@ function commit(fn) {
     if (err instanceof EncounterError) return toast(err.message);
     throw err;
   }
-  store.set(KEY, state);
+  if (store.set(KEY, state)) showStorageNoticeOnce(store);
   render();
 }
 
@@ -117,6 +119,31 @@ function toggleCondForm(btn) {
   if (open) form.querySelector('.init-cond-name').focus();
 }
 
+// --- export / import -------------------------------------------------------
+
+function exportEncounter() {
+  const now = new Date();
+  download(snapshotFilename(KEY, now), JSON.stringify(buildSnapshot(KEY, state, now), null, 2));
+  toast('Encounter exported');
+}
+
+function importEncounter(file) {
+  const reader = new FileReader();
+  reader.onerror = () => toast('Could not read that file');
+  reader.onload = () => {
+    const result = parseSnapshot(String(reader.result), KEY);
+    if (!result.ok) return toast(`Import failed — ${result.error}`);
+    if (state.combatants.length && !confirm('Replace the current encounter with the imported one?')) return;
+    // parseSnapshot ran isValidEncounter, so this is safe to adopt as state.
+    state = result.data;
+    if (store.set(KEY, state)) showStorageNoticeOnce(store);
+    render();
+    const n = state.combatants.length;
+    toast(`Imported ${n} combatant${n === 1 ? '' : 's'}`);
+  };
+  reader.readAsText(file);
+}
+
 // --- wiring ----------------------------------------------------------------
 
 addForm.addEventListener('submit', (e) => {
@@ -134,6 +161,15 @@ document.getElementById('prev-btn').addEventListener('click', () => commit(prevT
 document.getElementById('reset-btn').addEventListener('click', () => {
   if (state.combatants.length && !confirm('Clear the whole encounter?')) return;
   commit(() => createEncounter());
+});
+
+document.getElementById('export-btn').addEventListener('click', exportEncounter);
+document.getElementById('import-btn').addEventListener('click', () =>
+  document.getElementById('import-input').click());
+document.getElementById('import-input').addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (file) importEncounter(file);
+  e.target.value = ''; // let the same file be re-imported
 });
 
 render();

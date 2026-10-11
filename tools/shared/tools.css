@@ -721,7 +721,10 @@ select { background: var(--card); }
 .init-round-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); min-width: 1.5ch; }
 
 .init-turn-controls { display: flex; gap: 0.4rem; }
-.init-reset { margin-left: auto; }
+
+/* Export / import / reset, pushed to the trailing edge of the round bar.
+   Wraps to its own line on a phone rather than squeezing the turn controls. */
+.init-datatools { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-left: auto; }
 
 .init-name { flex: 1; min-width: 8rem; max-width: 18rem; }
 .init-init { width: 5rem; }

@@ -74,7 +74,12 @@
           <button class="btn" id="prev-btn" title="Previous turn">‹ Prev</button>
           <button class="btn btn-primary" id="next-btn">Next turn ›</button>
         </div>
-        <button class="btn btn-small init-reset" id="reset-btn">New encounter</button>
+        <div class="init-datatools">
+          <button class="btn btn-small" id="export-btn">Export</button>
+          <button class="btn btn-small" id="import-btn">Import…</button>
+          <input type="file" id="import-input" accept=".json,application/json" hidden />
+          <button class="btn btn-small" id="reset-btn">New encounter</button>
+        </div>
       </div>
 
       <form class="init-add run-bar" id="add-form">
