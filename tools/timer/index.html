@@ -79,7 +79,12 @@
         <button class="btn btn-primary timer-pass" id="pass-btn">Pass ›</button>
         <button class="btn" id="toggle-btn">Start</button>
         <button class="btn btn-small" id="reset-turn-btn">Reset turn</button>
-        <button class="btn btn-small timer-newgame" id="reset-btn">New game</button>
+        <div class="timer-datatools">
+          <button class="btn btn-small" id="export-btn">Export</button>
+          <button class="btn btn-small" id="import-btn">Import…</button>
+          <input type="file" id="import-input" accept=".json,application/json" hidden />
+          <button class="btn btn-small" id="reset-btn">New game</button>
+        </div>
       </div>
 
       <div class="timer-settings run-bar">

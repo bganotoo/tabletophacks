@@ -860,7 +860,9 @@ select { background: var(--card); }
   margin-bottom: 1rem;
 }
 .timer-pass { font-size: 1.05rem; padding: 0.6rem 1.4rem; }
-.timer-newgame { margin-left: auto; }
+/* Export / import / new game, pushed to the trailing edge of the transport row.
+   Wraps to its own line on a phone rather than squeezing the turn controls. */
+.timer-datatools { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-left: auto; }
 
 .timer-settings { align-items: center; margin-bottom: 0.75rem; }
 .timer-field { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.85rem; }

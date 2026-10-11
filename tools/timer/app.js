@@ -18,14 +18,17 @@ import {
   isExpired,
   playerTotalMs,
   isValidGame,
+  pause,
   formatClock,
   formatCountdown,
   TimerError,
 } from '../shared/timer.js';
-import { el, clearNode, toast, uid } from '../shared/ui.js';
+import { el, clearNode, toast, uid, download } from '../shared/ui.js';
 import { createStore } from '../shared/store.js';
+import { buildSnapshot, parseSnapshot, snapshotFilename } from '../shared/backup.js';
+import { showStorageNoticeOnce } from '../shared/notices.js';
 
-const store = createStore();
+const store = createStore(undefined, { onError: (e) => toast(e.message) });
 const KEY = 'timer';
 const SOUND_KEY = 'timer-sound';
 
@@ -63,7 +66,7 @@ function commit(fn) {
     if (err instanceof TimerError) return toast(err.message);
     throw err;
   }
-  store.set(KEY, state);
+  if (store.set(KEY, state)) showStorageNoticeOnce(store);
   wasExpired = isExpired(state, Date.now());
   render();
 }
@@ -152,7 +155,49 @@ function beep() {
   }
 }
 
+// --- export / import -------------------------------------------------------
+
+/** Export a *paused* snapshot. `pause` folds the live interval into
+ *  turnElapsedBeforePause, so the file records real elapsed time instead of a
+ *  turnStartedAt timestamp that means nothing on another machine. The live
+ *  clock is untouched — `pause` is pure. */
+function exportGame() {
+  const now = new Date();
+  const paused = pause(state, now.getTime());
+  download(snapshotFilename(KEY, now), JSON.stringify(buildSnapshot(KEY, paused, now), null, 2));
+  toast('Timer exported');
+}
+
+function importGame(file) {
+  const reader = new FileReader();
+  reader.onerror = () => toast('Could not read that file');
+  reader.onload = () => {
+    const result = parseSnapshot(String(reader.result), KEY);
+    if (!result.ok) return toast(`Import failed — ${result.error}`);
+    if (state.players.length && !confirm('Replace the current timer with the imported one?')) return;
+    // parseSnapshot ran isValidGame, so the shape is safe. Land paused
+    // regardless: a turnStartedAt from another machine's clock would make the
+    // turn read as hours long. Elapsed time already in the file is kept.
+    state = { ...result.data, running: false, turnStartedAt: null };
+    if (store.set(KEY, state)) showStorageNoticeOnce(store);
+    wasExpired = isExpired(state, Date.now());
+    render();
+    const n = state.players.length;
+    toast(`Imported ${n} player${n === 1 ? '' : 's'} — the clock is paused`);
+  };
+  reader.readAsText(file);
+}
+
 // --- wiring ----------------------------------------------------------------
+
+document.getElementById('export-btn').addEventListener('click', exportGame);
+document.getElementById('import-btn').addEventListener('click', () =>
+  document.getElementById('import-input').click());
+document.getElementById('import-input').addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (file) importGame(file);
+  e.target.value = ''; // let the same file be re-imported
+});
 
 document.getElementById('pass-btn').addEventListener('click', () => commit((s) => passTurn(s, Date.now())));
 toggleBtn.addEventListener('click', () => commit((s) => toggle(s, Date.now())));
