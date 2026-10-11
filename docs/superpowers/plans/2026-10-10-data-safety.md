@@ -579,7 +579,10 @@ export function parseSnapshot(source, expectedKind) {
     return { ok: false, error: `this export is of an unrecognised kind (${kind})` };
   }
   if (kind !== expectedKind) {
-    return { ok: false, error: `this is ${found.label === 'score sheets' ? 'a' : 'an'} ${found.label} export — open it in the ${found.tool} instead` };
+    return {
+      ok: false,
+      error: `this is ${found.article} ${found.label} export — open it in the ${found.tool} instead`,
+    };
   }
 
   const stale = versionError(envelope);
@@ -593,11 +596,7 @@ export function parseSnapshot(source, expectedKind) {
 }
 ```
 
-Note the article in the mismatch message: "an encounter export", "a score sheets export", "a turn timer export". The ternary above is wrong for `timer` — fix it in Step 4 rather than shipping it.
-
-- [ ] **Step 4: Replace the article ternary with a data field**
-
-An inline ternary over labels does not scale and reads badly. Add `article` to each registry entry and use it:
+The mismatch message needs a per-kind article — "an encounter export", "a score sheets export", "a turn timer export" — so `article` is a registry field, not an inline ternary over labels:
 
 ```js
 export const SNAPSHOT_KINDS = {
@@ -607,29 +606,18 @@ export const SNAPSHOT_KINDS = {
 };
 ```
 
-and in `parseSnapshot`:
-
-```js
-  if (kind !== expectedKind) {
-    return {
-      ok: false,
-      error: `this is ${found.article} ${found.label} export — open it in the ${found.tool} instead`,
-    };
-  }
-```
-
-Also add `article` to the registry assertion in the test from Step 1:
+The registry assertion in the Step 1 test covers it:
 
 ```js
     assert.equal(typeof entry.article, 'string', `${kind} article`);
 ```
 
-- [ ] **Step 5: Run the tests and confirm they pass**
+- [ ] **Step 4: Run the tests and confirm they pass**
 
 Run: `node --test tools/shared/backup.test.js` → PASS
 Run: `npm test` → all green.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add tools/shared/backup.js tools/shared/backup.test.js
@@ -1649,7 +1637,7 @@ store in Task 4 and is called that way in Tasks 5–9. Store names used
 (`encounter`, `score`, `timer`, `packs`, `library`, `notices`) match the Global
 Constraints list.
 
-**One spec deviation, deliberate:** the spec described `noticeBar(message, {
+**Spec deviation, deliberate:** the spec described `noticeBar(message, {
 actionText, onAction })` as firing "the dismiss callback"; Task 4 implements
 `onAction` as exactly that and defaults `actionText` to "Got it". No behavioural
 difference, but the parameter is named for the button, not the dismissal.
