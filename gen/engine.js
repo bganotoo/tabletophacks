@@ -333,16 +333,27 @@ function evalRepeat(node, ctx) {
   return { text: texts.join(node.join) };
 }
 
+/** Vowel letters that sound like a consonant ("a unicorn", "a one-eyed"). */
+const CONSONANT_SOUND = /^(?:uni|use|usu|ure|uri|eu|ewe|one\b|one-|once)/i;
+/** A silent h, which sounds like a vowel ("an hour", "an heir"). */
+const VOWEL_SOUND_H = /^(?:hour|honest|hono(?:u)?r|heir)/i;
+
+/** "an" when `word` starts with a vowel sound, else "a". */
+function articleFor(word) {
+  if (VOWEL_SOUND_H.test(word)) return 'an';
+  return /^[aeiou]/i.test(word) && !CONSONANT_SOUND.test(word) ? 'an' : 'a';
+}
+
 /**
- * Replace article markers with "a"/"an" based on the first letter of the
- * next non-empty part.
+ * Replace article markers with "a"/"an" based on the sound of the next
+ * non-empty part — its first letter, plus the common exceptions above.
  */
 function resolveArticles(parts) {
   for (let i = 0; i < parts.length; i++) {
     if (!parts[i].article) continue;
     let word = '';
     for (let j = i + 1; j < parts.length && !word; j++) word = parts[j].text.trimStart();
-    parts[i] = { text: /^[aeiou]/i.test(word) ? 'an' : 'a' };
+    parts[i] = { text: articleFor(word) };
   }
   return parts;
 }

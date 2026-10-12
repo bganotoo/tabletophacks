@@ -66,6 +66,16 @@ test('smart article: an before vowels, a before consonants', () => {
   assert.equal(evaluateText('{a} {beast}!', ctxFor({ beast: ['Idol'] })), 'an Idol!');
 });
 
+test('smart article follows the sound, not the letter, for common exceptions', () => {
+  const article = (word) => evaluateText('{a} {w}', ctxFor({ w: [word] })).split(' ')[0];
+  for (const word of ['hourglass', 'Hour', 'honest', 'honourable', 'heir', 'heirloom', 'unseen', 'urn']) {
+    assert.equal(article(word), 'an', word);
+  }
+  for (const word of ['one-eyed', 'once-proud', 'Unicorn', 'useful', 'usurer', 'ewer', 'eulogy', 'uniform', 'house']) {
+    assert.equal(article(word), 'a', word);
+  }
+});
+
 test('article with nothing after it defaults to "a"', () => {
   assert.equal(evaluateText('{a}', ctxFor({})), 'a');
 });
