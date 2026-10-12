@@ -41,7 +41,7 @@
     { "text": "a cage drops over whoever stands on the dais", "tags": ["separate"] },
     { "text": "the stair flattens into a smooth stone ramp", "tags": ["fall"] },
     { "text": "a gout of freezing mist that rimes everything it touches", "tags": ["cold"] },
-    { "text": "a {metal} plate in the floor crackles with stored lightning", "tags": ["lightning"] },
+    { "text": "{a} {metal} plate in the floor crackles with stored lightning", "tags": ["lightning"] },
     { "text": "a hidden bellows fills the room with smoke, and something starts moving in it", "tags": ["alarm"], "weight": 0.5 }
   ],
   "trap-tell": [
@@ -52,7 +52,7 @@
     "a smell of lamp oil where there are no lamps",
     "a tiny hole at waist height in each wall",
     "dust that has been disturbed only in the middle of the floor",
-    "a {color} chalk mark at shoulder height, left by someone who came before",
+    "{a} {color} chalk mark at shoulder height, left by someone who came before",
     "a hum, felt more than heard, through the soles of the feet",
     "a corpse still holding a ten-foot pole",
     "fresh oil on a hinge in a ruin otherwise rusted solid",

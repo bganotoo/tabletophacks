@@ -20,7 +20,7 @@
     "a shrine tended by a single stubborn priest",
     "a bridge that locals refuse to cross after dark",
     "a guildhall with boarded-up windows",
-    "an ancient {noun#concrete} displayed in the square",
+    "an ancient {noun#concrete#!animal} displayed in the square",
     "a well that is said to grant wishes",
     "a gallows nobody remembers building",
     "a leaning clocktower that strikes thirteen",
@@ -68,7 +68,7 @@
     "a tax collector rode in and never rode out",
     "the miller's wife has taken to walking the walls at night",
     "the old well has started giving up strange, sweet water",
-    "someone has been leaving {noun#treasure}s on doorsteps",
+    "someone has been leaving {noun#treasure.plural} on doorsteps",
     "the priest preaches to an empty church now",
     "a light burns in the ruined tower again",
     "the smith's apprentice vanished with the strongbox",
@@ -97,7 +97,7 @@
     "a cartload of empty coffins arrived, addressed to no one",
     "the blight has jumped the river a full season too soon",
     "the constable is drinking again, and won't say why",
-    "a two-headed calf was born at the {noun#structure} farm"
+    "a two-headed calf was born at the {surname} farm"
   ],
   "settlement-problem": [
     "the granaries are half-empty and winter is close",

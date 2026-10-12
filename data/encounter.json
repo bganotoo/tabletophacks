@@ -147,7 +147,7 @@
   ],
   "complication": [
     "the weather turns: {weather}",
-    "one of them carries {a} {adjective#magic} {noun#concrete}",
+    "one of them carries {a} {adjective#magic} {noun#concrete#!animal}",
     "a second group is watching from hiding",
     "they want to parley, not fight",
     "the ground here is treacherous",
