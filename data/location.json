@@ -665,7 +665,22 @@
     "a vast, blind {noun#animal#!small} that hunts by sound",
     "the dungeon itself, which shifts its doors to herd visitors toward its belly",
     "a band of {creature#humanoid.plural} paid by {faction} to keep everyone out",
-    "a scarecrow in the entry hall that is never quite where it was left"
+    "a scarecrow in the entry hall that is never quite where it was left",
+    "a bored {creature} who has been told to guard the place, and not told why",
+    "the spirit of {a} {npc-occupation} who died here and resents visitors",
+    "{a} {color} dragon's skeleton, animated by an old command",
+    "a pair of hounds of {metal}, wound up and watchful",
+    "a cult of {creature#humanoid.plural} who worship whatever sleeps below",
+    "a knight of {faction} who has gone mad from the solitude",
+    "an enormous {noun#animal#!small#!bird} that has grown fat on the dungeon's rats",
+    "a scribe's ghost that records the name of every visitor, and every death",
+    "a statue of {saint} that weeps when trespassers pass, and then moves",
+    "a nest of {creature#beast.plural} in the great hall, with young",
+    "a swarm of {noun#small#animal.plural} that moves as one",
+    "the last survivor of the previous expedition, who has made a kingdom here",
+    "a door-warden of {material} who demands a toll in memories",
+    "a wyvern too old to fly, and too proud to die",
+    "a lantern-bearing ghost who leads visitors to the worst possible room"
   ],
   "dungeon-room": [
     { "text": "{dungeon-room-core}", "weight": 3 },

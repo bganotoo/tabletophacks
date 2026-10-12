@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```sh
-npm test                              # full suite (node --test, 460+ tests)
+npm test                              # full suite (node --test, 650+ tests)
 node --test tools/shared/store.test.js   # one test file
 node --test data/                     # just the content-pack validation suite
 node --test seo.test.js               # just the per-page metadata suite
@@ -31,6 +31,8 @@ Three layers, each building on the one before:
 1. **`gen/` — the generator framework** (engine, no content). `parser.js` owns all `{...}` template-string syntax (table lookups with `#tag`/`#!tag` filters, `.transform` mods, `@capture`s, dice `{3d6}`, ranges `{2-12}`, alternatives `{a|b*3}`, repetition `{2x loot}`, smart article `{a}`). `engine.js` holds the `Registry` (tables + JSON templates) and the evaluators, throwing `GenError` with did-you-mean suggestions. `rng.js` is a seedable RNG — same seed, same output, always. `index.js` exports the public `Generator` API (`load`, `fromData`, `run`, `text`); it works in both Node (fs) and the browser (fetch). Runs are `strict` (unknown names throw) or `lenient` (warnings array).
 
 2. **`data/` — built-in content packs** (content, no code). Each JSON file maps names to either a **table** (array of strings/entry objects) or a **JSON template** (object). `data/data.test.js` auto-discovers every `*.json` in the directory and strict-runs every generator across 25 seeds — a new pack gets validation coverage just by existing, and must pass it. `data/originality.test.js` is auto-discovering too: it fails on any denylisted name (WotC Product Identity and settings, enforced Tolkien terms, and names the 2026-10-10 IP audit removed). Add to its denylist rather than around it; `docs/superpowers/specs/2026-10-10-data-originality-audit.md` records the method a new pack should get. `common.json` holds shared word tables the other packs reference.
+
+   Sentence tables are built for variety (see `docs/superpowers/specs/2026-10-12-generator-variety-design.md`): a headline field is a weighted dispatcher over themed sub-tables named after it (`quest-hook` → `quest-hook-plea`, …), so adding lines never shifts a family's odds; lines take slots from shared vocabulary rather than baking in specifics; and many tables compose a `-core` with an optional tail, joined only onto entries tagged `short` (comma-free). Tags keep slotted combinations viable (`noun#building` for a deed, `foe#sapient` for a captor, `someone#!clause` before another clause) — prefer a tag over a line that is only sometimes true. Write `{a}` before any slot, never a literal "a". `data/grammar.test.js` checks every lookup against every entry it could pick and samples every generator for a/an, doubled words, and "1 + plural"; `data/variety.test.js` holds a floor under each headline field's effective sentence frames.
 
 3. **`tools/` — the web tools** (Generator at `tools/generator/`, Workshop at `tools/workshop/`). Testable logic lives in `tools/shared/` as pure/injectable modules (`store.js` versioned localStorage wrapper, `packs.js` pack catalog + assembly, `render.js` result→HTML). Each tool's `app.js` is deliberately thin, untested DOM wiring — put any logic worth testing in a shared module instead. `tools/shared/packs.js` also holds `BUILTIN_PACKS`, the manifest that makes a data pack visible in the tools; new built-in packs must be added there.
 

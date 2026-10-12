@@ -256,7 +256,22 @@
     "the corpse caught in it is wearing {faction}'s colours, and carries orders",
     "a child's drawing of the trap is pinned to the wall nearby, labelled with care",
     "it can be turned and used against whatever comes next",
-    "the treasure it protects was removed long ago, and the trap has been guarding an empty box ever since"
+    "the treasure it protects was removed long ago, and the trap has been guarding an empty box ever since",
+    "the trap has caught something that is still alive, and grateful to be freed",
+    "a party member's {kin#elder} designed it, and signed it",
+    "it was built to protect the {creature.plural} who live here from people like the party",
+    "the trigger is in the next room, and someone is standing on it",
+    "it is a copy of a famous trap, and the original's weakness is well known",
+    "it fires a message, not a dart: a warning written by the builder",
+    "the {authority} of {place-name} is paying the builder's heirs to keep it working",
+    "it was meant for the builder's rival, who is lying dead beside it",
+    "it is so loud that everything for a mile now knows the party is here",
+    "{a} {noun#bird} has nested in the mechanism, and will not be moved without a fuss",
+    "the trap is the only thing holding back the water on the other side of the wall",
+    "it only fires on the anniversary of the builder's death, which is today",
+    "its victims are not killed but taken somewhere else entirely",
+    "a ghost stands beside it, warning everyone, and nobody can hear the warning",
+    "disarming it sets off a cheer from somewhere deep in the walls"
   ],
   "trap-maker": [
     { "text": "{trap-maker-core}", "weight": 3 },

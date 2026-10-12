@@ -935,6 +935,26 @@
     "a cottage full of clocks, all showing different times",
     "a hermit's cell in the ruins at {place-name}",
     "a boathouse with a bed in the rafters and the boat below",
-    "a room above the stables at {tavern-name}, smelling of horse"
+    "a room above the stables at {tavern-name}, smelling of horse",
+    "a cottage in the churchyard, which keeps the rent low",
+    "a narrow boat on the canal, painted with {noun#plant.plural}",
+    "a room over the {authority}'s stables, earned by keeping quiet",
+    "a shepherd's hut on wheels, parked on {wilds-name}",
+    "the old schoolhouse, its desks still in rows",
+    "a cottage built half into a barrow, which the neighbours do not mention",
+    "a garret above the counting-house of {faction}",
+    "a lodging in the almshouse, granted by the priest of {saint}",
+    "the keeper's lodge at the gate of an empty manor",
+    "a hut at the bottom of a quarry, reached by a ladder",
+    "a tower room in the town wall, with arrow-slits for windows",
+    "a mill-house where the {noun#domestic.plural} sleep inside in winter",
+    "a cottage that floods every spring, and dries out by midsummer",
+    "a room in a widow's house, with the widow's {noun#domestic} for company",
+    "a smart new house, paid for with money nobody can account for",
+    "a tumbledown farmhouse with a very good roof and no walls to speak of",
+    "a moored barge that never goes anywhere",
+    "a cell in the old gaol, rented cheap, the door left open",
+    "a room behind {tavern-name}'s kitchen, smelling of onions",
+    "a hollow inside an enormous dead oak, fitted with a door"
   ]
 }
