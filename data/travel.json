@@ -38,7 +38,7 @@
     "{weather}, though the locals swear it will be worse tomorrow",
     "{weather}, and the {noun#bird.plural} flying low",
     "{weather}; the old {npc-occupation} at the last inn swore it would be fine",
-    "{weather} in the valleys, and worse on the tops"
+    "{weather}, worse on the high ground"
   ],
   "road-condition": [
     { "text": "a good dry road, recently mended", "tags": ["easy"], "weight": 2 },
