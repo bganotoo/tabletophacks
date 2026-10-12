@@ -892,7 +892,7 @@ async function main() {
     const url = shareUrl();
     if (!url) return;
     await navigator.clipboard.writeText(url);
-    toast('Link copied — it reproduces this exact result');
+    toast('Link copied');
   });
   $('save-btn').addEventListener('click', saveToLibrary);
   $('export-lib-btn').addEventListener('click', () => {
