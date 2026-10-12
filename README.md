@@ -6,7 +6,7 @@ A static site of browser-based tools for tabletop gaming, live at **tabletophack
 
 ## The tools
 
-- **[Random Generators](tools/generator/)** — roll up NPCs, encounters, settlements, dungeons, quests, loot, travel days, and traps. Optional seed input makes every result reproducible; save favorites to a local library and export them as JSON.
+- **[Random Generators](tools/generator/)** — roll up NPCs, encounters, settlements, dungeons, quests, loot, travel days, and traps. Every result has a link that reproduces it exactly; save favorites to a local library and export them as JSON.
 - **[Template Workshop](tools/workshop/)** — write your own generator packs as JSON with live validation and preview. Custom packs show up in the Generator automatically and can build on (or override) the built-in word tables.
 - **[Dice Roller](tools/dice/)** — any dice notation (`3d6`, `1d20+5`, `4d6kh3`), with advantage, disadvantage, and a running history.
 - **[Initiative Tracker](tools/initiative/)** — turn order, rounds, and conditions whose durations tick down on their own.

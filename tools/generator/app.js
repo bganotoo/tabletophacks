@@ -203,10 +203,10 @@ function select(name, { updateHash = true, seed = null, count = null } = {}) {
   showOnly('gen-view');
   state.selected = gen.name;
   if (updateHash) history.replaceState(null, '', `#${gen.name}`);
-  // Arriving from a shared link: pin its seed and count so the run reproduces it.
-  if (seed) $('seed-input').value = seed;
-  if (count) $('count-input').value = count;
+  // Arriving from a shared link: use its count, and its seed for this one run.
+  // Otherwise each generator starts at its own remembered count (default 1).
   const settings = store.get('settings', {});
+  $('count-input').value = count ?? settings.counts?.[gen.name] ?? 1;
   store.set('settings', { ...settings, lastGenerator: gen.name });
   $('gen-title').textContent = gen.title;
   const pack = BUILTIN_PACKS.find((p) => p.title === gen.packTitle);
@@ -217,7 +217,7 @@ function select(name, { updateHash = true, seed = null, count = null } = {}) {
         ? `from your pack ${packLabel(gen)}`
         : pack?.description ?? '';
   renderSidebar();
-  generate();
+  generate(seed);
   renderViewTemplate();
 }
 
@@ -419,9 +419,10 @@ function randomSeed() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-function generate(seedOverride) {
+/** Run the selected generator. Only a shared link passes a `seed`; otherwise it's fresh. */
+function generate(seed) {
   if (!state.selected || !state.generator) return;
-  const seed = seedOverride ?? ($('seed-input').value.trim() || randomSeed());
+  seed ??= randomSeed();
   const count = clampCount($('count-input').value);
   $('count-input').value = count; // reflect the clamp back into the field
   const panel = $('result-panel');
@@ -443,7 +444,6 @@ function generate(seedOverride) {
     $('copy-link-btn').disabled = false;
     $('copy-link-btn').title = 'Copy a link that reproduces this exact result';
     $('save-btn').disabled = false;
-    showSeed(seed);
     // Keep the address bar a link that reproduces exactly what's shown.
     history.replaceState(null, '', `#${formatGeneratorHash(state.selected, seed, count)}`);
   } catch (err) {
@@ -455,7 +455,6 @@ function generate(seedOverride) {
     $('copy-md-btn').disabled = true;
     $('copy-link-btn').disabled = true;
     $('save-btn').disabled = true;
-    $('seed-used').textContent = '';
   }
 }
 
@@ -516,25 +515,6 @@ function shareUrl() {
   const url = new URL(location.href);
   url.hash = formatGeneratorHash(state.resultGenerator, state.lastSeed, state.count);
   return url.toString();
-}
-
-function showSeed(seed, holderId = 'seed-used', inputId = 'seed-input') {
-  const holder = $(holderId);
-  clearNode(holder);
-  holder.append(
-    'seed: ',
-    el(
-      'button',
-      {
-        title: 'Click to pin this seed in the seed field',
-        onclick: () => {
-          $(inputId).value = seed;
-          toast('Seed pinned — the next run will reproduce this result');
-        },
-      },
-      seed,
-    ),
-  );
 }
 
 // ── View template ─────────────────────────────────────────────────────────
@@ -687,7 +667,6 @@ function renderLibrary() {
           $('copy-md-btn').disabled = false;
           $('copy-link-btn').disabled = !entry.seed; // shareable only if we know the seed
           $('save-btn').disabled = true; // already saved
-          showSeed(entry.seed);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         },
       },
@@ -762,20 +741,17 @@ function saveToLibrary() {
 
 // ── Create page ─────────────────────────────────────────────────────────────
 
-function runTemplate(seedOverride) {
+function runTemplate() {
   const template = $('tpl-input').value;
   const panel = $('tpl-output');
   clearNode(panel);
-  $('tpl-seed-used').textContent = '';
   if (!template.trim()) {
     panel.append(el('p', { class: 'placeholder' }, 'Write a template above, then Run.'));
     return;
   }
-  const seed = seedOverride ?? ($('tpl-seed').value.trim() || randomSeed());
   try {
-    const text = state.generator.text(template, { seed, mode: 'strict' });
+    const text = state.generator.text(template, { seed: randomSeed(), mode: 'strict' });
     panel.append(el('p', { class: 'gen-text' }, text));
-    showSeed(seed, 'tpl-seed-used', 'tpl-seed');
   } catch (err) {
     panel.append(el('div', { class: 'error-card' }, String(err.message ?? err)));
   }
@@ -884,16 +860,23 @@ async function main() {
   }
 
   $('generate-btn').addEventListener('click', () => generate());
-  $('reroll-btn').addEventListener('click', () => generate(randomSeed()));
   $('result-panel').addEventListener('click', (e) => {
     const btn = e.target.closest('.reroll-part');
     if (btn) handlePartReroll(btn);
   });
-  $('seed-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') generate();
-  });
   $('count-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') generate();
+  });
+  // Remember the count per generator, only when the user changes it — a shared
+  // link's count is used once, not saved as a preference.
+  $('count-input').addEventListener('change', () => {
+    if (!state.selected) return;
+    const n = clampCount($('count-input').value);
+    const settings = store.get('settings', {});
+    const counts = { ...settings.counts };
+    if (n === 1) delete counts[state.selected];
+    else counts[state.selected] = n;
+    store.set('settings', { ...settings, counts });
   });
   $('copy-btn').addEventListener('click', async () => {
     if (state.results.length === 0) return;
@@ -927,10 +910,6 @@ async function main() {
   $('vt-reset-btn').addEventListener('click', vtReset);
   $('vt-saveas-btn').addEventListener('click', vtSaveAs);
   $('tpl-run-btn').addEventListener('click', () => runTemplate());
-  $('tpl-reroll-btn').addEventListener('click', () => runTemplate(randomSeed()));
-  $('tpl-seed').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') runTemplate();
-  });
   $('tpl-input').addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runTemplate();
   });
@@ -982,9 +961,8 @@ async function main() {
         (parsed.count ?? 1) !== state.count
       ) {
         // Same generator, a freshly pasted seed and/or count: reproduce it.
-        if (parsed.seed) $('seed-input').value = parsed.seed;
         $('count-input').value = parsed.count ?? 1;
-        generate();
+        generate(parsed.seed);
       }
     }
   });

@@ -67,14 +67,10 @@
           </div>
           <div class="run-bar">
             <button class="btn btn-primary" id="generate-btn">Generate</button>
-            <button class="btn" id="reroll-btn" title="Generate again with a fresh random seed">Reroll</button>
             <label class="count-field" title="How many to generate at once">
               ×<input class="count-input" id="count-input" type="number"
                       min="1" max="12" value="1" aria-label="How many to generate" />
             </label>
-            <input class="seed-input" id="seed-input" type="text"
-                   placeholder="seed (optional)" aria-label="Seed" />
-            <span class="gen-seed" id="seed-used"></span>
           </div>
           <div class="result-panel" id="result-panel">
             <p class="placeholder">Pick a generator and hit Generate.</p>
@@ -132,10 +128,6 @@
                     aria-label="Template"></textarea>
           <div class="run-bar">
             <button class="btn btn-primary" id="tpl-run-btn">Run</button>
-            <button class="btn" id="tpl-reroll-btn" title="Run again with a fresh random seed">Reroll</button>
-            <input class="seed-input" id="tpl-seed" type="text"
-                   placeholder="seed (optional)" aria-label="Seed" />
-            <span class="gen-seed" id="tpl-seed-used"></span>
           </div>
           <div class="result-panel" id="tpl-output">
             <p class="placeholder">Run the template to test it.</p>

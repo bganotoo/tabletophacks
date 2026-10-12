@@ -32,7 +32,7 @@ const KNOWN = [
     name: 'settings',
     tool: 'Generator',
     href: '/tools/generator/',
-    label: 'Last generator used',
+    label: 'Last generator used and how many of each to generate',
   },
   {
     name: 'encounter',

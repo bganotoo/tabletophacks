@@ -296,7 +296,7 @@ select { background: var(--card); }
 .count-field {
   display: inline-flex;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.6rem; /* matches .run-bar, so × sits midway between button and input */
   color: var(--text-muted);
   font-size: 0.9rem;
 }
@@ -310,15 +310,6 @@ select { background: var(--card); }
 .gen-seed {
   color: var(--text-muted);
   font-size: 0.8rem;
-}
-
-.gen-seed button {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
 }
 
 /* ── Results ────────────────────────────────── */
@@ -1263,7 +1254,6 @@ input[type='checkbox']:focus-visible,
   .tool-header .home-link { padding: 0.5rem 0; }
   .site-footer a { padding: 0.6rem 0.25rem; }
   .reroll-part { min-width: 32px; min-height: 32px; }
-  .gen-seed button { min-height: 36px; padding: 0 0.25rem; }
   .ref-reroll { min-width: 40px; min-height: 40px; }
 }
 
