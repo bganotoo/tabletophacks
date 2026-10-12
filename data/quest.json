@@ -166,7 +166,7 @@
     "a riderless horse trots up wearing the colours of {faction}",
     "the inn's cellar has a door in it that the innkeeper swears was never there",
     "a hollow tree by the road is stuffed with letters, all of them about {place-name}",
-    "a cart overturned in a ditch, and under it, {a} {noun#concrete#!animal} that nobody should own",
+    "a cart overturned in a ditch, and under it, {a} {adjective#magic} {noun#concrete#!animal} that nobody should own",
     "a hanged man at the crossroads has a key in his mouth and a note in his boot",
     "a burned-out camp in {wilds} with the party's own descriptions pinned to a tree",
     "{a} {noun#portable} found in {a} {creature}'s stomach, still engraved with its owner's name: {person-name}",
