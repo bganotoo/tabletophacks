@@ -338,9 +338,12 @@ const CONSONANT_SOUND = /^(?:uni|use|usu|ure|uri|eu|ewe|one\b|one-|once)/i;
 /** A silent h, which sounds like a vowel ("an hour", "an heir"). */
 const VOWEL_SOUND_H = /^(?:hour|honest|hono(?:u)?r|heir)/i;
 
+/** Numerals read with a vowel sound: eight…, eleven, eighteen (and 11,000, 18,000). */
+const VOWEL_SOUND_NUMBER = /^(?:8|1[18](?:,?\d{3})*(?![\d,]))/;
+
 /** "an" when `word` starts with a vowel sound, else "a". */
 function articleFor(word) {
-  if (VOWEL_SOUND_H.test(word)) return 'an';
+  if (VOWEL_SOUND_H.test(word) || VOWEL_SOUND_NUMBER.test(word)) return 'an';
   return /^[aeiou]/i.test(word) && !CONSONANT_SOUND.test(word) ? 'an' : 'a';
 }
 

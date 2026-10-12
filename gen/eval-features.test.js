@@ -74,6 +74,9 @@ test('smart article follows the sound, not the letter, for common exceptions', (
   for (const word of ['one-eyed', 'once-proud', 'Unicorn', 'useful', 'usurer', 'ewer', 'eulogy', 'uniform', 'house']) {
     assert.equal(article(word), 'a', word);
   }
+  // numerals are read aloud: "an eight", "an eleven", "an eighteen", "an 80"
+  for (const word of ['8-foot', '11-day', '18', '80', '800', '11,000']) assert.equal(article(word), 'an', word);
+  for (const word of ['1', '10-foot', '12', '111', '180-foot', '28']) assert.equal(article(word), 'a', word);
 });
 
 test('article with nothing after it defaults to "a"', () => {

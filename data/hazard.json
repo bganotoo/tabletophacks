@@ -21,7 +21,7 @@
     { "text": "a word spoken anywhere in the room, in any language", "weight": 0.5 }
   ],
   "trap-effect": [
-    { "text": "a section of floor drops into a {10-40}-foot pit, its sides greased", "tags": ["fall"], "weight": 2 },
+    { "text": "a section of floor drops into {a} {10-40}-foot pit, its sides greased", "tags": ["fall"], "weight": 2 },
     { "text": "a fan of darts from slots in the wall, their tips tacky with something", "tags": ["poison"], "weight": 1.5 },
     { "text": "a heavy grate slams down, splitting the party in two", "tags": ["separate"] },
     { "text": "the room's exits seal and water begins to pour in from the ceiling", "tags": ["drown"] },
