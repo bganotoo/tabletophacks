@@ -95,12 +95,11 @@ wrong expensively.
 - [x] **Privacy policy page.** Ads require one; so does a Gumroad/Lemon
   Squeezy checkout. Say plainly what is true: data lives in the visitor's
   browser, the site stores nothing server-side. *(2026-10-10 — `/privacy/`,
-  linked from every page's footer; see [the design spec](docs/superpowers/specs/2026-10-10-site-pages-design.md). It names the two outside
-  parties that exist today — the web host's logs and Google Fonts — and
-  promises to change before analytics, ads, a list, or a store do.
+  linked from every page's footer; see [the design spec](docs/superpowers/specs/2026-10-10-site-pages-design.md). It names the one outside
+  party that exists today — the web host's logs (Google Fonts was dropped
+  for the system font stack on 2026-10-12) — and promises to change before analytics, ads, a list, or a store do.
   **Needs your read:** it is plain-language and accurate, but it is a legal
-  page written without a lawyer, and it has no contact address yet. Self-
-  hosting the font would shorten it by a bullet.)*
+  page written without a lawyer, and it has no contact address yet.)*
 - [ ] **Terms of use page**, including a refund policy for pack sales.
 - [ ] **Cookie/consent banner** — only if ads serve to EU/UK visitors. Skip it
   entirely if ads are geo-limited or the ad network is cookieless.

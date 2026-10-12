@@ -1,7 +1,5 @@
 /* Shared styling for the tool pages. Extends the site theme in ../style.css. */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700&display=swap');
-
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -23,7 +21,7 @@
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--background);
   color: var(--text-primary);
   line-height: 1.6;
@@ -207,7 +205,7 @@ code, textarea, .gen-seed, .seed-input {
 /* ── Storage meter ──────────────────────────── */
 .storage-meter { font-size: 0.75rem; }
 
-.storage-label { color: var(--text-muted); margin-bottom: 0.35rem; }
+.storage-label { color: var(--text-muted); margin-bottom: 0.35rem; font-variant-numeric: tabular-nums; }
 
 .storage-bar {
   height: 6px;
@@ -281,6 +279,8 @@ textarea:focus, select:focus {
 }
 
 select { background: var(--card); }
+
+input[type='number'] { font-variant-numeric: tabular-nums; }
 
 /* ── Run controls ───────────────────────────── */
 .run-bar {
@@ -531,7 +531,7 @@ select { background: var(--card); }
 
 .catalog-name:hover { border-color: var(--accent); }
 
-.catalog-meta { color: var(--text-muted); font-size: 0.78rem; margin-left: auto; }
+.catalog-meta { color: var(--text-muted); font-size: 0.78rem; margin-left: auto; font-variant-numeric: tabular-nums; }
 
 .catalog-tags {
   display: flex;
@@ -573,6 +573,7 @@ select { background: var(--card); }
   font-size: 2.75rem;
   font-weight: 700;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
   color: var(--accent-light);
 }
 
@@ -621,7 +622,7 @@ select { background: var(--card); }
 
 .die.dropped { color: var(--text-muted); text-decoration: line-through; opacity: 0.6; }
 
-.dice-term-subtotal { color: var(--text-muted); font-size: 0.82rem; }
+.dice-term-subtotal { color: var(--text-muted); font-size: 0.82rem; font-variant-numeric: tabular-nums; }
 
 .dice-history-actions { margin-bottom: 0.75rem; }
 
@@ -652,7 +653,7 @@ select { background: var(--card); }
 
 .library-item .lib-name:hover { color: var(--accent-light); }
 
-.library-item .lib-meta { color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; }
+.library-item .lib-meta { color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* ── Workshop editor ────────────────────────── */
 .editor-head {
@@ -760,7 +761,7 @@ select { background: var(--card); }
 }
 
 .init-round-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.init-round-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); min-width: 1.5ch; }
+.init-round-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); min-width: 1.5ch; font-variant-numeric: tabular-nums; }
 
 .init-turn-controls { display: flex; gap: 0.4rem; }
 
@@ -803,6 +804,7 @@ select { background: var(--card); }
   border-radius: 6px;
   padding: 0.1rem 0.35rem;
   font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .init-cname { font-weight: 600; margin-right: auto; }
@@ -819,6 +821,7 @@ select { background: var(--card); }
   padding: 0.1rem 0.5rem;
   font-size: 0.75rem;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .init-chip-x {
@@ -870,7 +873,7 @@ select { background: var(--card); }
   gap: 0.35rem;
 }
 .timer-round-label { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.timer-round-num { color: var(--accent); font-weight: 700; }
+.timer-round-num { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
 
 .timer-active-name {
   font-size: 1.1rem;
@@ -1079,7 +1082,7 @@ select { background: var(--card); }
 .data-table a:hover { text-decoration: underline; }
 
 .data-detail { color: var(--text-muted); }
-.data-size { text-align: right !important; white-space: nowrap; }
+.data-size { text-align: right !important; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 .page-panel .placeholder { color: var(--text-muted); margin-bottom: 1rem; }
 
