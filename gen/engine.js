@@ -334,7 +334,7 @@ function evalRepeat(node, ctx) {
 }
 
 /** Vowel letters that sound like a consonant ("a unicorn", "a one-eyed"). */
-const CONSONANT_SOUND = /^(?:uni|use|usu|ure|uri|eu|ewe|one\b|one-|once)/i;
+const CONSONANT_SOUND = /^(?:uni(?:corn|form|fy|on|que|son|t|vers)|use|usu|eu|ewe|one\b|once)/i;
 /** A silent h, which sounds like a vowel ("an hour", "an heir"). */
 const VOWEL_SOUND_H = /^(?:hour|honest|hono(?:u)?r|heir)/i;
 

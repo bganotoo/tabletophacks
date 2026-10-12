@@ -69,7 +69,7 @@ test('every lookup can resolve every entry it could pick', () => {
 // article rules mirror the engine's: a/an by sound, not by letter.
 const SLIPS = [
   [/\ban (?!hour|honest|heir|honou|[FHLMNRSX]\b)[b-df-hj-np-tv-z]\w*/i, 'an before a consonant'],
-  [/\ba (?!use|usu|uni|ure|uri|one\b|one-|once|eu|ewe)[aeiou]\w*/i, 'a before a vowel'],
+  [/\ba (?!use|usu|uni(?:corn|form|fy|on|que|son|t|vers)|one\b|once|eu|ewe)[aeiou]\w*/i, 'a before a vowel'],
   [/\ba (?:hour|honest|heir|honou)\w*/i, 'a before a silent h'],
   [/\b(\w+) \1\b/i, 'doubled word'],
   [/(?<![\d,.])1 (?:[a-z-]+ )?[a-z-]+s\b/, 'one with a plural'],

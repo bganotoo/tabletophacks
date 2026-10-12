@@ -68,10 +68,10 @@ test('smart article: an before vowels, a before consonants', () => {
 
 test('smart article follows the sound, not the letter, for common exceptions', () => {
   const article = (word) => evaluateText('{a} {w}', ctxFor({ w: [word] })).split(' ')[0];
-  for (const word of ['hourglass', 'Hour', 'honest', 'honourable', 'heir', 'heirloom', 'unseen', 'urn']) {
+  for (const word of ['hourglass', 'Hour', 'honest', 'honourable', 'heir', 'heirloom', 'unseen', 'urn', 'unimpressed', 'uninvited']) {
     assert.equal(article(word), 'an', word);
   }
-  for (const word of ['one-eyed', 'once-proud', 'Unicorn', 'useful', 'usurer', 'ewer', 'eulogy', 'uniform', 'house']) {
+  for (const word of ['one-eyed', 'once-proud', 'Unicorn', 'useful', 'usurer', 'ewer', 'eulogy', 'uniform', 'unique', 'united', 'house']) {
     assert.equal(article(word), 'a', word);
   }
   // numerals are read aloud: "an eight", "an eleven", "an eighteen", "an 80"
