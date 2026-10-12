@@ -116,10 +116,10 @@
     "letter-writer"
   ],
   "npc-appearance": [
-    { "text": "{npc-look}", "weight": 3 },
-    { "text": "{npc-look#!dress}, {npc-garb}", "weight": 2 }
+    { "text": "{npc-appearance-look}", "weight": 3 },
+    { "text": "{npc-appearance-look#!dress}, {npc-appearance-garb}", "weight": 2 }
   ],
-  "npc-look": [
+  "npc-appearance-look": [
     "a face like a dropped pie",
     "one eye clouded milky white",
     "hands stained with ink that never quite washes out",
@@ -201,7 +201,7 @@
     { "text": "a pilgrim's badge from the shrine of {saint} pinned to the collar", "tags": ["dress"] },
     { "text": "{a} {noun#portable#!treasure} on a cord around the neck, which they touch when lying", "tags": ["dress"] }
   ],
-  "npc-garb": [
+  "npc-appearance-garb": [
     "in {a} {color} coat two sizes too big",
     "in mourning black",
     "in clothes patched with {color} squares",
