@@ -199,7 +199,7 @@
     { "text": "a wig that does not fit and fools nobody", "tags": ["dress"] },
     "hands scarred by {fish-hooks|thorns|burns|teeth}",
     { "text": "a pilgrim's badge from the shrine of {saint} pinned to the collar", "tags": ["dress"] },
-    { "text": "a {noun#portable#!treasure} on a cord around the neck, which they touch when lying", "tags": ["dress"] }
+    { "text": "{a} {noun#portable#!treasure} on a cord around the neck, which they touch when lying", "tags": ["dress"] }
   ],
   "npc-garb": [
     "in {a} {color} coat two sizes too big",
@@ -738,7 +738,7 @@
     "keeps the teeth of every {noun#animal} they have ever killed",
     "counts their coins before and after every conversation",
     "can't resist a wager, even a losing one",
-    "is very proud of a {color} hat that everyone else hates",
+    "is very proud of {a} {color} hat that everyone else hates",
     "quotes the laws of {place-name} from memory, at length",
     "plays a quiet game of chance against themselves",
     "insists the weather is always better in {place-name}",
