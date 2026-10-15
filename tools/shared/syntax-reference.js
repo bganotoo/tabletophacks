@@ -29,6 +29,14 @@ export const SYNTAX_REFERENCE_TABLES = {
   ],
   metal: ['iron', 'bronze', 'silver', 'gold'],
   mood: ['restless', 'watchful', 'weary'],
+  hero: [
+    { text: 'Mara', tags: ['f'], gender: 'f' },
+    { text: 'Tomas', tags: ['m'], gender: 'm' },
+  ],
+  pronoun: [
+    { text: 'she/her', tags: ['f'], they: 'she', their: 'her' },
+    { text: 'he/him', tags: ['m'], they: 'he', their: 'his' },
+  ],
 };
 
 /**
@@ -84,6 +92,38 @@ export const SYNTAX_REFERENCE = [
       {
         template: '{color@c} banners and {@c.upper} shields',
         note: 'A captured value can still take transforms when reused.',
+      },
+    ],
+  },
+  {
+    id: 'silent',
+    title: 'Silent lookups',
+    summary:
+      'Put ? before a table name to pick and capture an entry without printing it. Read the entry later with @name — its text, or any property it carries.',
+    examples: [
+      {
+        template: '{?pronoun@p}{hero@h} lost {@p.their} way.',
+        note: 'The pronoun set is drawn but prints nothing; @p.their reads one of its properties.',
+      },
+      {
+        template: '{?beast@b}Guarding the gate: the {@b}.',
+        note: 'Capture first, print where you want it.',
+      },
+    ],
+  },
+  {
+    id: 'dynamic-tags',
+    title: 'Matching tags',
+    summary:
+      'A tag filter can take its tag from a capture, #@name.property, so a later lookup matches an earlier pick. #$name reads a variable the caller supplied; when it is not set, the filter is skipped.',
+    examples: [
+      {
+        template: '{hero@h} lost {?pronoun#@h.gender@p}{@p.their} way.',
+        note: "Mara gets she/her and Tomas he/him: the pronoun table is filtered by the hero's gender.",
+      },
+      {
+        template: '{color#$tone}',
+        note: 'With no tone variable set this draws from every colour; a caller can set it to warm or cool.',
       },
     ],
   },

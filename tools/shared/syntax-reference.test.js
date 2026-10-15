@@ -9,6 +9,8 @@ const REQUIRED_SECTIONS = [
   'tags',
   'transforms',
   'capture',
+  'silent',
+  'dynamic-tags',
   'dice',
   'range',
   'alternatives',

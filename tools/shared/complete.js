@@ -13,8 +13,9 @@ const NAME = '[A-Za-z_][A-Za-z0-9_-]*';
 const COUNT = String.raw`(?:\d+\s*d\s*\d+(?:\s*[+-]\s*\d+)?|\d+\s*-\s*\d+|\d+)\s*x\s+`;
 
 // `(?<!\{)` keeps `{{`, the escaped literal brace, out.
-const TABLE_RE = new RegExp(String.raw`(?<!\{)\{\s*(?:${COUNT})?(${NAME})$`);
-const TAG_RE = new RegExp(String.raw`(?<!\{)\{\s*(?:${COUNT})?(${NAME})((?:#!?[A-Za-z0-9_-]+)*)#!?([A-Za-z0-9_-]*)$`);
+// `\??` is the optional silent-lookup sigil: `{?pronouns`.
+const TABLE_RE = new RegExp(String.raw`(?<!\{)\{\s*\??\s*(?:${COUNT})?(${NAME})$`);
+const TAG_RE = new RegExp(String.raw`(?<!\{)\{\s*\??\s*(?:${COUNT})?(${NAME})((?:#!?[A-Za-z0-9_-]+)*)#!?([A-Za-z0-9_-]*)$`);
 
 /**
  * @param {string} text

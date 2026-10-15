@@ -18,6 +18,11 @@ test('a partial table name right after the brace', () => {
   assert.deepEqual(at('{ adj'), { kind: 'table', start: 2, prefix: 'adj' });
 });
 
+test('a table name after the silent-lookup ? sigil', () => {
+  assert.deepEqual(at('{?pro'), { kind: 'table', start: 2, prefix: 'pro' });
+  assert.deepEqual(at('{?pronouns#f'), { kind: 'tag', table: 'pronouns', start: 11, prefix: 'f', used: [] });
+});
+
 test('a table name after a repetition count', () => {
   assert.deepEqual(at('{2x lo'), { kind: 'table', start: 4, prefix: 'lo' });
   assert.deepEqual(at('{1d4 x tr'), { kind: 'table', start: 7, prefix: 'tr' });

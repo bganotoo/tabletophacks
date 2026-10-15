@@ -77,7 +77,7 @@ The heart of the project is **`gen/`**, a small seedable random-generation frame
   }
   ```
 
-Template strings support table lookups (`{loot}`), tag filters (`{noun#animal}`, `{noun#!cursed}`), transforms (`{name.capitalize}`), dice and ranges (`{3d6}`, `{2-12}`), inline alternatives (`{red|blue|azure*3}`), repetition (`{3x npc-quirk}`), captures for reuse (`{first-name@n}` … `{@n}`), and a smart article (`{a}` → "a"/"an"). All syntax is defined in [gen/parser.js](gen/parser.js).
+Template strings support table lookups (`{loot}`), tag filters (`{noun#animal}`, `{noun#!cursed}`), transforms (`{name.capitalize}`), dice and ranges (`{3d6}`, `{2-12}`), inline alternatives (`{red|blue|azure*3}`), repetition (`{3x npc-quirk}`), captures for reuse (`{first-name@n}` … `{@n}`), silent lookups that capture without printing (`{?pronoun@p}`), tag filters taken from a capture or a run variable (`{pronoun#@n.gender}`, `{name#$gender}`), and a smart article (`{a}` → "a"/"an"). All syntax is defined in [gen/parser.js](gen/parser.js).
 
 The same seed always produces the same result, so any generated NPC or dungeon can be shared and re-rolled exactly.
 

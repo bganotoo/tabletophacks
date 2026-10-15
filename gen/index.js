@@ -14,8 +14,10 @@ export { registerTransform } from './transforms.js';
 export { GenError };
 
 /**
+ * `vars` seeds run variables read by `#$name` filters (e.g. `{ gender: 'f' }`);
+ * an unset variable adds no constraint. Pass the same vars to rerollPath.
  * @typedef {{ seed?: number|string, mode?: 'strict'|'lenient',
- *             warnings?: string[] }} RunOptions
+ *             warnings?: string[], vars?: Record<string, string> }} RunOptions
  */
 
 export class Generator {
@@ -97,8 +99,8 @@ export class Generator {
     return evaluateText(template, this.#context(opts));
   }
 
-  #context({ seed, mode = 'strict', warnings = [] } = {}) {
-    return createContext({ registry: this.registry, rng: new RNG(seed), mode, warnings });
+  #context({ seed, mode = 'strict', warnings = [], vars } = {}) {
+    return createContext({ registry: this.registry, rng: new RNG(seed), mode, warnings, vars });
   }
 }
 

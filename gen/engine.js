@@ -157,8 +157,28 @@ function parse(str) {
  * @param {{ registry: Registry, rng: import('./rng.js').RNG,
  *           mode?: 'strict'|'lenient', warnings?: string[] }} opts
  */
-export function createContext({ registry, rng, mode = 'strict', warnings = [] }) {
-  return { registry, rng, mode, warnings, captures: new Map(), stack: [] };
+export function createContext({ registry, rng, mode = 'strict', warnings = [], vars = {} }) {
+  return { registry, rng, mode, warnings, captures: new Map(), vars: normalizeVars(vars), stack: [] };
+}
+
+/**
+ * Caller-supplied run variables, read by `#$name` filters. Values are tag
+ * strings; an unset variable means "no preference".
+ * @param {unknown} vars @returns {Map<string, string>}
+ */
+function normalizeVars(vars) {
+  if (!vars || typeof vars !== 'object' || Array.isArray(vars)) {
+    throw new GenError('vars must be an object of name: string');
+  }
+  const map = new Map();
+  for (const [name, value] of Object.entries(vars)) {
+    if (!NAME_RE.test(name)) throw new GenError(`invalid variable name \`${name}\``);
+    if (typeof value !== 'string' || value === '') {
+      throw new GenError(`variable \`${name}\` must be a non-empty string`);
+    }
+    map.set(name, value);
+  }
+  return map;
 }
 
 /**
@@ -219,8 +239,38 @@ function evalNode(node, ctx) {
   }
 }
 
+/**
+ * A lookup's effective tag filter: its static tags plus any dynamic ones
+ * (`#@n.field`, `#$var`) resolved now. An unset `$var` adds no constraint;
+ * a missing capture or field is an error.
+ * @returns {{ tags: string[], notTags: string[] } | { error: string }}
+ */
+function resolveFilter(node, ctx) {
+  if (!node.dynTags) return { tags: node.tags, notTags: node.notTags };
+  const tags = [...node.tags];
+  const notTags = [...node.notTags];
+  for (const dyn of node.dynTags) {
+    let value;
+    if (dyn.variable !== undefined) {
+      value = ctx.vars.get(dyn.variable);
+      if (value === undefined) continue;
+    } else {
+      const captured = ctx.captures.get(dyn.capture);
+      if (!captured) return { error: `unknown capture \`@${dyn.capture}\`` };
+      value = captured.entry?.variants[dyn.field];
+      if (value === undefined) {
+        return { error: `capture \`@${dyn.capture}\` has no \`${dyn.field}\` property` };
+      }
+    }
+    (dyn.negated ? notTags : tags).push(value);
+  }
+  return { tags, notTags };
+}
+
 function evalLookup(node, ctx) {
-  const entries = ctx.registry.entriesFor(node.table, node.tags, node.notTags);
+  const filter = resolveFilter(node, ctx);
+  if (filter.error) return problem(ctx, filter.error, `⟦${node.table}?⟧`);
+  const entries = ctx.registry.entriesFor(node.table, filter.tags, filter.notTags);
   if (entries === null) {
     const hint = suggest(node.table, ctx.registry.tableNames());
     return problem(
@@ -230,16 +280,16 @@ function evalLookup(node, ctx) {
     );
   }
   if (entries.length === 0) {
-    const filter = [
-      ...node.tags.map((t) => `#${t}`),
-      ...node.notTags.map((t) => `#!${t}`),
+    const shown = [
+      ...filter.tags.map((t) => `#${t}`),
+      ...filter.notTags.map((t) => `#!${t}`),
     ].join('');
-    return problem(ctx, `no entries in \`${node.table}\` match ${filter}`, `⟦${node.table}?⟧`);
+    return problem(ctx, `no entries in \`${node.table}\` match ${shown}`, `⟦${node.table}?⟧`);
   }
   const entry = ctx.rng.weighted(entries, (e) => e.weight);
   const part = expandEntry(entry, node, ctx);
   if (node.capture) ctx.captures.set(node.capture, { entry, text: part.text });
-  return part;
+  return node.silent ? { text: '' } : part;
 }
 
 /**
@@ -312,7 +362,9 @@ function evalRepeat(node, ctx) {
   const inner = node.inner;
   const texts = [];
   if (node.unique) {
-    const all = ctx.registry.entriesFor(inner.table, inner.tags, inner.notTags);
+    const filter = resolveFilter(inner, ctx);
+    if (filter.error) return problem(ctx, filter.error, `⟦${inner.table}?⟧`);
+    const all = ctx.registry.entriesFor(inner.table, filter.tags, filter.notTags);
     if (all === null) {
       return problem(ctx, `unknown table \`${inner.table}\``, `⟦${inner.table}?⟧`);
     }

@@ -64,6 +64,7 @@ function parseExpansion(src, base) {
     if (inner.type !== 'lookup') {
       throw new ParseError('repetition target must be a table lookup', offset);
     }
+    if (inner.silent) throw new ParseError('`?` cannot be repeated', offset);
     let unique = false;
     let join = ', ';
     inner.mods = inner.mods.filter((mod) => {
@@ -125,8 +126,19 @@ function parseNameExpansion(src, base) {
     readSigils(cur, node, { allowTags: false, allowCapture: false });
     return node;
   }
+  // `{?table@x}` — a silent lookup: picks and captures, renders nothing.
+  let silent = false;
+  if (cur.peek() === '?') {
+    silent = true;
+    cur.i += 1;
+    cur.skipWs();
+    if (cur.peek() === '@') {
+      throw new ParseError('`?` applies to table lookups, not `@` references', cur.pos());
+    }
+  }
   const table = cur.readName('table');
   const node = { type: 'lookup', table, tags: [], notTags: [], capture: null, mods: [] };
+  if (silent) node.silent = true;
   readSigils(cur, node, { allowTags: true, allowCapture: true });
   return node;
 }
@@ -173,7 +185,8 @@ export function parseCount(str, pos = 0) {
 
 /**
  * Read trailing sigils onto `node`: `.mod`, `.mod("arg")`, `#tag`, `#!tag`,
- * `@capture` — any order, whitespace anywhere.
+ * dynamic tags `#@n.field` / `#$var` (also negatable), `@capture` — any
+ * order, whitespace anywhere.
  */
 function readSigils(cur, node, { allowTags, allowCapture }) {
   cur.skipWs();
@@ -190,9 +203,26 @@ function readSigils(cur, node, { allowTags, allowCapture }) {
       cur.i += 1;
       cur.skipWs();
       let negated = false;
-      if (cur.peek() === '!') { negated = true; cur.i += 1; }
-      const tag = cur.readName('tag');
-      (negated ? node.notTags : node.tags).push(tag);
+      if (cur.peek() === '!') { negated = true; cur.i += 1; cur.skipWs(); }
+      if (cur.peek() === '@') {
+        // `#@n.field` — tag taken from capture n's `field` variant.
+        cur.i += 1;
+        const capture = cur.readName('capture');
+        if (cur.peek() !== '.') {
+          throw new ParseError(`expected '.field' after '#@${capture}'`, cur.pos());
+        }
+        cur.i += 1;
+        const field = cur.readName('field');
+        (node.dynTags ??= []).push({ negated, capture, field });
+      } else if (cur.peek() === '$') {
+        // `#$var` — tag taken from a run variable.
+        cur.i += 1;
+        const variable = cur.readName('variable');
+        (node.dynTags ??= []).push({ negated, variable });
+      } else {
+        const tag = cur.readName('tag');
+        (negated ? node.notTags : node.tags).push(tag);
+      }
     } else if (ch === '@' && allowCapture) {
       cur.i += 1;
       node.capture = cur.readName('capture');
