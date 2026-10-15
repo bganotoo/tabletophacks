@@ -615,28 +615,32 @@
     "a single footstep, then nothing"
   ],
   "first-name": [
-    "Berrin", "Maeve", "Oswin", "Tilda", "Corwen", "Ysolde",
-    "Fenwick", "Adra", "Lorcan", "Petra", "Haldor", "Nyssa",
-    "Alric", "Bryda", "Cael", "Dain", "Edda", "Garrick",
-    "Hesper", "Ingra", "Joran", "Kefira", "Ludo", "Mirra",
-    "Neval", "Orsa", "Perrin", "Quill", "Rhoswen", "Selby",
-    "Torvald", "Una", "Vesna", "Wren", "Yorrin", "Zada",
-    "Alys", "Bram", "Cordan", "Gretta",
-    "Aldous", "Brannoc", "Cerys", "Doran", "Elspeth", "Faron",
-    "Ghislaine", "Hollis", "Isolde", "Jarek", "Kestrel", "Lisbet",
-    "Merrick", "Nadia", "Osric", "Pell", "Rowan", "Sable",
-    "Tamsin", "Ulric", "Verity", "Wystan", "Yarrow", "Zephyr",
-    "Anwen", "Brock", "Ciaran", "Dagmar", "Ewan", "Freya",
-    "Gwynn", "Halden", "Ilse", "Joss", "Kyra", "Leof",
-    "Morwen", "Nyle", "Ottoline", "Piety", "Rennick", "Sorcha",
-    "Thane", "Ursel", "Vidar", "Wilda", "Yestin", "Zorah",
-    "Ansel", "Brisa", "Caedmon", "Delphine", "Eirian", "Fendrel",
-    "Gale", "Hedda", "Ivo", "Juniper", "Kael", "Linnea",
-    "Maddox", "Neriah", "Odell", "Prue", "Roderic", "Signe",
-    "Tobias", "Ottilie", "Vance", "Winnow", "Aldith", "Bevin",
-    "Cregan", "Deryn", "Emrys", "Fenna", "Godric", "Hazel",
-    "Iban", "Jessamine", "Kolman", "Lark", "Mabon", "Nessa",
-    "Orrin", "Peregrine", "Ravenna", "Sten", "Thistle", "Verena"
+    { "text": "{first-name-f}", "tags": ["f"], "weight": 55 },
+    { "text": "{first-name-m}", "tags": ["m"], "weight": 54 },
+    { "text": "{first-name-any}", "weight": 21 }
+  ],
+  "first-name-f": [
+    "Maeve", "Tilda", "Ysolde", "Adra", "Petra", "Nyssa", "Bryda", "Edda",
+    "Hesper", "Ingra", "Kefira", "Mirra", "Orsa", "Rhoswen", "Una", "Vesna",
+    "Zada", "Alys", "Gretta", "Cerys", "Elspeth", "Ghislaine", "Isolde", "Lisbet",
+    "Nadia", "Tamsin", "Verity", "Anwen", "Dagmar", "Freya", "Ilse", "Kyra",
+    "Morwen", "Ottoline", "Piety", "Sorcha", "Ursel", "Wilda", "Zorah", "Brisa",
+    "Delphine", "Hedda", "Juniper", "Linnea", "Neriah", "Prue", "Signe", "Ottilie",
+    "Aldith", "Fenna", "Hazel", "Jessamine", "Nessa", "Ravenna", "Verena"
+  ],
+  "first-name-m": [
+    "Berrin", "Oswin", "Corwen", "Fenwick", "Lorcan", "Haldor", "Alric", "Cael",
+    "Dain", "Garrick", "Joran", "Ludo", "Perrin", "Torvald", "Yorrin", "Bram",
+    "Cordan", "Aldous", "Brannoc", "Doran", "Faron", "Jarek", "Merrick", "Osric",
+    "Ulric", "Wystan", "Brock", "Ciaran", "Ewan", "Halden", "Leof", "Nyle",
+    "Rennick", "Thane", "Vidar", "Yestin", "Ansel", "Caedmon", "Fendrel", "Ivo",
+    "Kael", "Maddox", "Odell", "Roderic", "Tobias", "Vance", "Cregan", "Emrys",
+    "Godric", "Iban", "Kolman", "Mabon", "Orrin", "Sten"
+  ],
+  "first-name-any": [
+    "Neval", "Quill", "Selby", "Wren", "Hollis", "Kestrel", "Pell", "Rowan",
+    "Sable", "Yarrow", "Zephyr", "Gwynn", "Joss", "Eirian", "Gale", "Winnow",
+    "Bevin", "Deryn", "Lark", "Peregrine", "Thistle"
   ],
   "surname": [
     "Ashdown", "Blackwood", "Thistlewood", "Fenwick", "Marlow", "Hensley",
@@ -653,10 +657,19 @@
     "Ambrose", "Blightley", "Culpepper", "Draye", "Emberly", "Fellhollow"
   ],
   "honorific": [
-    "Old", "Young", "Goodwife", "Goodman", "Master", "Mistress", "Sister",
-    "Brother", "Father", "Mother", "Sergeant", "Captain", "Widow", "Deacon",
-    "Warden", "Squire", "Dame", "Sir", "Aunt", "Uncle", "Granny", "Doc",
-    "Elder", "Reeve", "Bailiff", "Cousin"
+    { "text": "{honorific-f}", "tags": ["f"], "weight": 8 },
+    { "text": "{honorific-m}", "tags": ["m"], "weight": 7 },
+    { "text": "{honorific-any}", "weight": 11 }
+  ],
+  "honorific-f": [
+    "Goodwife", "Mistress", "Sister", "Mother", "Widow", "Dame", "Aunt", "Granny"
+  ],
+  "honorific-m": [
+    "Goodman", "Master", "Brother", "Father", "Squire", "Sir", "Uncle"
+  ],
+  "honorific-any": [
+    "Old", "Young", "Sergeant", "Captain", "Deacon", "Warden", "Doc", "Elder",
+    "Reeve", "Bailiff", "Cousin"
   ],
   "person-name": [
     { "text": "{first-name} {surname}", "weight": 4 },
@@ -666,6 +679,15 @@
     { "text": "{first-name}", "weight": 1 },
     { "text": "{first-name} {surname} {epithet}", "weight": 1 },
     { "text": "{first-name} of {name-start}{name-end}", "weight": 1 }
+  ],
+  "subject-name": [
+    { "text": "{first-name#!@p.avoid} {surname}", "weight": 4 },
+    { "text": "{first-name#!@p.avoid} {epithet}", "weight": 3 },
+    { "text": "{honorific#!@p.avoid} {surname}", "weight": 2 },
+    { "text": "{honorific#!@p.avoid} {first-name#!@p.avoid}", "weight": 2 },
+    { "text": "{first-name#!@p.avoid}", "weight": 1 },
+    { "text": "{first-name#!@p.avoid} {surname} {epithet}", "weight": 1 },
+    { "text": "{first-name#!@p.avoid} of {name-start}{name-end}", "weight": 1 }
   ],
   "epithet": [
     "the Bold", "the Grey", "the Unlucky", "of the Marsh",
@@ -779,32 +801,32 @@
     "sleet, then snow, then sleet again"
   ],
   "kin": [
-    { "text": "daughter", "tags": ["child"], "weight": 2 },
-    { "text": "son", "tags": ["child"], "weight": 2 },
+    { "text": "daughter", "tags": ["child", "f"], "weight": 2 },
+    { "text": "son", "tags": ["child", "m"], "weight": 2 },
     { "text": "youngest", "tags": ["child"] },
     { "text": "ward", "tags": ["child"] },
-    { "text": "granddaughter", "tags": ["child"] },
-    { "text": "grandson", "tags": ["child"] },
-    { "text": "niece", "tags": ["child"] },
-    { "text": "nephew", "tags": ["child"] },
+    { "text": "granddaughter", "tags": ["child", "f"] },
+    { "text": "grandson", "tags": ["child", "m"] },
+    { "text": "niece", "tags": ["child", "f"] },
+    { "text": "nephew", "tags": ["child", "m"] },
     { "text": "foundling", "tags": ["child"] },
     { "text": "eldest", "tags": ["adult"] },
-    { "text": "wife", "tags": ["adult", "spouse"] },
-    { "text": "husband", "tags": ["adult", "spouse"] },
+    { "text": "wife", "tags": ["adult", "spouse", "f"] },
+    { "text": "husband", "tags": ["adult", "spouse", "m"] },
     { "text": "betrothed", "tags": ["adult", "spouse"] },
-    { "text": "brother", "tags": ["adult", "sibling"] },
-    { "text": "sister", "tags": ["adult", "sibling"] },
+    { "text": "brother", "tags": ["adult", "sibling", "m"] },
+    { "text": "sister", "tags": ["adult", "sibling", "f"] },
     { "text": "twin", "tags": ["adult", "sibling"] },
     { "text": "cousin", "tags": ["adult"] },
     { "text": "apprentice", "tags": ["adult"] },
     { "text": "heir", "tags": ["adult"] },
     { "text": "sweetheart", "tags": ["adult", "spouse"] },
-    { "text": "mother", "tags": ["elder"] },
-    { "text": "father", "tags": ["elder"] },
-    { "text": "grandmother", "tags": ["elder"] },
-    { "text": "grandfather", "tags": ["elder"] },
-    { "text": "aunt", "tags": ["elder"] },
-    { "text": "uncle", "tags": ["elder"] }
+    { "text": "mother", "tags": ["elder", "f"] },
+    { "text": "father", "tags": ["elder", "m"] },
+    { "text": "grandmother", "tags": ["elder", "f"] },
+    { "text": "grandfather", "tags": ["elder", "m"] },
+    { "text": "aunt", "tags": ["elder", "f"] },
+    { "text": "uncle", "tags": ["elder", "m"] }
   ],
   "authority": [
     { "text": "reeve", "tags": ["civic"], "weight": 2 },
@@ -817,17 +839,17 @@
     { "text": "sheriff", "tags": ["law"] },
     { "text": "bailiff", "tags": ["law"] },
     { "text": "coroner", "tags": ["law"] },
-    { "text": "abbess", "tags": ["church"] },
-    { "text": "abbot", "tags": ["church"] },
-    { "text": "prioress", "tags": ["church"] },
+    { "text": "abbess", "tags": ["church", "f"] },
+    { "text": "abbot", "tags": ["church", "m"] },
+    { "text": "prioress", "tags": ["church", "f"] },
     { "text": "high priest", "tags": ["church"] },
     { "text": "parson", "tags": ["church"] },
     { "text": "steward", "tags": ["noble"] },
     { "text": "castellan", "tags": ["noble"] },
-    { "text": "baron", "tags": ["noble"] },
-    { "text": "baroness", "tags": ["noble"] },
-    { "text": "margrave", "tags": ["noble"] },
-    { "text": "dowager countess", "tags": ["noble"] },
+    { "text": "baron", "tags": ["noble", "m"] },
+    { "text": "baroness", "tags": ["noble", "f"] },
+    { "text": "margrave", "tags": ["noble", "m"] },
+    { "text": "dowager countess", "tags": ["noble", "f"] },
     { "text": "guildmaster", "tags": ["guild"] },
     { "text": "master of the mint", "tags": ["guild"] }
   ],
@@ -1065,5 +1087,21 @@
     { "text": "{place-name}", "weight": 2 },
     "{a} {dungeon-type} somewhere under {wilds-name}",
     "the {noun#building} of {faction}, abandoned these {ten|twenty|fifty|hundred} years"
-  ]
+  ],
+  "pronoun": [
+    { "text": "she/her", "tags": ["she"], "weight": 45, "avoid": "m", "they": "she", "them": "her", "their": "her", "theirs": "hers", "themselves": "herself", "are": "is", "were": "was", "have": "has", "do": "does", "s": "s", "es": "es" },
+    { "text": "he/him", "tags": ["he"], "weight": 45, "avoid": "f", "they": "he", "them": "him", "their": "his", "theirs": "his", "themselves": "himself", "are": "is", "were": "was", "have": "has", "do": "does", "s": "s", "es": "es" },
+    { "text": "they/them", "tags": ["they"], "weight": 10, "avoid": "none", "they": "they", "them": "them", "their": "their", "theirs": "theirs", "themselves": "themselves", "are": "are", "were": "were", "have": "have", "do": "do", "s": "", "es": "" }
+  ],
+  "they": ["{pronoun#they@?p.they}"],
+  "them": ["{pronoun#they@?p.them}"],
+  "their": ["{pronoun#they@?p.their}"],
+  "theirs": ["{pronoun#they@?p.theirs}"],
+  "themselves": ["{pronoun#they@?p.themselves}"],
+  "are": ["{pronoun#they@?p.are}"],
+  "were": ["{pronoun#they@?p.were}"],
+  "have": ["{pronoun#they@?p.have}"],
+  "do": ["{pronoun#they@?p.do}"],
+  "s": ["{pronoun#they@?p.s}"],
+  "es": ["{pronoun#they@?p.es}"]
 }

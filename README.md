@@ -77,7 +77,23 @@ The heart of the project is **`gen/`**, a small seedable random-generation frame
   }
   ```
 
-Template strings support table lookups (`{loot}`), tag filters (`{noun#animal}`, `{noun#!cursed}`), transforms (`{name.capitalize}`), dice and ranges (`{3d6}`, `{2-12}`), inline alternatives (`{red|blue|azure*3}`), repetition (`{3x npc-quirk}`), captures for reuse (`{first-name@n}` … `{@n}`), silent lookups that capture without printing (`{?pronoun@p}`), tag filters taken from a capture or a run variable (`{pronoun#@n.gender}`, `{name#$gender}`), and a smart article (`{a}` → "a"/"an"). All syntax is defined in [gen/parser.js](gen/parser.js).
+Template strings support table lookups (`{loot}`), tag filters (`{noun#animal}`, `{noun#!cursed}`), transforms (`{name.capitalize}`), dice and ranges (`{3d6}`, `{2-12}`), inline alternatives (`{red|blue|azure*3}`), repetition (`{3x npc-quirk}`), captures for reuse (`{first-name@n}` … `{@n}`, or `{pronoun@?p}` to capture only if unset), silent lookups that capture without printing (`{?pronoun@p}`), tag filters taken from a capture or a run variable (`{first-name#!@p.avoid}`, `{pronoun#$pronouns}`, skipped when unset), and a smart article (`{a}` → "a"/"an"). All syntax is defined in [gen/parser.js](gen/parser.js).
+
+JSON templates also take `$maybe`, `$or`, `$repeat`, and `$with`: a value evaluated before the other keys for its captures, then left out of the result.
+
+### People and pronouns
+
+A template about one person binds who they are once, and everything else follows. The `npc` template starts with `"$with": "{pronoun#$pronouns@p}"`: that draws a pronoun set (she/her, he/him, or they/them, from `pronoun` in `common.json`) into `@p`, or takes the one a caller passes as `vars: { pronouns: 'she' }`. Its name comes from `subject-name`, which only picks first names and honorifics that fit `@p`.
+
+Lines about that person are written for they/them, with each pronoun and agreeing verb in braces:
+
+```json
+"a wooden leg {they} never explain{s}",
+"a stammer that vanishes when {they} {are} angry",
+"refers to {themselves} in the third person"
+```
+
+The helpers are `{they}`, `{them}`, `{their}`, `{theirs}`, `{themselves}`, `{are}`, `{were}`, `{have}`, `{do}`, and the verb endings `{s}` and `{es}`. With no person in scope, as when `npc-quirk` runs on its own, they fall back to they/them. A plain "they" stays right for groups and for people the line doesn't name. `data/pronoun.test.js` runs every set and fails on "she are" or a name that doesn't match.
 
 The same seed always produces the same result, so any generated NPC or dungeon can be shared and re-rolled exactly.
 

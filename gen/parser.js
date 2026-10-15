@@ -65,6 +65,7 @@ function parseExpansion(src, base) {
       throw new ParseError('repetition target must be a table lookup', offset);
     }
     if (inner.silent) throw new ParseError('`?` cannot be repeated', offset);
+    if (inner.keep) throw new ParseError('`@?` cannot be repeated', offset);
     let unique = false;
     let join = ', ';
     inner.mods = inner.mods.filter((mod) => {
@@ -185,8 +186,8 @@ export function parseCount(str, pos = 0) {
 
 /**
  * Read trailing sigils onto `node`: `.mod`, `.mod("arg")`, `#tag`, `#!tag`,
- * dynamic tags `#@n.field` / `#$var` (also negatable), `@capture` — any
- * order, whitespace anywhere.
+ * dynamic tags `#@n.field` / `#$var` (also negatable), `@capture` or
+ * `@?capture` (only if unset) — any order, whitespace anywhere.
  */
 function readSigils(cur, node, { allowTags, allowCapture }) {
   cur.skipWs();
@@ -225,6 +226,11 @@ function readSigils(cur, node, { allowTags, allowCapture }) {
       }
     } else if (ch === '@' && allowCapture) {
       cur.i += 1;
+      // `@?x` — capture only if unset; otherwise reuse the existing @x.
+      if (cur.peek() === '?') {
+        cur.i += 1;
+        node.keep = true;
+      }
       node.capture = cur.readName('capture');
     } else {
       throw new ParseError(`unexpected '${ch}'`, cur.pos());

@@ -241,8 +241,9 @@ function evalNode(node, ctx) {
 
 /**
  * A lookup's effective tag filter: its static tags plus any dynamic ones
- * (`#@n.field`, `#$var`) resolved now. An unset `$var` adds no constraint;
- * a missing capture or field is an error.
+ * (`#@n.field`, `#$var`) resolved now. An unset `$var` or capture adds no
+ * constraint, so a shared table can filter on a person who may not exist in
+ * every run; a set capture missing the field is an error.
  * @returns {{ tags: string[], notTags: string[] } | { error: string }}
  */
 function resolveFilter(node, ctx) {
@@ -256,7 +257,7 @@ function resolveFilter(node, ctx) {
       if (value === undefined) continue;
     } else {
       const captured = ctx.captures.get(dyn.capture);
-      if (!captured) return { error: `unknown capture \`@${dyn.capture}\`` };
+      if (!captured) continue;
       value = captured.entry?.variants[dyn.field];
       if (value === undefined) {
         return { error: `capture \`@${dyn.capture}\` has no \`${dyn.field}\` property` };
@@ -268,6 +269,13 @@ function resolveFilter(node, ctx) {
 }
 
 function evalLookup(node, ctx) {
+  if (node.keep) {
+    const captured = ctx.captures.get(node.capture);
+    if (captured) {
+      const part = renderCaptured(captured, node.mods, `@${node.capture}`, ctx);
+      return node.silent ? { text: '' } : part;
+    }
+  }
   const filter = resolveFilter(node, ctx);
   if (filter.error) return problem(ctx, filter.error, `⟦${node.table}?⟧`);
   const entries = ctx.registry.entriesFor(node.table, filter.tags, filter.notTags);
@@ -338,23 +346,27 @@ export function evalCount(countNode, ctx) {
 function evalRef(node, ctx) {
   const captured = ctx.captures.get(node.name);
   if (!captured) return problem(ctx, `unknown capture \`@${node.name}\``, `⟦@${node.name}?⟧`);
-  if (node.mods.length === 0) {
+  return renderCaptured(captured, node.mods, `@${node.name}`, ctx);
+}
+
+/** Render a capture, re-applying modifiers against its entry: variants first, then transforms. */
+function renderCaptured(captured, mods, label, ctx) {
+  if (mods.length === 0) {
     return captured.value === undefined
       ? { text: captured.text }
       : { text: captured.text, value: captured.value };
   }
-  // Re-apply modifiers against the captured entry: variants first, then transforms.
   let raw = null;
   let m = 0;
   if (captured.entry) {
-    for (; m < node.mods.length; m++) {
-      const variant = captured.entry.variants[node.mods[m].name];
+    for (; m < mods.length; m++) {
+      const variant = captured.entry.variants[mods[m].name];
       if (variant === undefined) break;
       raw = variant;
     }
   }
-  const text = raw === null ? captured.text : expandString(raw, `@${node.name}`, ctx);
-  return { text: applyTransforms(text, node.mods.slice(m), ctx) };
+  const text = raw === null ? captured.text : expandString(raw, label, ctx);
+  return { text: applyTransforms(text, mods.slice(m), ctx) };
 }
 
 function evalRepeat(node, ctx) {
@@ -462,7 +474,8 @@ export function evaluateJson(value, ctx) {
 export function evaluateJsonTraced(value, ctx) {
   const r = evalJsonValue(value, ctx);
   if (r === OMIT) return { value: null, tree: null };
-  return { value: r.value, tree: r.node };
+  // The run's captures ride on the root so a later reroll still sees them.
+  return { value: r.value, tree: { ...r.node, captures: ctx.captures } };
 }
 
 /** @returns {typeof OMIT | { value: unknown, node: RerollNode }} */
@@ -496,6 +509,14 @@ function evalJsonString(str, ctx) {
 }
 
 function evalJsonObject(obj, ctx) {
+  if ('$with' in obj) {
+    // Evaluated first for its captures (e.g. who a template is about), then
+    // dropped from the output. Not a child, so rerolling a field keeps it.
+    const { $with, ...rest } = obj;
+    evalJsonValue($with, ctx);
+    const r = evalJsonObject(rest, ctx);
+    return r === OMIT ? OMIT : { value: r.value, node: { ...r.node, source: obj } };
+  }
   if ('$repeat' in obj) return evalRepeatDirective(obj, ctx);
   if ('$maybe' in obj) {
     const p = obj.$maybe;
@@ -582,7 +603,9 @@ function evalRepeatDirective(obj, ctx) {
 
 /**
  * Re-evaluate the subtree at `path` with a fresh context (fresh RNG), in place.
- * Does not mutate the tree — the caller splices the returned value/node back in.
+ * The context starts from the run's captures, so a rerolled field still knows
+ * who the template is about; captures it makes replace the old ones on the
+ * root. Nodes are not mutated — the caller splices the returned value/node in.
  * @param {RerollNode} tree root node from evaluateJsonTraced
  * @param {(string|number)[]} path keys/indices from the root
  * @param {object} ctx a fresh context (fresh RNG)
@@ -596,7 +619,9 @@ export function rerollNode(tree, path, ctx) {
     node = child;
   }
   if (path.length === 0) throw new GenError('cannot reroll the root node');
+  if (tree.captures) for (const [name, captured] of tree.captures) ctx.captures.set(name, captured);
   const r = evalJsonValue(node.source, ctx);
+  if (tree.captures) tree.captures = ctx.captures; // only once the reroll succeeded
   if (r === OMIT) {
     // A source that declines (a bare $maybe) keeps the field present as null.
     return { value: null, node: { kind: 'leaf', source: node.source } };

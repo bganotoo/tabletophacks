@@ -93,6 +93,10 @@ export const SYNTAX_REFERENCE = [
         template: '{color@c} banners and {@c.upper} shields',
         note: 'A captured value can still take transforms when reused.',
       },
+      {
+        template: 'The {beast@b} and the {beast@?b}',
+        note: 'Write @?b to capture only if nothing has yet: here it reuses the first beast. Tables use it for a default.',
+      },
     ],
   },
   {
@@ -115,7 +119,7 @@ export const SYNTAX_REFERENCE = [
     id: 'dynamic-tags',
     title: 'Matching tags',
     summary:
-      'A tag filter can take its tag from a capture, #@name.property, so a later lookup matches an earlier pick. #$name reads a variable the caller supplied; when it is not set, the filter is skipped.',
+      'A tag filter can take its tag from a capture, #@name.property, so a later lookup matches an earlier pick. #$name reads a variable the caller supplied. When the capture or variable is not set, the filter is skipped.',
     examples: [
       {
         template: '{hero@h} lost {?pronoun#@h.gender@p}{@p.their} way.',

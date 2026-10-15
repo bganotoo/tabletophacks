@@ -9,9 +9,9 @@ const data = {
     { text: 'Quill', tags: ['n'], gender: 'n' },
   ],
   pronouns: [
-    { text: 'she/her', tags: ['f'], they: 'she', their: 'her', is: 'is' },
-    { text: 'he/him', tags: ['m'], they: 'he', their: 'his', is: 'is' },
-    { text: 'they/them', tags: ['n'], they: 'they', their: 'their', is: 'are' },
+    { text: 'she/her', tags: ['f'], gender: 'f', they: 'she', their: 'her', is: 'is' },
+    { text: 'he/him', tags: ['m'], gender: 'm', they: 'he', their: 'his', is: 'is' },
+    { text: 'they/them', tags: ['n'], gender: 'n', they: 'they', their: 'their', is: 'are' },
   ],
   bare: ['Nobody'],
   tagged: [
@@ -54,8 +54,12 @@ test('negated dynamic capture tag excludes the match', () => {
   }
 });
 
-test('missing capture or missing field is a strict error', () => {
-  assert.throws(() => gen.text('{pronouns#@nope.gender}', { seed: 1 }), /unknown capture `@nope`/);
+test('an unset capture adds no constraint, like an unset variable', () => {
+  const seen = new Set(seeds.map((seed) => gen.text('{pronouns#@nope.gender}', { seed })));
+  assert.deepEqual([...seen].sort(), ['he/him', 'she/her', 'they/them']);
+});
+
+test('a set capture missing the field is a strict error', () => {
   assert.throws(
     () => gen.text('{bare@n}{pronouns#@n.gender}', { seed: 1 }),
     /capture `@n` has no `gender` property/,
@@ -64,9 +68,75 @@ test('missing capture or missing field is a strict error', () => {
 
 test('lenient mode warns on a bad dynamic filter and keeps going', () => {
   const warnings = [];
-  const out = gen.text('{pronouns#@nope.gender}', { seed: 1, mode: 'lenient', warnings });
-  assert.equal(out, '⟦pronouns?⟧');
+  const out = gen.text('{bare@n}{pronouns#@n.gender}', { seed: 1, mode: 'lenient', warnings });
+  assert.equal(out, 'Nobody⟦pronouns?⟧');
   assert.equal(warnings.length, 1);
+});
+
+test('@?x picks and captures when x is unset', () => {
+  for (const seed of seeds) {
+    assert.equal(gen.text('{pronouns#n@?p.they} / {@p}', { seed }), 'they / they');
+  }
+});
+
+test('@?x reuses an existing x instead of drawing, applying its own mods', () => {
+  for (const seed of seeds) {
+    const out = gen.text('{?pronouns#f@p}{pronouns#n@?p.their} {pronouns#n@?p.they.capitalize}', { seed });
+    assert.equal(out, 'her She');
+  }
+});
+
+test('? and @? combine: silent either way', () => {
+  assert.equal(gen.text('[{?pronouns#n@?p}][{?pronouns#f@?p}]{@p.they}', { seed: 1 }), '[][]they');
+});
+
+test('$with binds captures before the fields and is left out of the result', () => {
+  const g = Generator.fromData(data, {
+    person: {
+      $with: '{?pronouns#$who@p}',
+      name: '{given#@p.gender}',
+      line: '{@p.they.capitalize} {@p.is} here.',
+    },
+  });
+  assert.deepEqual(g.run('person', { seed: 1, vars: { who: 'f' } }), { name: 'Mara', line: 'She is here.' });
+  assert.deepEqual(g.run('person', { seed: 1, vars: { who: 'n' } }), { name: 'Quill', line: 'They are here.' });
+});
+
+test('$with inside $repeat binds afresh for each element', () => {
+  const g = Generator.fromData(data, {
+    crowd: { people: { $repeat: 30, of: { $with: '{?pronouns@p}', name: '{given#@p.gender}', they: '{@p.they}' } } },
+  });
+  const { people } = g.run('crowd', { seed: 3 });
+  const byName = { Mara: 'she', Tomas: 'he', Quill: 'they' };
+  for (const p of people) assert.equal(p.they, byName[p.name]);
+  assert.ok(new Set(people.map((p) => p.name)).size > 1);
+});
+
+test('a reroll sees the run\'s captures, so a rerolled field keeps the same person', () => {
+  const g = Generator.fromData(data, {
+    person: {
+      $with: '{?pronouns@p}',
+      name: '{given#@p.gender}',
+      line: '{@p.they} {tagged}',
+    },
+  });
+  const byName = { Mara: 'she', Tomas: 'he', Quill: 'they' };
+  for (const seed of seeds) {
+    const { value, tree } = g.runTraced('person', { seed });
+    for (let k = 0; k < 5; k++) {
+      const line = g.rerollPath(tree, ['line'], { seed: `${seed}-${k}` }).value;
+      assert.equal(line.split(' ')[0], byName[value.name]);
+      const name = g.rerollPath(tree, ['name'], { seed: `${seed}-n${k}` }).value;
+      assert.equal(byName[name], byName[value.name], 'a rerolled name keeps the pronouns');
+    }
+  }
+});
+
+test('captures made during a reroll replace the old ones for later rerolls', () => {
+  const g = Generator.fromData(data, { card: { a: '{given@n}', b: '{@n}' } });
+  const { tree } = g.runTraced('card', { seed: 1 });
+  const a = g.rerollPath(tree, ['a'], { seed: 'x' }).value;
+  assert.equal(g.rerollPath(tree, ['b'], { seed: 'y' }).value, a);
 });
 
 test('#$var filters by a caller-supplied variable', () => {

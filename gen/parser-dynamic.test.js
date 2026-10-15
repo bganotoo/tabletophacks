@@ -46,6 +46,18 @@ test('{?table} parses as a silent lookup keeping its sigils', () => {
   assert.equal(n.capture, 'p');
 });
 
+test('@?x parses as a keep-if-set capture', () => {
+  const n = one('{pronoun#they@?p.their}');
+  assert.equal(n.capture, 'p');
+  assert.equal(n.keep, true);
+  assert.deepEqual(n.mods, [{ name: 'their' }]);
+  assert.equal('keep' in one('{noun@x}'), false);
+});
+
+test('@? is rejected on repetition', () => {
+  assert.throws(() => parseTemplate('{2x noun@?x}'), ParseError);
+});
+
 test('? is rejected on @ references and on repetition', () => {
   assert.throws(() => parseTemplate('{?@n}'), ParseError);
   assert.throws(() => parseTemplate('{2x ?noun}'), ParseError);
